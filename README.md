@@ -1,2 +1,2 @@
 **Totey Kingdom**
-A small game to learn React.
+A small game.
