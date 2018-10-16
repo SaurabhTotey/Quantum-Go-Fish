@@ -8,3 +8,10 @@ let password = undefined;
     id = parseInt(response.id);
     password = response.password;
 })();
+
+/**
+ * When the window is left, the user's id is deleted
+ */
+window.onbeforeunload = async () => {
+    fetch(`${window.location.href}api/id?id=${id}&password=${encodeURIComponent(password)}`, { method: "DELETE" });
+}
