@@ -1,6 +1,6 @@
 require("dotenv").load();
 const express = require("express");
-const identityManager = require("./identityManager");
+const IdentityManager = require("./IdentityManager");
 
 //Sets the port of the app
 const app = express();
@@ -13,5 +13,6 @@ app.use(express.static('client'));
  * Makes and replies with a new id
  */
 app.post('/api/id', (req, res) => {
-    res.send(`${identityManager.makeId()}`);
+    let newId = IdentityManager.makeId();
+    res.send(`{"id":${newId},"password":${JSON.stringify(IdentityManager.ids[newId].password)}}`);
 });
