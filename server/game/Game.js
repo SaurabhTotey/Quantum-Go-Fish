@@ -20,7 +20,7 @@ class Game {
         do {
             i++;
         } while (i in games);
-        this.password = gamePassword? gamePassword : IdentityManager.generatePassword();
+        this.password = gamePassword;
         games[i] = this;
         this.id = i;
         this.players = [];
@@ -55,6 +55,9 @@ class Game {
         }
         this.players.splice(this.players.indexOf(id), 1);
         userIds[id].currentGame = null;
+        if (this.players.length === 0) {
+            delete games[this.id];
+        }
     }
 
 }
