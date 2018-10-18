@@ -4,15 +4,23 @@ const allLetters = "`1234567890-=~!@#$%^&*()_+qwertyuiop[]\\WERTYUIOP{}|asdfghjk
 let ids = {};
 
 /**
+ * A function that makes a random password with 60 random characters
+ */
+function generatePassword() {
+    let password = "";
+    for (let i = 0; i < 60; i++) {
+        password += allLetters.charAt(Math.floor(Math.random() * allLetters.length));
+    }
+    return password;
+}
+
+/**
  * A class that represents the data that is associated with an id
  */
 class Identity {
     constructor(id) {
         this.id = id;
-        this.password = "";
-        for (let i = 0; i < 60; i++) {
-            this.password += allLetters.charAt(Math.floor(Math.random() * allLetters.length));
-        }
+        this.password = generatePassword();
         this.currentGame = null;
     }
 }
@@ -31,5 +39,6 @@ function makeId() {
 
 module.exports = {
     ids: ids,
-    makeId: makeId
+    makeId: makeId,
+    generatePassword: generatePassword
 };
