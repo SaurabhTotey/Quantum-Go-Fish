@@ -18,6 +18,16 @@ class QGFGame {
 	}
 
 	/**
+	 * Gets the ID of the player whose turn it is right now
+	 */
+	currentPlayer() {
+		if (this.previousQuestioner == null) {
+			return this.playerIds[0];
+		}
+		return this.playerIds[(this.playerIds.indexOf(this.previousQuestioner) + 1) % this.playerIds.length];
+	}
+
+	/**
 	 * Gets the ID of the game's winner if any
 	 * If there is no game winner yet, returns null
 	 */
