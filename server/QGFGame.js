@@ -58,6 +58,42 @@ class QGFGame {
 	 */
 	answerQuestion(containsType) {
 
+		if (containsType) {
+
+			/*
+			 * Invalid response: player answered they had the type, but they don't
+			 * Either they answered before that they didn't, or 4 of that type already exist with other players
+			 */
+			if (this.playerNegatives[this.targetId].includes(this.targetType)) {
+				return false;
+			}
+
+			/*
+			 * Gets the index of the first object of that type that the responder has
+			 * If they don't have that object explicitly, but rather through having an unknown, gets the first index of an unknown instead
+			 * If the player doesn't have the object explicitly and also doesn't have any unknowns, they have ended the game
+			 */
+			let indexOfType = this.playerObjects[this.targetId].indexOf(this.targetType);
+			if (indexOfType < 0) {
+				indexOfType = this.playerObjects[this.targetId].indexOf(null);
+				if (indexOfType < 0) {
+					return false;
+				}
+			}
+
+			/*
+			 * Gives the object from the responder to the questioner
+			 */
+			this.playerObjects[this.targetId].splice(indexOfType, 1);
+			this.playerObjects[this.previousQuestioner].push(this.targetType);
+
+			//TODO: check whether 4 of a type exist and add it to the negations of the players who don't have it
+
+			return true;
+		}
+
+		//TODO: account for !containsType response
+
 	}
 
 	/**
