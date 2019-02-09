@@ -11,10 +11,53 @@ class QGFGame {
 	constructor(playerIds) {
 		this.playerIds = playerIds;
 		this.playerObjects = {};
+		this.playerNegatives = {};
+		this.types = [];
 		for (let i = 0; i < playerIds.length; i++) {
 			this.playerObjects[playerIds[i]] = [null, null, null, null];
+			this.playerNegatives[playerIds[i]] = [];
+			this.types.push(null);
 		}
 		this.previousQuestioner = null;
+		this.targetId = null;
+		this.targetType = null;
+	}
+
+	/**
+	 * Poses a question from this.currentPlayer() to targetId whether they have an item of type
+	 * Will set this.targetId so that the object knows from whom to get a response
+	 * Will also set this.targetType so that the object knows what type the response is considering
+	 * Returns whether the question is valid or not
+	 * Invalid questions cause a game-wide loss
+	 */
+	poseQuestion(targetId, type) {
+
+		this.targetId = targetId;
+		this.previousQuestioner = this.currentPlayer();
+		this.targetType = type;
+
+		/*
+		 * If this is the first time that type is mentioned, add it to the list of types
+		 * If the list of types already has all the types of the game, this question is invalid and the game is over
+		 */
+		if (!this.types.includes(type)) {
+			let firstReplacableIndex = this.types.indexOf(null);
+			if (firstReplacableIndex < 0) {
+				return false;
+			}
+			this.types[firstReplacableIndex] = type;
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Answers a question posed from this.previousQuestioner from the viewpoint of this.targetId regarding this.targetType
+	 * Returns whether the question answer is valid or not
+	 */
+	answerQuestion(containsType) {
+
 	}
 
 	/**
