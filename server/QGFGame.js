@@ -48,6 +48,18 @@ class QGFGame {
 			this.types[firstReplacableIndex] = type;
 		}
 
+		/*
+		 * If any player has no unknown objects, their unknowns cannot be of any type
+		 * In such a case, their type negations are all types
+		 */
+		for (let i = 0; i < this.playerIds.length; i++) {
+			let playerId = this.playerIds[i];
+			if (this.playerObjects[playerId].includes(null)) {
+				continue;
+			}
+			this.playerNegatives[playerId] = this.types; //TODO: call giveNegation
+		}
+
 		return true;
 
 	}
@@ -92,7 +104,10 @@ class QGFGame {
 			 */
 			if (count == 4) {
 				for (let i = 0; i < this.playerIds.length; i++) {
-					giveNegation(this.playerIds[i], type);
+					let playerId = this.playerIds[i];
+					if (!this.playerNegatives[playerId].includes(type)) {
+						giveNegation(playerId, type);
+					}
 				}
 			}
 
@@ -102,8 +117,12 @@ class QGFGame {
 		 * A method for adding a type to a negation
 		 * Makes sure that if a negation is added, all revealable types are revealed
 		 */
-		let giveNegation = (playerId, typeNegation) => {
+		let giveNegation = (playerId, type) => {
+			
+			this.playerNegatives[playerId].push(type);
+
 			//TODO:
+
 		}
 
 		if (containsType) {
@@ -133,8 +152,13 @@ class QGFGame {
 
 			/*
 			 * Gives the object from the responder to the questioner
+			 * If losing the object has caused the responder to not have any unknown objects, the responder has all type negations
+			 * The responder can no longer have unknowns that are of any type
 			 */
 			this.playerObjects[this.targetId].splice(indexOfType, 1);
+			if (!this.playerObjects[this.targetId].includes(null)) {
+				this.playerNegatives[this.targetId] = this.types; //TODO: call giveNegation for each type
+			}			
 			giveObject(this.previousQuestioner, this.targetType);
 
 			return true;
