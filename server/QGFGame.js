@@ -58,15 +58,55 @@ class QGFGame {
 	 */
 	answerQuestion(containsType) {
 
-		if (containsType) {
+		/*
+		 * A method for giving an object to a player
+		 * Makes sure that if 4 of an object exist, necessary negations are added
+		 */
+		let giveObject = (playerId, type) => {
+			
+			this.playerObjects[playerId].push(type);
 
 			/*
-			 * Invalid response: player answered they had the type, but they don't
-			 * Either they answered before that they didn't, or 4 of that type already exist with other players
+			 * Checks whether 4 objects of type are confirmed to exist
 			 */
-			if (this.playerNegatives[this.targetId].includes(this.targetType)) {
-				return false;
+			let count = 0;
+			for (let i = 0; i < this.playerIds.length; i++) {
+				let playerId = this.playerIds[i];
+				let objects = this.playerObjects[playerId];
+				for (let j = 0; j < objects.length; j++) {
+					if (objects[j] == targetType) {
+						count++;
+					}
+					if (count == 4) {
+						break;
+					}
+				}
+				if (count == 4) {
+					break;
+				}
 			}
+
+			/*
+			 * If 4 of type type are confirmed, then adds type to the negation of all players
+			 * Players cannot turn unknowns into type anymore
+			 */
+			if (count == 4) {
+				for (let i = 0; i < this.playerIds.length; i++) {
+					giveNegation(this.playerIds[i], type);
+				}
+			}
+
+		}
+
+		/*
+		 * A method for adding a type to a negation
+		 * Makes sure that if a negation is added, all revealable types are revealed
+		 */
+		let giveNegation = (playerId, typeNegation) => {
+			//TODO:
+		}
+
+		if (containsType) {
 
 			/*
 			 * Gets the index of the first object of that type that the responder has
@@ -75,19 +115,27 @@ class QGFGame {
 			 */
 			let indexOfType = this.playerObjects[this.targetId].indexOf(this.targetType);
 			if (indexOfType < 0) {
+
+				/*
+				 * Invalid response: player answered they had the type, but they don't
+				 * Either they answered before that they didn't, or 4 of that type already exist with other players
+				 */
+				if (this.playerNegatives[this.targetId].includes(this.targetType)) {
+					return false;
+				}
+
 				indexOfType = this.playerObjects[this.targetId].indexOf(null);
 				if (indexOfType < 0) {
 					return false;
 				}
+
 			}
 
 			/*
 			 * Gives the object from the responder to the questioner
 			 */
 			this.playerObjects[this.targetId].splice(indexOfType, 1);
-			this.playerObjects[this.previousQuestioner].push(this.targetType);
-
-			//TODO: check whether 4 of a type exist and add it to the negations of the players who don't have it
+			giveObject(this.previousQuestioner, this.targetType);
 
 			return true;
 		}
