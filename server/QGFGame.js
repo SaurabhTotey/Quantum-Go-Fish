@@ -57,10 +57,70 @@ class QGFGame {
 			if (this.playerObjects[playerId].includes(null)) {
 				continue;
 			}
-			this.playerNegatives[playerId] = this.types; //TODO: call giveNegation
+			for (let j = 0; j < this.types.length; j++) {
+				let type = this.types[j];
+				if (!this.playerObjects[type].includes(type)) {
+					this.giveNegation(playerId, type);
+				}
+			}
 		}
 
 		return true;
+
+	}
+
+	/*
+	 * A method for giving an object to a player
+	 * Makes sure that if 4 of an object exist, necessary negations are added
+	 */
+	giveObject(playerId, type) {
+
+		this.playerObjects[playerId].push(type);
+
+		/*
+		 * Checks whether 4 objects of type are confirmed to exist
+		 */
+		let count = 0;
+		for (let i = 0; i < this.playerIds.length; i++) {
+			let playerId = this.playerIds[i];
+			let objects = this.playerObjects[playerId];
+			for (let j = 0; j < objects.length; j++) {
+				if (objects[j] == targetType) {
+					count++;
+				}
+				if (count == 4) {
+					break;
+				}
+			}
+			if (count == 4) {
+				break;
+			}
+		}
+
+		/*
+		 * If 4 of type type are confirmed, then adds type to the negation of all players
+		 * Players cannot turn unknowns into type anymore
+		 */
+		if (count == 4) {
+			for (let i = 0; i < this.playerIds.length; i++) {
+				let playerId = this.playerIds[i];
+				if (!this.playerNegatives[playerId].includes(type)) {
+					giveNegation(playerId, type);
+				}
+			}
+		}
+
+	}
+
+	/*
+	 * A method for adding a type to a negation
+	 * Makes sure that if a negation is added, all revealable types are revealed
+	 */
+	giveNegation(playerId, type) {
+
+		this.playerNegatives[playerId].push(type);
+
+		//TODO:
 
 	}
 
@@ -69,61 +129,6 @@ class QGFGame {
 	 * Returns whether the question answer is valid or not
 	 */
 	answerQuestion(containsType) {
-
-		/*
-		 * A method for giving an object to a player
-		 * Makes sure that if 4 of an object exist, necessary negations are added
-		 */
-		let giveObject = (playerId, type) => {
-			
-			this.playerObjects[playerId].push(type);
-
-			/*
-			 * Checks whether 4 objects of type are confirmed to exist
-			 */
-			let count = 0;
-			for (let i = 0; i < this.playerIds.length; i++) {
-				let playerId = this.playerIds[i];
-				let objects = this.playerObjects[playerId];
-				for (let j = 0; j < objects.length; j++) {
-					if (objects[j] == targetType) {
-						count++;
-					}
-					if (count == 4) {
-						break;
-					}
-				}
-				if (count == 4) {
-					break;
-				}
-			}
-
-			/*
-			 * If 4 of type type are confirmed, then adds type to the negation of all players
-			 * Players cannot turn unknowns into type anymore
-			 */
-			if (count == 4) {
-				for (let i = 0; i < this.playerIds.length; i++) {
-					let playerId = this.playerIds[i];
-					if (!this.playerNegatives[playerId].includes(type)) {
-						giveNegation(playerId, type);
-					}
-				}
-			}
-
-		}
-
-		/*
-		 * A method for adding a type to a negation
-		 * Makes sure that if a negation is added, all revealable types are revealed
-		 */
-		let giveNegation = (playerId, type) => {
-			
-			this.playerNegatives[playerId].push(type);
-
-			//TODO:
-
-		}
 
 		if (containsType) {
 
@@ -157,9 +162,14 @@ class QGFGame {
 			 */
 			this.playerObjects[this.targetId].splice(indexOfType, 1);
 			if (!this.playerObjects[this.targetId].includes(null)) {
-				this.playerNegatives[this.targetId] = this.types; //TODO: call giveNegation for each type
-			}			
-			giveObject(this.previousQuestioner, this.targetType);
+				for (let i = 0; i < this.types.length; i++) {
+					let type = this.types[i];
+					if (!this.playerNegatives[this.targetId].includes(type)) {
+						this.giveNegation(this.targetId, type);
+					}
+				}
+			}
+			this.giveObject(this.previousQuestioner, this.targetType);
 
 			return true;
 		}
