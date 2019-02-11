@@ -41,12 +41,14 @@ class QGFGame {
 		 * If the list of types already has all the types of the game, this question is invalid and the game is over
 		 */
 		if (!this.types.includes(type)) {
-			let firstReplacableIndex = this.types.indexOf(null);
-			if (firstReplacableIndex < 0) {
+			if (this.types.length < this.playerIds.length) {
+				this.types.push(type);
+			} else {
 				return false;
 			}
-			this.types[firstReplacableIndex] = type;
 		}
+
+		//TODO: check that currentPlayer is allowed to pose such a question
 
 		/*
 		 * If any player has no unknown objects, their unknowns cannot be of any type
@@ -64,6 +66,8 @@ class QGFGame {
 				}
 			}
 		}
+
+		//TODO: ensure that game is valid (eg. there aren't too much of any type or anything like that)
 
 		return true;
 
@@ -120,7 +124,9 @@ class QGFGame {
 
 		this.playerNegatives[playerId].push(type);
 
-		//TODO:
+		//TODO: if all players except one have this negation, convert the remaining player's unknowns into the remaining amount of type
+
+		//TODO: if this player has all negations except one, convert the rest of their unknowns into the remaining amount of type
 
 	}
 
@@ -175,6 +181,8 @@ class QGFGame {
 		}
 
 		//TODO: account for !containsType response
+
+		//TODO: ensure that game is valid (eg. there aren't too much of any type or anything like that)
 
 	}
 
