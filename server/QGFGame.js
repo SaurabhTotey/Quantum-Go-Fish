@@ -67,10 +67,17 @@ class QGFGame {
 			}
 		}
 
-		//TODO: ensure that game is valid (eg. there aren't too much of any type or anything like that)
+		return this.isValid();
 
+	}
+
+	/**
+	 * Returns whether this game state is valid or not
+	 */
+	isValid() {
+		let counts = {};
+		//TODO:
 		return true;
-
 	}
 
 	/*
@@ -177,12 +184,15 @@ class QGFGame {
 			}
 			this.giveObject(this.previousQuestioner, this.targetType);
 
-			return true;
+			return this.isValid();
+
+		} else {
+
+			//TODO: account for !containsType response
+
+			return this.isValid();
+
 		}
-
-		//TODO: account for !containsType response
-
-		//TODO: ensure that game is valid (eg. there aren't too much of any type or anything like that)
 
 	}
 

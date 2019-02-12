@@ -1,10 +1,24 @@
+
 body {
     padding: 0;
     margin: 0;
+    overflow: hidden;
 }
 
-canvas {
+#screen, #console {
     padding: 0;
     margin: auto;
-    display: block;
+    display: inline-block;
+    height: 100vh;
+}
+
+#screen {
+    float: left;
+    width: 75%;
+}
+
+#console {
+    float: right;
+    width: 25%;
+    background-color: gray;
 }
