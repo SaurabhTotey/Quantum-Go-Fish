@@ -85,7 +85,17 @@ class QGFGame {
 	 */
 	isValid() {
 		let counts = {};
-		//TODO:
+		for (let i = 0; i < this.types.length; i++) {
+			let type = this.types[i];
+			if (type in counts) {
+				counts[type]++;
+			} else {
+				counts[type] = 1;
+			}
+			if (counts[type] > 4) {
+				return false;
+			}
+		}
 		return true;
 	}
 
