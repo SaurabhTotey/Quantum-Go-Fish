@@ -218,7 +218,7 @@ class QGFGame {
 		let numberOfOccurences = (arr, elem) => {
 			let count = 0;
 			for (let i = 0; i < arr.length; i++) {
-				if (arr[i] == elem) {
+				if (arr[i] === elem) {
 					count++;
 				}
 			}
@@ -230,7 +230,7 @@ class QGFGame {
 		 */
 		for (let i = 0; i < this.playerIds.length; i++) {
 			let id = this.playerIds[i];
-			if (this.playerObjects[id].length >= 4 && this.playerObjects[id].some(obj => numberOfOccurences(this.playerObjects[id], obj) == 4)) {
+			if (this.playerObjects[id].length >= 4 && this.playerObjects[id].some(obj => numberOfOccurences(this.playerObjects[id], obj) === 4)) {
 				return id;
 			}
 		}
