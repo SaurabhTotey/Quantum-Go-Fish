@@ -96,14 +96,14 @@ class QGFGame {
 			let playerId = this.playerIds[i];
 			let objects = this.playerObjects[playerId];
 			for (let j = 0; j < objects.length; j++) {
-				if (objects[j] == targetType) {
+				if (objects[j] === type) {
 					count++;
 				}
-				if (count == 4) {
+				if (count === 4) {
 					break;
 				}
 			}
-			if (count == 4) {
+			if (count === 4) {
 				break;
 			}
 		}
@@ -112,7 +112,7 @@ class QGFGame {
 		 * If 4 of type type are confirmed, then adds type to the negation of all players
 		 * Players cannot turn unknowns into type anymore
 		 */
-		if (count == 4) {
+		if (count === 4) {
 			for (let i = 0; i < this.playerIds.length; i++) {
 				let playerId = this.playerIds[i];
 				if (!this.playerNegatives[playerId].includes(type)) {
@@ -223,7 +223,7 @@ class QGFGame {
 				}
 			}
 			return count;
-		}
+		};
 
 		/*
 		 * Check the first victory condition that any player has all 4 of any type

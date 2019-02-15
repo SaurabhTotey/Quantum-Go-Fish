@@ -14,4 +14,4 @@ let password = undefined;
  */
 window.onbeforeunload = async () => {
     fetch(`${window.location.href}api/id?id=${id}&password=${encodeURIComponent(password)}`, { method: "DELETE" });
-}
+};
