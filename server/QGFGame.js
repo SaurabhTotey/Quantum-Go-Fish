@@ -48,7 +48,16 @@ class QGFGame {
 			}
 		}
 
-		//TODO: check that currentPlayer is allowed to pose such a question
+		/*
+		 * If the player doesn't explicitly have that type, they are either wrong (game is lost), or they have revealed an unknown
+		 */
+		if (!this.playerObjects[this.previousQuestioner].includes(type)) {
+			if (this.playerNegatives[this.previousQuestioner].includes(type) || !this.playerObjects[this.previousQuestioner].includes(null)) {
+				return false;
+			}
+			this.playerObjects[this.previousQuestioner].splice(this.playerObjects[this.previousQuestioner].indexOf(null), 1);
+			this.giveObject(this.previousQuestioner, type);
+		}
 
 		/*
 		 * If any player has no unknown objects, their unknowns cannot be of any type
