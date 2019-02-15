@@ -49,10 +49,16 @@ let drawModeButton = new Button("../assets/pencil.png", padding, canvas.height -
 let eraseModeButton = new Button("../assets/eraser.png", 2 * padding + imageSize, canvas.height - padding - imageSize, imageSize, imageSize);
 drawModeButton.isSelected = true;
 
+//Initializes variables used to keep track of the user's drawing on the canvas
+let previousPoint = null;
+canvas.onmousedown = mouseEvent => previousPoint = { x: mouseEvent.x, y: mouseEvent.y };
+canvas.onmouseup = () => previousPoint = null;
+
 /**
  * Checks where the mouse is and whether it is hovering over any button
+ * Draws if the mouse is clicked
  */
-canvas.onmousemove = (mouseEvent) => {
+canvas.onmousemove = mouseEvent => {
     drawModeButton.isHovered = drawModeButton.contains(mouseEvent.x, mouseEvent.y);
     eraseModeButton.isHovered = eraseModeButton.contains(mouseEvent.x, mouseEvent.y);
     if (drawModeButton.isHovered || eraseModeButton.isHovered) {
@@ -60,12 +66,24 @@ canvas.onmousemove = (mouseEvent) => {
     } else {
         canvas.style.cursor = "default";
     }
+    if (previousPoint != null) {
+        if (drawModeButton.isSelected) {
+            renderer.beginPath();
+            renderer.moveTo(previousPoint.x, previousPoint.y);
+            renderer.lineTo(mouseEvent.x, mouseEvent.y);
+            renderer.closePath();
+            renderer.stroke();
+            previousPoint = { x: mouseEvent.x, y: mouseEvent.y };
+        } else if (eraseModeButton.isSelected) {
+            renderer.clearRect(previousPoint.x, previousPoint.y, mouseEvent.x - previousPoint.x, mouseEvent.y - previousPoint.y);
+        }
+    }
 };
 
 /**
  * Checks whether the user clicked on any button
  */
-canvas.onclick = (mouseEvent) => {
+canvas.onclick = mouseEvent => {
     if (drawModeButton.contains(mouseEvent.x, mouseEvent.y)) {
         drawModeButton.isSelected = true;
         eraseModeButton.isSelected = false;
