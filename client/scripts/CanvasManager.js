@@ -93,6 +93,28 @@ canvas.onclick = mouseEvent => {
     }
 };
 
+//Allows touching to have the same functionality of the mouse TODO: this doesn't work
+function convertToPoint(touchEvent) {
+    return new { x: touchEvent.clientX, y: touchEvent.clientY };
+}
+canvas.ontouchstart = touchEvent => {
+    touchEvent.preventDefault();
+    canvas.onmousedown(convertToPoint(touchEvent));
+    canvas.onclick(convertToPoint(touchEvent));
+};
+canvas.ontouchend = touchEvent => {
+    touchEvent.preventDefault();
+    canvas.onmouseup(convertToPoint(touchEvent));
+};
+canvas.ontouchcancel = touchEvent => {
+    touchEvent.preventDefault();
+    canvas.onmouseup(convertToPoint(touchEvent));
+};
+canvas.ontouchmove = touchEvent => {
+    touchEvent.preventDefault();
+    canvas.onmousemove(convertToPoint(touchEvent));
+};
+
 /**
  * Draws canvas buttons on the canvas and prevents drawing over the buttons
  */
