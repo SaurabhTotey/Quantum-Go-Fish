@@ -49,6 +49,8 @@ let drawModeButton = new Button("../assets/pencil.png", padding, canvas.height -
 let eraseModeButton = new Button("../assets/eraser.png", 2 * padding + imageSize, canvas.height - padding - imageSize, imageSize, imageSize);
 drawModeButton.isSelected = true;
 
+//TODO: resize buttons on window resize
+
 //Initializes variables used to keep track of the user's drawing on the canvas
 let previousPoint = null;
 canvas.onmousedown = mouseEvent => previousPoint = { x: mouseEvent.x, y: mouseEvent.y };

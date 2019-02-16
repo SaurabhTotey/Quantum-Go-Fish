@@ -22,3 +22,27 @@ body {
     width: 25%;
     background-color: gray;
 }
+
+#log, #input {
+    padding: 0;
+    margin: auto;
+    display: inline-block;
+}
+
+#log {
+    height: 90%;
+}
+
+#input {
+    text-align: center;
+    height: 5%;
+    width: 100%;
+}
+
+#user-text-input {
+    width: 100%;
+}
+
+#user-submit-button {
+    width: 100%;
+}
