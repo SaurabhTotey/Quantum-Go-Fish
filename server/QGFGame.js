@@ -99,7 +99,7 @@ class QGFGame {
 		return true;
 	}
 
-	/*
+	/**
 	 * A method for giving an object to a player
 	 * Makes sure that if 4 of an object exist, necessary negations are added
 	 */
@@ -135,14 +135,14 @@ class QGFGame {
 			for (let i = 0; i < this.playerIds.length; i++) {
 				let playerId = this.playerIds[i];
 				if (!this.playerNegatives[playerId].includes(type)) {
-					giveNegation(playerId, type);
+					this.giveNegation(playerId, type);
 				}
 			}
 		}
 
 	}
 
-	/*
+	/**
 	 * A method for adding a type to a negation
 	 * Makes sure that if a negation is added, all revealable types are revealed
 	 */
@@ -150,9 +150,55 @@ class QGFGame {
 
 		this.playerNegatives[playerId].push(type);
 
-		//TODO: if all players except one have this negation, convert the remaining player's unknowns into the remaining amount of type
+		/*
+		 * Gets the number of objects that exist of type and also gets which players can still have type
+		 */
+		let idsWithoutNegation = [];
+		let typeCount = 0;
+		for (let i = 0; i < this.playerIds.length; i++) {
+			let playerId = this.playerIds[i];
+			if (!this.playerNegatives[playerId].includes(type)) {
+				idsWithoutNegation.push(playerId);
+			}
+			let objects = this.playerObjects[playerId];
+			for (let j = 0; j < objects.length; j++) {
+				if (objects[j] === type) {
+					typeCount++;
+				}
+			}
+		}
 
-		//TODO: if this player has all negations except one, convert the rest of their unknowns into the remaining amount of type
+		/*
+		 * If more of type can exist, and only one player can have it, convert some of the player's unknowns into the remaining amount of type
+		 */
+		if (idsWithoutNegation.length === 1 && typeCount < 4) {
+			while (typeCount < 4) {
+				let objects = this.playerObjects[idsWithoutNegation[0]];
+				objects.splice(objects.indexOf(null), 1);
+				this.giveObject(idsWithoutNegation[0], type);
+				typeCount++;
+			}
+		}
+
+		/*
+		 * If this player has all negations except one, convert the rest of their unknowns into the remaining amount of type
+		 */
+		if (this.playerNegatives[playerId].length === this.types.length - 1 && this.types.length === this.playerIds.length) {
+			let missingType = null;
+			for (let i = 0; i < this.types.length; i++) {
+				let type = this.types[i];
+				if (!this.playerNegatives[playerId].includes(type)) {
+					missingType = type;
+					break;
+				}
+			}
+			let objects = this.playerObjects[playerId];
+			while (objects.includes(null)) {
+				objects.splice(objects.indexOf(null), 1);
+				this.giveObject(playerId, missingType);
+			}
+
+		}
 
 	}
 
