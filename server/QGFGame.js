@@ -9,6 +9,7 @@ class QGFGame {
 	 * Takes in the player IDs of the players playing the game
 	 */
 	constructor(playerIds) {
+		this.log = [`Starting a game of Quantum Go Fish with ${playerIds}.`];
 		this.playerIds = playerIds;
 		this.playerObjects = {};
 		this.playerNegatives = {};

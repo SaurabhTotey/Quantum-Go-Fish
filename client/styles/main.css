@@ -31,11 +31,11 @@ body {
 
 #log {
     height: 90%;
+    overflow-y: auto;
 }
 
 #input {
     text-align: center;
-    height: 5%;
     width: 100%;
 }
 

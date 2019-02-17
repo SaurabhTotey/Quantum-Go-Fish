@@ -32,3 +32,29 @@ app.delete("/api/id", (req, res) => {
         }
     } catch (ignored) { res.send(false); }
 });
+
+/**
+ * Gets the console for the game of the given player id
+ */
+app.get("/api", (req, res) => {
+    try {
+        let id = parseInt(req.query["id"]);
+        if (req.query["password"] === IdentityManager.ids[id].password) {
+            if (IdentityManager.ids[id].currentGame == null) {
+                res.send(["TODO: these will be matchmaking/general instructions"]);
+            } else {
+                res.send(IdentityManager.ids[id].currentGame.log);
+            }
+        } else {
+            res.send(["ERROR!"]);
+        }
+    } catch (ignored) { res.send(["ERROR!"]); }
+});
+
+/**
+ * Tries to interpret user commands to do whatever chat command was sent
+ * Allows the user to post to the chat when in game
+ */
+app.post("/api", (req, res) => {
+    //TODO:
+});
