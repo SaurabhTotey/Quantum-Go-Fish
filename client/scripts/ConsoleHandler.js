@@ -7,7 +7,7 @@ let input = document.getElementById("user-text-input");
  */
 let updateLog = async () => {
     let response = JSON.parse(await (await fetch(`${window.location.href}api?id=${id}&password=${encodeURIComponent(password)}`, { method: "GET" })).text());
-   log.innerHTML = "";
+    log.innerHTML = "";
     for (let i = 0; i < response.length; i++) {
         //TODO: message formatting
         log.innerHTML += response[i].message;
@@ -16,11 +16,20 @@ let updateLog = async () => {
 };
 
 /**
- * When the submit button is clicked, the user's input is submitted and the input is cleared
+ * When the submit button is clicked or when enter is typed, the user's input is submitted and the input is cleared
  */
-document.getElementById("user-submit-button").onclick = () => {
+let submitMethod = () => {
+    if (input.value === "") {
+        return;
+    }
     fetch(`${window.location.href}api?id=${id}&password=${encodeURIComponent(password)}&message=${encodeURIComponent(input.value)}`, { method: "POST" });
     input.value = "";
+};
+document.getElementById("user-submit-button").onclick = submitMethod;
+input.onkeyup = keyEvent => {
+    if (keyEvent.key === "Enter") {
+        submitMethod();
+    }
 };
 
 /**
