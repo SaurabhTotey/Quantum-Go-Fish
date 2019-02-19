@@ -22,6 +22,7 @@ class Identity {
         this.id = id;
         this.password = generatePassword();
         this.currentGame = null;
+        this.log = [];
     }
 }
 
@@ -39,6 +40,5 @@ function makeId() {
 
 module.exports = {
     ids: ids,
-    makeId: makeId,
-    generatePassword: generatePassword
+    makeId: makeId
 };

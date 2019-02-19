@@ -1,6 +1,7 @@
 require("dotenv").load();
 const express = require("express");
 const IdentityManager = require("./IdentityManager");
+const ConsoleManager = require("./ConsoleManager");
 
 //Sets the port of the app
 const app = express();
@@ -41,15 +42,14 @@ app.get("/api", (req, res) => {
         let id = parseInt(req.query["id"]);
         if (req.query["password"] === IdentityManager.ids[id].password) {
             if (IdentityManager.ids[id].currentGame == null) {
-                res.send(["TODO: these will be matchmaking/general instructions"]);
+                res.send([ConsoleManager.makeInfoMessage("TODO: general game instructions will go here.")]);
             } else {
-                res.send(IdentityManager.ids[id].currentGame.log);
+                res.send(IdentityManager.ids[id].log);
             }
         } else {
-            res.send(["ERROR!"]);
-            console.log(`Expected ${IdentityManager.ids[id].password} but got ${req.query["password"]}`)
+            res.send([ConsoleManager.makeErrorMessage()]);
         }
-    } catch (ignored) { res.send(["ERROR!"]); }
+    } catch (ignored) { res.send([ConsoleManager.makeErrorMessage()]); }
 });
 
 /**

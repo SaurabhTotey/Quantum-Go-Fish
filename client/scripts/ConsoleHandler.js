@@ -7,9 +7,11 @@ let input = document.getElementById("user-text-input");
  */
 let updateLog = async () => {
     let response = JSON.parse(await (await fetch(`${window.location.href}api?id=${id}&password=${encodeURIComponent(password)}`, { method: "GET" })).text());
-    log.innerHTML = "";
+   log.innerHTML = "";
     for (let i = 0; i < response.length; i++) {
-        log.appendChild(document.createTextNode(response[i]))
+        //TODO: message formatting
+        log.innerHTML += response[i].message;
+        log.appendChild(document.createElement("br"));
     }
 };
 
