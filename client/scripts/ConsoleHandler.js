@@ -5,8 +5,12 @@ let input = document.getElementById("user-text-input");
 /**
  * A function that defines how to get server data and set the log messages
  */
-let updateLog = () => {
-    //TODO: 
+let updateLog = async () => {
+    let response = JSON.parse(await (await fetch(`${window.location.href}api?id=${id}&password=${encodeURIComponent(password)}`, { method: "GET" })).text());
+    log.innerHTML = "";
+    for (let i = 0; i < response.length; i++) {
+        log.appendChild(document.createTextNode(response[i]))
+    }
 };
 
 /**

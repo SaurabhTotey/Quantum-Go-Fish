@@ -47,6 +47,7 @@ app.get("/api", (req, res) => {
             }
         } else {
             res.send(["ERROR!"]);
+            console.log(`Expected ${IdentityManager.ids[id].password} but got ${req.query["password"]}`)
         }
     } catch (ignored) { res.send(["ERROR!"]); }
 });
