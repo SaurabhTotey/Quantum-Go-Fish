@@ -15,6 +15,7 @@ app.use(express.static('client'));
  */
 app.post("/api/id", (req, res) => {
     let newId = IdentityManager.makeId();
+    IdentityManager.ids[newId].log = [ConsoleManager.makeInfoMessage("TODO: some general game info will go here!")];
     res.send(`{"id":${newId},"password":${JSON.stringify(IdentityManager.ids[newId].password)}}`);
 });
 
@@ -41,11 +42,7 @@ app.get("/api", (req, res) => {
     try {
         let id = parseInt(req.query["id"]);
         if (req.query["password"] === IdentityManager.ids[id].password) {
-            if (IdentityManager.ids[id].currentGame == null) {
-                res.send([ConsoleManager.makeInfoMessage("TODO: general game instructions will go here.")]);
-            } else {
-                res.send(IdentityManager.ids[id].log);
-            }
+            res.send(IdentityManager.ids[id].log);
         } else {
             res.send([ConsoleManager.makeErrorMessage()]);
         }
@@ -60,8 +57,8 @@ app.post("/api", (req, res) => {
     try {
         let id = parseInt(req.query["id"]);
         if (req.query["password"] === IdentityManager.ids[id].password) {
-            //TODO: try and interpret commands
             ConsoleManager.pushChatMessage(req.query["message"], id, false);
+            //TODO: try and interpret commands
         } else {
             res.send([ConsoleManager.makeErrorMessage()]);
         }
