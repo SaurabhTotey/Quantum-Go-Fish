@@ -19,7 +19,8 @@ let updateLog = async () => {
  * When the submit button is clicked, the user's input is submitted and the input is cleared
  */
 document.getElementById("user-submit-button").onclick = () => {
-    //TODO: submit text from input and clear input
+    fetch(`${window.location.href}api?id=${id}&password=${encodeURIComponent(password)}&message=${encodeURIComponent(input.value)}`, { method: "POST" });
+    input.value = "";
 };
 
 /**

@@ -1,3 +1,4 @@
+
 //The current ID and password of the user
 let id = undefined;
 let password = undefined;

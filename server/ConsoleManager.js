@@ -1,3 +1,4 @@
+let IdentityManager = require("./IdentityManager");
 
 //The sender name that the game will use to send messages
 let defaultSender = "The Universe";
@@ -29,10 +30,26 @@ function makeInfoMessage(infoMessage) {
 }
 
 /**
- * Pushes a log message to all game participants
+ * Pushes a log message to all game participants from the game itself
+ * Is for communicating game information generally
  */
 function logGameMessage(logMessage, game) {
     //TODO: make
+}
+
+/**
+ * Takes a message and a sender and sends the chat message to those who should be able to see it
+ */
+function pushChatMessage(chatMessage, senderId, isCommand) {
+    let senderIdentity = IdentityManager.ids[senderId];
+    let message = new LogMessage(chatMessage, senderIdentity.id, "CHAT" + (isCommand? "-COMMAND" : ""));
+    if (senderIdentity.currentGame != null) {
+        for (let i = 0; i < senderIdentity.currentGame.playerIds.length; i++) {
+            IdentityManager.ids[senderIdentity.currentGame.playerIds[i]].log.push(message);
+        }
+    } else {
+        senderIdentity.log.push(message);
+    }
 }
 
 module.exports = {
@@ -40,5 +57,6 @@ module.exports = {
     LogMessage: LogMessage,
     makeErrorMessage: makeErrorMessage,
     makeInfoMessage: makeInfoMessage,
-    logGameMessage: logGameMessage
+    logGameMessage: logGameMessage,
+    pushChatMessage: pushChatMessage
 };

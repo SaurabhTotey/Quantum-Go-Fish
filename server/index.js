@@ -57,5 +57,13 @@ app.get("/api", (req, res) => {
  * Allows the user to post to the chat when in game
  */
 app.post("/api", (req, res) => {
-    //TODO:
+    try {
+        let id = parseInt(req.query["id"]);
+        if (req.query["password"] === IdentityManager.ids[id].password) {
+            //TODO: try and interpret commands
+            ConsoleManager.pushChatMessage(req.query["message"], id, false);
+        } else {
+            res.send([ConsoleManager.makeErrorMessage()]);
+        }
+    } catch (ignored) { res.send([ConsoleManager.makeErrorMessage()]); }
 });
