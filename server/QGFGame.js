@@ -208,14 +208,14 @@ class QGFGame {
 	 */
 	answerQuestion(containsType) {
 
+		let indexOfType = this.playerObjects[this.targetId].indexOf(this.targetType);
+
 		if (containsType) {
 
 			/*
-			 * Gets the index of the first object of that type that the responder has
-			 * If they don't have that object explicitly, but rather through having an unknown, gets the first index of an unknown instead
+			 * If the responder don't have the object explicitly, but rather through having an unknown, gets the first index of an unknown instead
 			 * If the player doesn't have the object explicitly and also doesn't have any unknowns, they have ended the game
 			 */
-			let indexOfType = this.playerObjects[this.targetId].indexOf(this.targetType);
 			if (indexOfType < 0) {
 
 				/*
@@ -249,15 +249,20 @@ class QGFGame {
 			}
 			this.giveObject(this.previousQuestioner, this.targetType);
 
-			return this.isValid();
-
 		} else {
 
-			//TODO: account for !containsType response
+			/*
+			 * Player has ended the game: they have said that they don't have the requested object, but they do
+			 */
+			if (indexOfType >= 0) {
+				return false;
+			}
 
-			return this.isValid();
+			this.giveNegation(this.targetId, this.targetType);
 
 		}
+
+		return this.isValid();
 
 	}
 
