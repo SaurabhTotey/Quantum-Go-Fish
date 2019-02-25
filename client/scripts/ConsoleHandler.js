@@ -5,8 +5,12 @@ let input = document.getElementById("user-text-input");
 /**
  * Handles receiving messages and appending them to the log
  */
-socket.on("message", message => {
-    log.innerHTML += `<p><span class="timestamp">${message.timeStamp}</span> | <span class="sender">${message.sender}</span> => <span class="${message.type}">${message.contents}</span></p>`;
+socket.on("message", messageLog => {
+    log.innerHTML = "";
+    for (let i = 0; i < messageLog.length; i++) {
+        let message = messageLog[i];
+        log.innerHTML += `<p>[<span class="timestamp">${message.timeStamp}</span>, <span class="sender">${message.sender}</span>]: <span class="${message.type}">${message.contents}</span></p>`;
+    }
 });
 
 /**

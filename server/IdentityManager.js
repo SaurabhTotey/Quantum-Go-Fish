@@ -6,11 +6,18 @@ let ids = {};
  * A class that represents the data that is associated with an id
  */
 class Identity {
+
     constructor(id, socket) {
         this.id = id;
         this.currentLobbyId = null;
         this.socket = socket;
+        this.log = [];
     }
+
+    sendUpdates() {
+        this.socket.emit("message", this.log);
+    }
+
 }
 
 /**
