@@ -26,6 +26,13 @@ io.on("connection", socket => {
     socket.emit("identity", `{"id":${id},"password":${JSON.stringify(password)}}`);
     socket.on("disconnect", () => delete IdentityManager.ids[id]);
 
+    /*
+     * Handles receiving messages from the user and routing it to appropriate places
+     */
+    socket.on("message", message => {
+        console.log(`Received "${message}"`);
+    });
+
 });
 
 http.listen(process.env.PORT);
