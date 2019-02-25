@@ -1,6 +1,7 @@
 require("dotenv").load();
 const express = require("express");
 const IdentityManager = require("./IdentityManager");
+const Message = require("./Message");
 
 let app = express();
 let http = require("http").Server(app);
@@ -31,6 +32,8 @@ io.on("connection", socket => {
     socket.on("message", message => {
         console.log(`Received "${message}"`);
     });
+
+    socket.emit("message", new Message.Message(Message.defaultSender, "INFO", "TODO: THESE WILL BE GAME INSTRUCTIONS"));
 
 });
 
