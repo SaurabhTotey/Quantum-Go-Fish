@@ -1,6 +1,7 @@
 require("dotenv").load();
 const express = require("express");
 const IdentityManager = require("./IdentityManager");
+const CommandInterpreter = require("./CommandInterpreter");
 const ConsoleManager = require("./ConsoleManager");
 
 //Sets the port of the app
@@ -44,9 +45,9 @@ app.get("/api", (req, res) => {
         if (req.query["password"] === IdentityManager.ids[id].password) {
             res.send(IdentityManager.ids[id].log);
         } else {
-            res.send([ConsoleManager.makeErrorMessage()]);
+            res.send([ConsoleManager.makeErrorMessage("ERROR!")]);
         }
-    } catch (ignored) { res.send([ConsoleManager.makeErrorMessage()]); }
+    } catch (ignored) { res.send([ConsoleManager.makeErrorMessage("ERROR!")]); }
 });
 
 /**
@@ -57,10 +58,14 @@ app.post("/api", (req, res) => {
     try {
         let id = parseInt(req.query["id"]);
         if (req.query["password"] === IdentityManager.ids[id].password) {
-            ConsoleManager.pushChatMessage(req.query["message"], id, false);
-            //TODO: try and interpret commands
+            let message = req.query["message"];
+            let isCommand = CommandInterpreter.isCommand(message);
+            ConsoleManager.pushChatMessage(message, id, isCommand);
+            if (isCommand) {
+                CommandInterpreter.runCommand(message);
+            }
         } else {
-            res.send([ConsoleManager.makeErrorMessage()]);
+            res.send([ConsoleManager.makeErrorMessage("ERROR!")]);
         }
-    } catch (ignored) { res.send([ConsoleManager.makeErrorMessage()]); }
+    } catch (ignored) { res.send([ConsoleManager.makeErrorMessage("ERROR!")]); }
 });

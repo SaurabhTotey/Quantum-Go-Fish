@@ -55,7 +55,6 @@ function pushChatMessage(chatMessage, senderId, isCommand) {
 
 module.exports = {
     defaultSender: defaultSender,
-    LogMessage: LogMessage,
     makeErrorMessage: makeErrorMessage,
     makeInfoMessage: makeInfoMessage,
     logGameMessage: logGameMessage,
