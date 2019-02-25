@@ -1,11 +1,6 @@
 
 const allLetters = "`1234567890-=~!@#$%^&*()_+qwertyuiop[]\\WERTYUIOP{}|asdfghjkl;'ASDFGHJKL:\"zxcvbnm,./ZXCVBNM<>?";
 
-//A hashmap of id integer to Identity
-let ids = {};
-//A list of lobbies; TODO: should always have at least one joinable lobby
-let lobbies = [new Lobby(0)];
-
 /**
  * A class that represents a lobby
  * A lobby is a list of players waiting for/in a game
@@ -35,6 +30,11 @@ class Lobby {
     }
 
 }
+
+//A hashmap of id integer to Identity
+let ids = {};
+//A list of lobbies; TODO: should always have at least one joinable lobby
+let lobbies = [new Lobby(0)];
 
 /**
  * A function that makes a random password with 60 random characters
