@@ -43,9 +43,10 @@ function logGameMessage(logMessage, game) {
 function pushChatMessage(chatMessage, senderId, isCommand) {
     let senderIdentity = IdentityManager.ids[senderId];
     let message = new LogMessage(chatMessage, senderIdentity.id, "CHAT" + (isCommand? "-COMMAND" : ""));
-    if (senderIdentity.currentGame != null) {
-        for (let i = 0; i < senderIdentity.currentGame.playerIds.length; i++) {
-            IdentityManager.ids[senderIdentity.currentGame.playerIds[i]].log.push(message);
+    if (senderIdentity.currentLobbyId != null) {
+        let senderLobbyPlayerIds = IdentityManager.lobbies[senderIdentity.currentLobbyId].playerIds;
+        for (let i = 0; i < senderLobbyPlayerIds.length; i++) {
+            IdentityManager.ids[senderLobbyPlayerIds.playerIds[i]].log.push(message);
         }
     } else {
         senderIdentity.log.push(message);
