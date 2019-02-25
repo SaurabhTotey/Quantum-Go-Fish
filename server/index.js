@@ -17,7 +17,7 @@ io.on("connection", socket => {
     /*
      * Makes an identity for the user that just connected
      */
-    let id = IdentityManager.makeId();
+    let id = IdentityManager.makeId(socket);
     let password = IdentityManager.ids[id].password;
 
     /*
