@@ -16,7 +16,7 @@ let submitMethod = () => {
     if (input.value === "") {
         return;
     }
-    socket.emit("message", `{"id":${id},"password":${JSON.stringify(password)},"message":${JSON.stringify(input.value)}}`);
+    socket.emit("message", input.value);
     input.value = "";
 };
 document.getElementById("user-submit-button").onclick = submitMethod;

@@ -18,12 +18,11 @@ io.on("connection", socket => {
      * Makes an identity for the user that just connected
      */
     let id = IdentityManager.makeId(socket);
-    let password = IdentityManager.ids[id].password;
 
     /*
      * Sends the user their identity and deletes the identity on user disconnect
      */
-    socket.emit("identity", `{"id":${id},"password":${JSON.stringify(password)}}`);
+    socket.emit("identity", id);
     socket.on("disconnect", () => delete IdentityManager.ids[id]);
 
     /*
