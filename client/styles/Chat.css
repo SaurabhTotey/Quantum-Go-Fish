@@ -12,5 +12,9 @@
 }
 
 .CHAT-COMMAND {
-    color: orangered;
+    color: lightblue;
+}
+
+.ERROR {
+    color: red;
 }

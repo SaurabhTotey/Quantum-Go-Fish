@@ -3,12 +3,46 @@ const LobbyManager = require("./LobbyManager");
 const Message = require("./Message");
 
 /**
- * Returns a function that runs the command specified by the text
- * A null return means the text wasn't a command
+ * Returns an object with an action and the type of command it interpreted
  */
 function interpretCommand(senderId, text) {
-    //TODO: figure out
-    return null;
+    let isNumber = text => {
+        try {
+            return typeof(parseInt(text)) === "number";
+        } catch (ignored) {
+            return false;
+        }
+    };
+    if (text[0] === "/") {
+        try {
+            let arguments = text.split(" ");
+            if (arguments[0] === "/join") {
+                if (isNumber(arguments[1])) {
+                    //TODO: join the lobby of the person specified by arguments[1]
+                } else if (arguments[1] === "any") {
+                    //TODO: join any lobby
+                }
+            } else if (arguments[0] === "/create") {
+                //TODO: create a lobby
+            } else if (arguments[0] === "/clear") {
+                return {
+                    action: () => {
+                        IdentityManager.ids[senderId].log = [];
+                        IdentityManager.ids[senderId].sendUpdates();
+                    },
+                    type: "COMMAND"
+                }
+            }
+        } catch (ignored) {}
+        return {
+            action: () => sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "Sorry, the inputted command was invalid.")),
+            type: "COMMAND"
+        };
+    }
+    return {
+        action: () => {},
+        type: "MESSAGE"
+    };
 }
 
 /**
@@ -18,15 +52,14 @@ function interpretCommand(senderId, text) {
 function sendUserMessage(id, text) {
 
     let command = interpretCommand(id, text);
-    let message = new Message.Message(id, "CHAT-" + (command == null ? "MESSAGE" : "COMMAND"), text);
+    let message = new Message.Message(id, "CHAT-" + command.type, text);
 
     /*
      * Sends the message to those who should see it
      */
     let lobby = IdentityManager.ids[id].currentLobbyId;
     if (lobby == null) {
-        IdentityManager.ids[id].log.push(message);
-        IdentityManager.ids[id].sendUpdates();
+        sendMessageTo(id, message);
     } else {
         sendMessageToLobby(lobby, message);
     }
@@ -34,10 +67,17 @@ function sendUserMessage(id, text) {
     /*
      * Runs the command specified by the text
      */
-    if (command != null) {
-        command();
-    }
+    command.action();
 
+}
+
+/**
+ * Sends the given message object to id
+ */
+function sendMessageTo(id, message) {
+    let identity = IdentityManager.ids[id];
+    identity.log.push(message);
+    identity.sendUpdates();
 }
 
 /**
@@ -48,8 +88,7 @@ function sendMessageToLobby(lobbyId, message) {
     let lobbyPlayerIds = LobbyManager.lobbies[lobbyId].playerIds;
     for (let i = 0; i < lobbyPlayerIds.length; i++) {
         let playerId = lobbyPlayerIds[i];
-        IdentityManager.ids[playerId].log.push(message);
-        IdentityManager.ids[playerId].sendUpdates();
+        sendMessageTo(playerId, message);
     }
 }
 
