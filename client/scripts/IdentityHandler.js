@@ -6,4 +6,11 @@ let socket = io();
 let id = undefined;
 let password = undefined;
 
-//TODO: initialize id and password
+/**
+ * Receives the identity that the server has for this user from the socket
+ */
+socket.on("identity", identityObjectString => {
+    let identity = JSON.parse(identityObjectString);
+    id = identity.id;
+    password = identity.password;
+});
