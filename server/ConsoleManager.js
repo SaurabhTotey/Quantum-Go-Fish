@@ -6,27 +6,27 @@ const Message = require("./Message");
  * Returns an object with an action and the type of command it interpreted
  */
 function interpretCommand(senderId, text) {
-    let isNumber = text => {
-        try {
-            return typeof(parseInt(text)) === "number";
-        } catch (ignored) {
-            return false;
-        }
-    };
     if (text[0] === "/") {
         let action = () => sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "Sorry, the inputted command was invalid."));
         try {
             let arguments = text.split(" ");
             if (arguments[0] === "/join") {
-                if (isNumber(arguments[1])) {
-                    //TODO: join the lobby of the person specified by arguments[1]
+                if (!isNaN(arguments[1])) {
+                    action = () => {
+                        let success = LobbyManager.join(senderId, parseInt(arguments[1]));
+                        if (!success) {
+                            sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "Sorry, I was unable to join you to that player's lobby."));
+                        }
+                    };
                 } else if (arguments[1] === "any") {
-                    //TODO: join any lobby
+                    action = () => LobbyManager.matchMake(senderId);
+                } else {
+                    action = () => sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "You must tell me where I should join you. Do '/join [playerId]' to join a specific player, '/join any' to join any lobby, or '/create' to make a lobby."));
                 }
             } else if (arguments[0] === "/create") {
-                //TODO: create a lobby
+                action = () => LobbyManager.createLobby(senderId);
             } else if (arguments[0] === "/leave") {
-
+                //TODO: leave the user from their lobby if possible
             }
         } catch (ignored) {}
         return {

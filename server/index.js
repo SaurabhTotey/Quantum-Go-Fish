@@ -26,7 +26,7 @@ io.on("connection", socket => {
      * Sends the user their identity and deletes the identity on user disconnect
      */
     socket.emit("identity", id);
-    socket.on("disconnect", () => delete IdentityManager.ids[id]);
+    socket.on("disconnect", () => delete IdentityManager.ids[id]); //TODO: leave user from their lobby
 
     /*
      * Handles receiving messages from the user and routing it to appropriate places
