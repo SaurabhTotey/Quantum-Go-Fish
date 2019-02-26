@@ -41,9 +41,15 @@ let lobbies = [new Lobby(0)];
 
 /**
  * Creates a lobby with the user with firstId
+ * Will try and use an existing empty lobby if possible
  */
 function createLobby(firstId) {
-    //TODO:
+    let emptyLobby = lobbies.find(lobby => lobby.playerIds.length === 0);
+    if (emptyLobby === undefined) {
+        emptyLobby = new Lobby(lobbies.length);
+        lobbies.push(emptyLobby);
+    }
+    emptyLobby.addPlayer(firstId);
 }
 
 /**
@@ -51,16 +57,33 @@ function createLobby(firstId) {
  * Will create a lobby if necessary
  */
 function matchMake(id) {
-    //TODO:
+    let joinableLobbies = lobbies.filter(lobby => lobby.isJoinable).sort((a, b) => a.playerIds.length - b.playerIds.length);
+    if (joinableLobbies.length === 0) {
+        createLobby(id);
+    } else {
+        joinableLobbies[0].addPlayer(id);
+    }
 }
 
 /**
  * Joins the joiningId to the lobby that alreadyLobbiedId exists in
+ * Returns whether the join was successful
  */
 function join(joiningId, alreadyLobbiedId) {
-    //TODO:
+    if (!(alreadyLobbiedId in IdentityManager.ids) || IdentityManager.ids[alreadyLobbiedId].currentLobbyId == null || IdentityManager.ids[joiningId].currentLobbyId != null) {
+        return false;
+    }
+    let lobbyToJoin = lobbies[IdentityManager.ids[alreadyLobbiedId].currentLobbyId];
+    if (!lobbyToJoin.isJoinable) {
+        return false;
+    }
+    lobbyToJoin.addPlayer(joiningId);
+    return true;
 }
 
 module.exports = {
-    lobbies: lobbies
+    lobbies: lobbies,
+    createLobby: createLobby,
+    matchMake: matchMake,
+    join: join
 };

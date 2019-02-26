@@ -25,11 +25,8 @@ function interpretCommand(senderId, text) {
                 }
             } else if (arguments[0] === "/create") {
                 //TODO: create a lobby
-            } else if (arguments[0] === "/clear") {
-                action = () => {
-                    IdentityManager.ids[senderId].log = [];
-                    IdentityManager.ids[senderId].sendUpdates();
-                };
+            } else if (arguments[0] === "/leave") {
+
             }
         } catch (ignored) {}
         return {
