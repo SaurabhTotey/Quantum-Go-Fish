@@ -32,7 +32,7 @@ io.on("connection", socket => {
      * Handles receiving messages from the user and routing it to appropriate places
      */
     IdentityManager.ids[id].sendUpdates();
-    socket.on("message", message => ConsoleManager.sendUserMessage(id, message));
+    socket.on("message", message => ConsoleManager.handleUserMessage(id, message));
 
 });
 
