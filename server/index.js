@@ -2,6 +2,7 @@ require("dotenv").load();
 const express = require("express");
 const ConsoleManager = require("./ConsoleManager");
 const IdentityManager = require("./IdentityManager");
+const LobbyManager = require("./LobbyManager");
 const Message = require("./Message");
 
 let app = express();
@@ -26,7 +27,13 @@ io.on("connection", socket => {
      * Sends the user their identity and deletes the identity on user disconnect
      */
     socket.emit("identity", id);
-    socket.on("disconnect", () => delete IdentityManager.ids[id]); //TODO: leave user from their lobby
+    socket.on("disconnect", () => {
+        let identity = IdentityManager.ids[id];
+        if (identity.currentLobbyId != null) {
+            LobbyManager.lobbies[identity.currentLobbyId].removePlayer(id);
+        }
+        delete IdentityManager.ids[id];
+    });
 
     /*
      * Handles receiving messages from the user and routing it to appropriate places

@@ -26,7 +26,14 @@ function interpretCommand(senderId, text) {
             } else if (arguments[0] === "/create") {
                 action = () => LobbyManager.createLobby(senderId);
             } else if (arguments[0] === "/leave") {
-                //TODO: leave the user from their lobby if possible
+                action = () => {
+                    let lobbyId = IdentityManager.ids[senderId].currentLobbyId;
+                    if (lobbyId != null) {
+                        LobbyManager.lobbies[lobbyId].removePlayer(senderId);
+                    } else {
+                        sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "You are not in a lobby right now."));
+                    }
+                };
             }
         } catch (ignored) {}
         return {

@@ -11,6 +11,7 @@ socket.on("message", messageLog => {
         let message = messageLog[i];
         log.innerHTML += `<p>[<span class="timestamp">${message.timeStamp}</span>, <span class="sender">${message.sender}</span>]: <span class="${message.type}">${message.contents}</span></p>`;
     }
+    log.scrollTop = log.scrollHeight;
 });
 
 /**
