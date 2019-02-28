@@ -21,7 +21,6 @@ io.on("connection", socket => {
      * Makes an identity for the user that just connected
      */
     let id = IdentityManager.makeId(socket);
-    IdentityManager.ids[id].log = [new Message.Message(Message.defaultSender, "INFO", `Welcome to Quantum Go Fish!!! Instructions are described <a href='https://stacky.net/wiki/index.php?title=Quantum_Go_Fish' target="_blank">here</a>. Source code for this website can be found <a href='https://github.com/SaurabhTotey/Quantum-Go-Fish' target="_blank">here</a>. Your ID is ${id}. The canvas is for you to let you keep track of stuff. To start a game, type out 'TODO: IMPLEMENT COMMANDS!!'`)];
 
     /*
      * Sends the user their identity and deletes the identity on user disconnect
@@ -38,6 +37,7 @@ io.on("connection", socket => {
     /*
      * Handles receiving messages from the user and routing it to appropriate places
      */
+    IdentityManager.ids[id].log = [new Message.Message(Message.defaultSender, "INFO", `Welcome to Quantum Go Fish!!! Instructions are described <a href='https://stacky.net/wiki/index.php?title=Quantum_Go_Fish' target="_blank">here</a>. Source code for this website can be found <a href='https://github.com/SaurabhTotey/Quantum-Go-Fish' target="_blank">here</a>. Your ID is ${id}. The canvas is for you to let you keep track of stuff. To start a game, type out 'TODO: IMPLEMENT COMMANDS!!'`)];
     IdentityManager.ids[id].sendUpdates();
     socket.on("message", message => ConsoleManager.handleUserMessage(id, message));
 

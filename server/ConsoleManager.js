@@ -1,51 +1,7 @@
+const CommandInterpreter = require("./CommandInterpreter");
 const IdentityManager = require("./IdentityManager");
 const LobbyManager = require("./LobbyManager");
 const Message = require("./Message");
-
-/**
- * Returns an object with an action and the type of command it interpreted
- */
-function interpretCommand(senderId, text) {
-    if (text[0] === "/") {
-        let action = () => sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "Sorry, the inputted command was invalid."));
-        try {
-            let arguments = text.split(" ");
-            if (arguments[0] === "/join") {
-                if (!isNaN(arguments[1])) {
-                    action = () => {
-                        let success = LobbyManager.join(senderId, parseInt(arguments[1]));
-                        if (!success) {
-                            sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "Sorry, I was unable to join you to that player's lobby."));
-                        }
-                    };
-                } else if (arguments[1] === "any") {
-                    action = () => LobbyManager.matchMake(senderId);
-                } else {
-                    action = () => sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "You must tell me where I should join you. Do '/join [playerId]' to join a specific player, '/join any' to join any lobby, or '/create' to make a lobby."));
-                }
-            } else if (arguments[0] === "/create") {
-                action = () => LobbyManager.createLobby(senderId);
-            } else if (arguments[0] === "/leave") {
-                action = () => {
-                    let lobbyId = IdentityManager.ids[senderId].currentLobbyId;
-                    if (lobbyId != null) {
-                        LobbyManager.lobbies[lobbyId].removePlayer(senderId);
-                    } else {
-                        sendMessageTo(senderId, new Message.Message(Message.defaultSender, "ERROR", "You are not in a lobby right now."));
-                    }
-                };
-            }
-        } catch (ignored) {}
-        return {
-            action: action,
-            type: "COMMAND"
-        };
-    }
-    return {
-        action: () => {},
-        type: "MESSAGE"
-    };
-}
 
 /**
  * Handles sending a message text from a user
@@ -56,15 +12,15 @@ function handleUserMessage(id, text) {
     /*
      * Turns the given text into the appropriate command
      */
-    let command = interpretCommand(id, text);
-    let message = new Message.Message(id, "CHAT-" + command.type, text);
+    let command = CommandInterpreter.interpretText(id, text, sendMessageTo);
+    let message = new Message.Message(id, "CHAT-" + command.textType, text);
 
     sendMessageTo(id, message);
 
     /*
      * Runs the command specified by the text
      */
-    command.action();
+    command.textAction();
 
 }
 
