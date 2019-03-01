@@ -61,18 +61,18 @@ module.exports.interpretText = (senderId, text, messageSendFunction) => {
     let identity = IdentityManager.ids[senderId];
     let lobby = null;
     if (identity.currentLobbyId != null) {
-        lobby = LobbyManager[identity.currentLobbyId];
+        lobby = LobbyManager.lobbies[identity.currentLobbyId];
     }
     let arguments = text.split(" ");
     let command = arguments[0].substring(1, arguments[0].length);
-    arguments = arguments.slice(1, arguments.length);
+    arguments = [identity, lobby, messageSendFunction].concat(arguments.slice(1, arguments.length));
     return new InterpretTextResult("COMMAND", () => {
         if (!(command in commands)) {
             messageSendFunction(senderId, new Message.Message(Message.defaultSender, "ERROR", "Sorry, the inputted command was invalid."));
             return;
         }
         try {
-            commands[command].apply([identity, lobby, messageSendFunction] + arguments);
+            commands[command].apply(null, arguments);
         } catch (errorMessage) {
             messageSendFunction(senderId, new Message.Message(Message.defaultSender, "ERROR", errorMessage));
         }
