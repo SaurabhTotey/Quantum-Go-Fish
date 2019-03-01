@@ -1,4 +1,8 @@
 const IdentityManager = require("./IdentityManager");
+const Message = require("./Message");
+
+//A function that sends a message to an entire lobby: initialized from ConsoleManager in Lobby constructor
+let lobbyMessageFunction;
 
 /**
  * A class that represents a lobby
@@ -6,25 +10,59 @@ const IdentityManager = require("./IdentityManager");
  */
 class Lobby {
 
+    /**
+     * Makes a lobby with the given id
+     * Lobby IDs are separate from player IDs
+     * Lobby IDs are the position of the lobby in the list of all lobbies
+     */
     constructor(lobbyId) {
+
         this.lobbyId = lobbyId;
         this.playerIds = [];
         this.isJoinable = true;
+
+        /*
+         * Takes the lobby message function from the Console Manager
+         * ConsoleManager is not a permanent dependency because it would then cause a cyclic dependency
+         * Therefore, the lobby message function needs to be initialized in a time afterward, so lazy initialization is used
+         * Message function is only loaded after the first lobby is made
+         */
+        if (lobbyMessageFunction === undefined) {
+            lobbyMessageFunction = require("./ConsoleManager").sendMessageToLobby;
+        }
+
     }
 
+    /**
+     * Adds the player with the given ID to this lobby
+     */
     addPlayer(id) {
         this.playerIds.push(id);
         IdentityManager.ids[id].currentLobbyId = this.lobbyId;
         this.isJoinable = this.playerIds.length < 4;
-        //TODO: maybe do something with player's log?
+        this.message(`Please welcome player ${id} to lobby ${this.lobbyId}! The players currently in this lobby are ${this.playerIds}.`);
     }
 
+    /**
+     * Removes the player with the given ID from this lobby
+     */
     removePlayer(id) {
         IdentityManager.ids[id].currentLobbyId = null;
         this.playerIds.splice(this.playerIds.indexOf(id), 1);
         this.isJoinable = true;
+        this.message(`Player ${id} has just left this lobby. The players currently in this lobby are ${this.playerIds}.`);
     }
 
+    /**
+     * Sends the given text as a message to all players in this lobby
+     */
+    message(text) {
+        lobbyMessageFunction(this.lobbyId, new Message.Message(Message.defaultSender, "INFO", text));
+    }
+
+    /**
+     * Makes the lobby enter a game of QGF
+     */
     startGame() {
         this.isJoinable = false;
         for (let i = 0 ; i < this.playerIds.length; i++) {
@@ -36,8 +74,8 @@ class Lobby {
 
 }
 
-//A list of lobbies; TODO: should always have at least one joinable lobby
-let lobbies = [new Lobby(0)];
+//A list of lobbies
+let lobbies = [];
 
 /**
  * Creates a lobby with the user with firstId

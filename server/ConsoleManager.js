@@ -60,5 +60,6 @@ function sendMessageToLobby(lobbyId, message) {
 }
 
 module.exports = {
-    handleUserMessage: handleUserMessage
+    handleUserMessage: handleUserMessage,
+    sendMessageToLobby: sendMessageToLobby
 };
