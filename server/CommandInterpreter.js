@@ -26,13 +26,13 @@ const commands = {
             throw "Sorry, the command can only be called like '/join any' to join the best available lobby or '/join [playerId]' to join the lobby of an already lobbied player.";
         }
     },
-    "create": (identity, lobby, messageSendFunction) => {
+    "create": (identity, lobby) => {
         if (lobby != null) {
             throw "You are already in a lobby!";
         }
         LobbyManager.createLobby(identity.id);
     },
-    "leave": (identity, lobby, messageSendFunction) => {
+    "leave": (identity, lobby) => {
         if (lobby == null) {
             throw "You cannot leave a lobby if you are not in a lobby!";
         }

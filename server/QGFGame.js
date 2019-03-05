@@ -6,10 +6,11 @@ class QGFGame {
 
 	/**
 	 * The constructor of a game
-	 * Takes in the player IDs of the players playing the game
+	 * Takes in the lobby of the game
 	 */
-	constructor(playerIds) {
-		this.playerIds = playerIds;
+	constructor(lobby) {
+		this.lobby = lobby;
+		this.playerIds = lobby.playerIds;
 		this.playerObjects = {};
 		this.playerNegatives = {};
 		this.types = [];

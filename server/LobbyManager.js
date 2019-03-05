@@ -1,5 +1,6 @@
 const IdentityManager = require("./IdentityManager");
 const Message = require("./Message");
+const QGFGame = require("./QGFGame");
 
 //A function that sends a message to an entire lobby: initialized from ConsoleManager in Lobby constructor
 let lobbyMessageFunction;
@@ -20,6 +21,8 @@ class Lobby {
         this.lobbyId = lobbyId;
         this.playerIds = [];
         this.isJoinable = true;
+        this.game = null;
+        this.nonReadyPlayers = [];
 
         /*
          * Takes the lobby message function from the Console Manager
@@ -38,6 +41,7 @@ class Lobby {
      */
     addPlayer(id) {
         this.playerIds.push(id);
+        this.nonReadyPlayers.push(id);
         IdentityManager.ids[id].currentLobbyId = this.lobbyId;
         this.isJoinable = this.playerIds.length < 4;
         this.message(`Please welcome player ${id} to lobby ${this.lobbyId}! The players currently in this lobby are ${this.playerIds}.`);
@@ -49,8 +53,24 @@ class Lobby {
     removePlayer(id) {
         IdentityManager.ids[id].currentLobbyId = null;
         this.playerIds.splice(this.playerIds.indexOf(id), 1);
+        this.nonReadyPlayers = this.playerIds;
         this.isJoinable = true;
         this.message(`Player ${id} has just left this lobby. The players currently in this lobby are ${this.playerIds}.`);
+    }
+
+    /**
+     * Marks the player of the given id as ready to play a game
+     */
+    readyPlayer(id) {
+        if (!this.nonReadyPlayers.includes(id)) {
+            throw `Player ${id} is already ready!`;
+        }
+        this.nonReadyPlayers.splice(this.nonReadyPlayers.indexOf(id), 1);
+        if (this.nonReadyPlayers.length > 0) {
+            this.message(`Player ${id} is now ready to play QGF! Before the game starts, ${this.nonReadyPlayers} need to ready up.`);
+        } else {
+            this.startGame();
+        }
     }
 
     /**
@@ -65,11 +85,8 @@ class Lobby {
      */
     startGame() {
         this.isJoinable = false;
-        for (let i = 0 ; i < this.playerIds.length; i++) {
-            let playerId = this.playerIds[i];
-            //TODO: maybe do something with player's log?
-        }
-        //TODO: start game
+        this.message(`Staring a game of Quantum Go Fish! The player IDs are ${this.playerIds}.`);
+        this.game = new QGFGame.QFGGame(this);
     }
 
 }
