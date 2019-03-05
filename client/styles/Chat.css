@@ -12,9 +12,13 @@
 }
 
 .CHAT-COMMAND {
-    color: lightblue;
+    color: dodgerblue;
 }
 
 .ERROR {
     color: red;
+}
+
+.GAME {
+    color: skyblue;
 }

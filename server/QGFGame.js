@@ -23,7 +23,8 @@ class QGFGame {
 		this.targetId = null;
 		this.targetType = null;
 
-		//TODO: send log message to entire lobby
+		this.lobby.message(`Starting a game of Quantum Go Fish between ${this.playerIds}! Good luck, have fun, and may the best player win!`, "GAME");
+		this.lobby.message(`Currently, Player ${this.currentPlayer()} must ask a question.`, "GAME");
 	}
 
 	/**
@@ -34,6 +35,8 @@ class QGFGame {
 	 * Invalid questions cause a game-wide loss
 	 */
 	poseQuestion(targetId, type) {
+
+	    this.lobby.message(`Player ${this.currentPlayer()} asked Player ${targetId} if they have any objects of type ${type}.`, "GAME");
 
 		this.targetId = targetId;
 		this.previousQuestioner = this.currentPlayer();
@@ -78,8 +81,6 @@ class QGFGame {
 				}
 			}
 		}
-
-        //TODO: send log message to entire lobby
 
         return this.isValid();
 
@@ -213,6 +214,8 @@ class QGFGame {
 	 */
 	answerQuestion(containsType) {
 
+	    this.lobby.message(`Player ${this.targetId} has told player ${this.previousQuestioner} that they ${"do" + (containsType? "" : "n't")} have an object of type ${this.targetType}`, "GAME");
+
 		let indexOfType = this.playerObjects[this.targetId].indexOf(this.targetType);
 
 		if (containsType) {
@@ -266,8 +269,6 @@ class QGFGame {
 			this.giveNegation(this.targetId, this.targetType);
 
 		}
-
-        //TODO: send log message to entire lobby
 
         return this.isValid();
 

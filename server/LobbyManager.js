@@ -49,6 +49,7 @@ class Lobby {
 
     /**
      * Removes the player with the given ID from this lobby
+     * Players leaving will mark all players as unready and stop any ongoing games
      */
     removePlayer(id) {
         IdentityManager.ids[id].currentLobbyId = null;
@@ -62,6 +63,7 @@ class Lobby {
 
     /**
      * Marks the player of the given id as ready to play a game
+     * Game will start when all players have been marked as ready
      */
     readyPlayer(id) {
         if (this.playerIds.length === 1) {
@@ -81,8 +83,8 @@ class Lobby {
     /**
      * Sends the given text as a message to all players in this lobby
      */
-    message(text) {
-        lobbyMessageFunction(this.lobbyId, new Message.Message(Message.defaultSender, "INFO", text));
+    message(text, type = "INFO") {
+        lobbyMessageFunction(this.lobbyId, new Message.Message(Message.defaultSender, type, text));
     }
 
     /**
