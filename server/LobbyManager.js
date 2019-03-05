@@ -43,7 +43,7 @@ class Lobby {
         this.playerIds.push(id);
         this.nonReadyPlayers.push(id);
         IdentityManager.ids[id].currentLobbyId = this.lobbyId;
-        this.isJoinable = this.playerIds.length < 4;
+        IdentityManager.ids[id].log = [];
         this.message(`Please welcome player ${id} to lobby ${this.lobbyId}! The players currently in this lobby are ${this.playerIds}.`);
     }
 
@@ -52,16 +52,21 @@ class Lobby {
      */
     removePlayer(id) {
         IdentityManager.ids[id].currentLobbyId = null;
+        IdentityManager.ids[id].log = [];
         this.playerIds.splice(this.playerIds.indexOf(id), 1);
         this.nonReadyPlayers = this.playerIds;
         this.isJoinable = true;
-        this.message(`Player ${id} has just left this lobby. The players currently in this lobby are ${this.playerIds}.`);
+        this.game = null;
+        this.message(`Player ${id} has just left this lobby. The players currently in this lobby are ${this.playerIds}. Any ongoing games of Quantum Go Fish in this lobby have been ended and all players have been marked unready.`);
     }
 
     /**
      * Marks the player of the given id as ready to play a game
      */
     readyPlayer(id) {
+        if (this.playerIds.length === 1) {
+            throw `Please wait for at least one other player to join the lobby before readying up.`;
+        }
         if (!this.nonReadyPlayers.includes(id)) {
             throw `Player ${id} is already ready!`;
         }
@@ -85,7 +90,10 @@ class Lobby {
      */
     startGame() {
         this.isJoinable = false;
-        this.message(`Staring a game of Quantum Go Fish! The player IDs are ${this.playerIds}.`);
+        for (let i = 0; i < this.playerIds.length; i++) {
+            IdentityManager.ids[this.playerIds[i]].log = [];
+        }
+        this.message(`Everyone in the lobby has readied up!`);
         this.game = new QGFGame.QFGGame(this);
     }
 

@@ -14,14 +14,16 @@ class QGFGame {
 		this.playerObjects = {};
 		this.playerNegatives = {};
 		this.types = [];
-		for (let i = 0; i < playerIds.length; i++) {
-			this.playerObjects[playerIds[i]] = [null, null, null, null];
-			this.playerNegatives[playerIds[i]] = [];
+		for (let i = 0; i < this.playerIds.length; i++) {
+			this.playerObjects[this.playerIds[i]] = [null, null, null, null];
+			this.playerNegatives[this.playerIds[i]] = [];
 			this.types.push(null);
 		}
 		this.previousQuestioner = null;
 		this.targetId = null;
 		this.targetType = null;
+
+		//TODO: send log message to entire lobby
 	}
 
 	/**
@@ -77,7 +79,9 @@ class QGFGame {
 			}
 		}
 
-		return this.isValid();
+        //TODO: send log message to entire lobby
+
+        return this.isValid();
 
 	}
 
@@ -263,7 +267,9 @@ class QGFGame {
 
 		}
 
-		return this.isValid();
+        //TODO: send log message to entire lobby
+
+        return this.isValid();
 
 	}
 

@@ -37,6 +37,12 @@ const commands = {
             throw "You cannot leave a lobby if you are not in a lobby!";
         }
         lobby.removePlayer(identity.id);
+    },
+    "ready": (identity, lobby) => {
+        if (lobby == null) {
+            throw "You cannot ready yourself to be in a game just by yourself! Join a lobby!"
+        }
+        lobby.readyPlayer(identity.id);
     }
 };
 
