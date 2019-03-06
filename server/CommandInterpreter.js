@@ -1,6 +1,7 @@
 const IdentityManager = require("./IdentityManager");
 const LobbyManager = require("./LobbyManager");
 const Message = require("./Message");
+const QGFGame = require("./QGFGame");
 
 /*
  * A map of command strings to their corresponding actions
@@ -40,9 +41,44 @@ const commands = {
     },
     "ready": (identity, lobby) => {
         if (lobby == null) {
-            throw "You cannot ready yourself to be in a game just by yourself! Join a lobby!"
+            throw "You cannot ready yourself to be in a game just by yourself! Join a lobby!";
         }
         lobby.readyPlayer(identity.id);
+    },
+    "ask": (identity, lobby, messageSendFunction, target, type) => {
+        if (lobby == null || lobby.game == null) {
+            throw "You can only ask questions in a game!";
+        }
+        if (lobby.game.phase !== QGFGame.GAME_PHASES.AWAITING_QUESTION) {
+            throw "Questions cannot be asked yet!";
+        }
+        if (lobby.game.currentPlayer() !== identity.id) {
+            throw `Only Player ${lobby.game.currentPlayer()} can ask a question right now!`;
+        }
+        let wrongTargetErrorMessage = "Target must be the ID of a player in this game!";
+        if (isNaN(target)) {
+            throw wrongTargetErrorMessage;
+        }
+        let targetId = parseInt(target);
+        if (!lobby.playerIds.includes(targetId)) {
+            throw wrongTargetErrorMessage;
+        }
+        lobby.handleGameCommand(() => lobby.game.poseQuestion(targetId, type));
+    },
+    "answer": (identity, lobby, messageSendFunction, answer) => {
+        if (lobby == null || lobby.game == null) {
+            throw "You can only answer questions in a game!";
+        }
+        if (lobby.game.phase !== QGFGame.GAME_PHASES.AWAITING_QUESTION_RESPONSE) {
+            throw "Questions cannot be answered yet!";
+        }
+        if (lobby.game.targetId !== identity.id) {
+            throw `Only Player ${lobby.game.targetId} can ask a question right now!`;
+        }
+        if (answer === undefined || answer.length < 1 || !["y", "n", "t", "f"].includes(answer[0].toLowerCase())) {
+            throw "Answers must come in a form that begins with y, n, t, or f [(Y)es, (N)o, (T)rue, (F)alse]."
+        }
+        lobby.handleGameCommand(() => lobby.game.answerQuestion(["y", "t"].includes(answer[0].toLowerCase())));
     }
 };
 
