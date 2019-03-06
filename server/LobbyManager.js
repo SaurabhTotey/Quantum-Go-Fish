@@ -99,6 +99,41 @@ class Lobby {
         this.game = new QGFGame.QFGGame(this);
     }
 
+    /**
+     * Runs a game command and manages outputs accordingly
+     * gameCommand should return true or false: true means game will continue and false will mean the game is over because it is invalid
+     */
+    handleGameCommand(gameCommand) {
+
+        /*
+         * Checks if the game is valid and ends it if necessary
+         */
+        if (!gameCommand()) {
+            this.game.phase = QGFGame.GAME_PHASES.DONE;
+            this.message("The game has entered an impossible state. Everyone has lost 😢.", "GAME");
+        }
+
+        /*
+         * Checks if the game has a winner
+         * Ends the game if there is a winner
+         */
+        let winner = this.game.winner();
+        if (winner != null) {
+            this.game.phase = QGFGame.GAME_PHASES.DONE;
+            this.message(`The game has now been won by ${winner}. Congratulations!`);
+        }
+
+        /*
+         * Resets the lobby to allow more games if the current game is done
+         */
+        if (this.game.phase === QGFGame.GAME_PHASES.DONE) {
+            this.game = null;
+            this.nonReadyPlayers = this.playerIds;
+        }
+
+    }
+
+
 }
 
 //A list of lobbies

@@ -1,5 +1,14 @@
 
 /**
+ * A set of constants for the game phases
+ */
+const GAME_PHASES = {
+    AWAITING_QUESTION: 0,
+    AWAITING_QUESTION_RESPONSE: 1,
+    DONE: 2
+};
+
+/**
  * A class that represents a single game of quantum go fish
  */
 class QGFGame {
@@ -23,6 +32,8 @@ class QGFGame {
 		this.targetId = null;
 		this.targetType = null;
 
+		this.phase = GAME_PHASES.AWAITING_QUESTION;
+
 		this.lobby.message(`Starting a game of Quantum Go Fish between ${this.playerIds}! Good luck, have fun, and may the best player win!`, "GAME");
 		this.lobby.message(`Currently, Player ${this.currentPlayer()} must ask a question.`, "GAME");
 	}
@@ -37,6 +48,7 @@ class QGFGame {
 	poseQuestion(targetId, type) {
 
 	    this.lobby.message(`Player ${this.currentPlayer()} asked Player ${targetId} if they have any objects of type ${type}.`, "GAME");
+        this.phase = GAME_PHASES.AWAITING_QUESTION_RESPONSE;
 
 		this.targetId = targetId;
 		this.previousQuestioner = this.currentPlayer();
@@ -215,6 +227,7 @@ class QGFGame {
 	answerQuestion(containsType) {
 
 	    this.lobby.message(`Player ${this.targetId} has told player ${this.previousQuestioner} that they ${"do" + (containsType? "" : "n't")} have an object of type ${this.targetType}`, "GAME");
+        this.phase = GAME_PHASES.AWAITING_QUESTION;
 
 		let indexOfType = this.playerObjects[this.targetId].indexOf(this.targetType);
 
@@ -330,5 +343,6 @@ class QGFGame {
 }
 
 module.exports = {
+    GAME_PHASES: GAME_PHASES,
 	QFGGame: QGFGame
 };
