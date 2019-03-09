@@ -97,26 +97,58 @@ class InterpretTextResult {
  * Returns whether the action that the text should trigger and the type of how the text was interpreted
  */
 module.exports.interpretText = (senderId, text, messageSendFunction) => {
+
+    /*
+     * Commands can only start with "/"
+     * Text without a "/" in the beginning aren't commands
+     */
     if (text[0] !== "/") {
         return new InterpretTextResult("MESSAGE", () => {});
     }
+
+    /*
+     * Gets the sender's ID and lobby
+     */
     let identity = IdentityManager.ids[senderId];
     let lobby = null;
     if (identity.currentLobbyId != null) {
         lobby = LobbyManager.lobbies[identity.currentLobbyId];
     }
+
+    /*
+     * Parses the command into the actual command and its arguments
+     * Commands are "/commandName [arg1] [arg2] ..."
+     */
     let arguments = text.split(" ");
     let command = arguments[0].substring(1, arguments[0].length);
+
+    /*
+     * Changes the arguments variable into the function arguments for all the command functions defined in commands
+     * First arguments are always identity, lobby, and messageSendFunction
+     * Remaining arguments are text provided by the user
+     */
     arguments = [identity, lobby, messageSendFunction].concat(arguments.slice(1, arguments.length));
     return new InterpretTextResult("COMMAND", () => {
+
+        /*
+         * Sends a message that the command was invalid if the command doesn't exist
+         */
         if (!(command in commands)) {
             messageSendFunction(senderId, new Message.Message(Message.defaultSender, "ERROR", "Sorry, the inputted command was invalid."));
             return;
         }
+
+        /*
+         * Tries running the command with the given arguments
+         * Commands may throw error messages
+         * If an error is thrown, the error message is sent out
+         */
         try {
             commands[command].apply(null, arguments);
         } catch (errorMessage) {
             messageSendFunction(senderId, new Message.Message(Message.defaultSender, "ERROR", errorMessage));
         }
+
     });
+
 };
