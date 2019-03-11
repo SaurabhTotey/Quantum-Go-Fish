@@ -9,7 +9,7 @@ const GAME_PHASES = {
 };
 
 /**
- * A class that represents a single game of quantum go fish
+ * A class that represents a single game of Quantum Go Fish
  */
 class QGFGame {
 
@@ -305,7 +305,7 @@ class QGFGame {
 		/*
 		 * Counts the number of times that elem appears in arr
 		 */
-		let numberOfOccurences = (arr, elem) => {
+		let numberOfOccurrences = (arr, elem) => {
 			let count = 0;
 			for (let i = 0; i < arr.length; i++) {
 				if (arr[i] === elem) {
@@ -320,7 +320,7 @@ class QGFGame {
 		 */
 		for (let i = 0; i < this.playerIds.length; i++) {
 			let id = this.playerIds[i];
-			if (this.playerObjects[id].length >= 4 && this.playerObjects[id].some(obj => obj != null && numberOfOccurences(this.playerObjects[id], obj) === 4)) {
+			if (this.playerObjects[id].length >= 4 && this.playerObjects[id].some(obj => obj != null && numberOfOccurrences(this.playerObjects[id], obj) === 4)) {
 				return id;
 			}
 		}

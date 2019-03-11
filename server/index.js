@@ -1,6 +1,6 @@
 require("dotenv").load();
 const express = require("express");
-const ConsoleManager = require("./ConsoleManager");
+const ConsoleManager = require("./ConsoleRouter");
 const IdentityManager = require("./IdentityManager");
 const LobbyManager = require("./LobbyManager");
 const Message = require("./Message");

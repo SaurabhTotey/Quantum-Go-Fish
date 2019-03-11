@@ -31,7 +31,7 @@ class Lobby {
          * Message function is only loaded after the first lobby is made
          */
         if (lobbyMessageFunction === undefined) {
-            lobbyMessageFunction = require("./ConsoleManager").sendMessageToLobby;
+            lobbyMessageFunction = require("./ConsoleRouter").sendMessageToLobby;
         }
 
     }
