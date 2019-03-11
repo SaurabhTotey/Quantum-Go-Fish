@@ -44,7 +44,10 @@ class Lobby {
         this.nonReadyPlayers.push(id);
         IdentityManager.ids[id].currentLobbyId = this.lobbyId;
         IdentityManager.ids[id].log = [];
-        this.message(`Please welcome player ${id} to lobby ${this.lobbyId}! The players currently in this lobby are ${this.playerIds}.`);
+        this.message(`Please welcome Player ${id} to lobby ${this.lobbyId}! The players currently in this lobby are ${this.playerIds}.`);
+        if (this.playerIds.length > 1) {
+            this.message("Now that there are multiple players in this lobby, a game of Quantum Go Fish will start when all players mark themselves as ready with '/ready'.");
+        }
     }
 
     /**
@@ -74,7 +77,7 @@ class Lobby {
         }
         this.nonReadyPlayers.splice(this.nonReadyPlayers.indexOf(id), 1);
         if (this.nonReadyPlayers.length > 0) {
-            this.message(`Player ${id} is now ready to play QGF! Before the game starts, ${this.nonReadyPlayers} need to ready up.`);
+            this.message(`Player ${id} is now ready to play Quantum Go Fish! Before the game starts, ${this.nonReadyPlayers} need to ready up.`);
         } else {
             this.startGame();
         }
@@ -124,9 +127,18 @@ class Lobby {
         }
 
         /*
+         * Sends a message instructing current game phase and whose turn it is
+         */
+        if (this.game.phase === QGFGame.GAME_PHASES.AWAITING_QUESTION) {
+            this.message(`Now awaiting a question from Player ${this.game.currentPlayer()}. A question can be asked with '/ask [targetPlayerId] [type]'.`, "GAME");
+        } else if (this.game.phase === QGFGame.GAME_PHASES.AWAITING_QUESTION_RESPONSE) {
+            this.message(`Now awaiting a response from Player ${this.game.targetId} for Player ${this.game.previousQuestioner} regarding whether they have any objects of type ${this.game.targetType}. A response can be submitted with '/answer [y/n]'.`, "GAME");
+        }
+
+        /*
          * Resets the lobby to allow more games if the current game is done
          */
-        if (this.game.phase === QGFGame.GAME_PHASES.DONE) {
+        else if (this.game.phase === QGFGame.GAME_PHASES.DONE) {
             this.game = null;
             this.nonReadyPlayers = this.playerIds;
         }

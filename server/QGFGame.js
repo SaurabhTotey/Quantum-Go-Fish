@@ -34,7 +34,7 @@ class QGFGame {
 		this.phase = GAME_PHASES.AWAITING_QUESTION;
 
 		this.lobby.message(`Starting a game of Quantum Go Fish between ${this.playerIds}! Good luck, have fun, and may the best player win!`, "GAME");
-		this.lobby.message(`Currently, Player ${this.currentPlayer()} must ask a question.`, "GAME");
+		this.lobby.message(`Currently, Player ${this.currentPlayer()} must ask a question. A question can be asked with '/ask [targetPlayerId] [type]'.`, "GAME");
 	}
 
 	/**

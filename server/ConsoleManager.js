@@ -13,7 +13,7 @@ function handleUserMessage(id, text) {
      * Turns the given text into the appropriate command
      */
     let command = CommandInterpreter.interpretText(id, text, sendMessageTo);
-    let message = new Message.Message(id, "CHAT-" + command.textType, text);
+    let message = new Message.Message(`Player ${id}`, "CHAT-" + command.textType, text);
 
     sendMessageTo(id, message);
 

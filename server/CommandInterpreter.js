@@ -55,12 +55,12 @@ const commands = {
         if (lobby.game.currentPlayer() !== identity.id) {
             throw `Only Player ${lobby.game.currentPlayer()} can ask a question right now!`;
         }
-        let wrongTargetErrorMessage = "Target must be the ID of a player in this game!";
+        let wrongTargetErrorMessage = "Target must be the ID of another player in this game!";
         if (isNaN(target)) {
             throw wrongTargetErrorMessage;
         }
         let targetId = parseInt(target);
-        if (!lobby.playerIds.includes(targetId)) {
+        if (!lobby.playerIds.includes(targetId) || targetId === identity.id) {
             throw wrongTargetErrorMessage;
         }
         lobby.handleGameCommand(() => lobby.game.poseQuestion(targetId, type));
