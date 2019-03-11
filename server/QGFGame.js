@@ -26,7 +26,6 @@ class QGFGame {
 		for (let i = 0; i < this.playerIds.length; i++) {
 			this.playerObjects[this.playerIds[i]] = [null, null, null, null];
 			this.playerNegatives[this.playerIds[i]] = [];
-			this.types.push(null);
 		}
 		this.previousQuestioner = null;
 		this.targetId = null;
@@ -321,7 +320,7 @@ class QGFGame {
 		 */
 		for (let i = 0; i < this.playerIds.length; i++) {
 			let id = this.playerIds[i];
-			if (this.playerObjects[id].length >= 4 && this.playerObjects[id].some(obj => numberOfOccurences(this.playerObjects[id], obj) === 4)) {
+			if (this.playerObjects[id].length >= 4 && this.playerObjects[id].some(obj => obj != null && numberOfOccurences(this.playerObjects[id], obj) === 4)) {
 				return id;
 			}
 		}
