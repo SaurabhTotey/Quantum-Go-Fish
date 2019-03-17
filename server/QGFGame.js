@@ -9,6 +9,19 @@ const GAME_PHASES = {
 };
 
 /**
+ * Counts how many times needle is in haystack
+ */
+const numberOfOccurrences = (haystack, needle) => {
+	let count = 0;
+	for (let i = 0; i < haystack.length; i++) {
+		if (haystack[i] === needle) {
+			count++;
+		}
+	}
+	return count;
+};
+
+/**
  * A class that represents a single game of Quantum Go Fish
  */
 class QGFGame {
@@ -76,23 +89,6 @@ class QGFGame {
 			this.giveObject(this.previousQuestioner, type);
 		}
 
-		/*
-		 * If any player has no unknown objects, their unknowns cannot be of any type
-		 * In such a case, their type negations are all types
-		 */
-		for (let i = 0; i < this.playerIds.length; i++) {
-			let playerId = this.playerIds[i];
-			if (this.playerObjects[playerId].includes(null)) {
-				continue;
-			}
-			for (let j = 0; j < this.types.length; j++) {
-				let type = this.types[j];
-				if (!this.playerObjects[type].includes(type)) {
-					this.giveNegation(playerId, type);
-				}
-			}
-		}
-
         return this.isValid();
 
 	}
@@ -101,19 +97,75 @@ class QGFGame {
 	 * Returns whether this game state is valid or not
 	 */
 	isValid() {
-		let counts = {};
-		for (let i = 0; i < this.types.length; i++) {
-			let type = this.types[i];
-			if (type in counts) {
-				counts[type]++;
-			} else {
-				counts[type] = 1;
+		this.revealGuaranteedObjects();
+		return this.types.every(type => {
+			let count = 0;
+			this.playerIds.forEach(playerId => count += numberOfOccurrences(this.playerObjects[playerId], type));
+			return count <= 4;
+		});
+	}
+
+	/**
+	 * Checks all players for whether any unknowns can be converted to objects that they are guaranteed to have
+	 */
+	revealGuaranteedObjects() {
+
+		/*
+		 * If any player has no unknown objects, their unknowns cannot be of any type
+		 * In such a case, their type negations are all types
+		 */
+		this.playerIds.filter(playerId => !this.playerObjects[playerId].includes(null)).forEach(playerId => {
+			this.types.filter(type => !this.playerNegatives[playerId].includes(type)).forEach(type => this.giveNegation(playerId, type));
+		});
+
+		/*
+		 * Goes through all types and all players to check whether there are more rules that could be enforced that could narrow down the rules
+		 */
+		this.types.forEach(type => {
+
+			/*
+			 * Checks whether 4 objects of type are confirmed to exist
+			 */
+			let totalTypeCount = 0;
+			this.playerIds.forEach(playerId => totalTypeCount += numberOfOccurrences(this.playerObjects[playerId], type));
+
+			/*
+             * If 4 of type type are confirmed, then adds type to the negation of all players
+             * Players cannot turn unknowns into type anymore
+             */
+			if (totalTypeCount === 4) {
+				this.playerIds.filter(playerId => !this.playerNegatives[playerId].includes(type)).forEach(playerId => this.giveNegation(playerId, type));
 			}
-			if (counts[type] > 4) {
-				return false;
+
+			/*
+             * If more of type can exist, and only one player can have it, convert some of the player's unknowns into the remaining amount of type
+             */
+			let idsWithoutNegation = this.playerIds.filter(playerId => !this.playerNegatives[playerId].includes(type));
+			if (idsWithoutNegation.length === 1 && totalTypeCount < 4) {
+				while (totalTypeCount < 4) {
+					let objects = this.playerObjects[idsWithoutNegation[0]];
+					objects.splice(objects.indexOf(null), 1);
+					this.giveObject(idsWithoutNegation[0], type);
+					totalTypeCount++;
+				}
 			}
-		}
-		return true;
+
+			/*
+			 * If any player has all negations except one, convert the rest of their unknowns into the remaining amount of type
+			 */
+			this.playerIds.filter(
+				playerId => this.playerNegatives[playerId].length === this.types.length - 1 && this.types.length === this.playerIds.length
+			).forEach(playerId => {
+				let missingType = this.types.find(type => !this.playerNegatives[playerId].includes(type));
+				let objects = this.playerObjects[playerId];
+				while (objects.includes(null)) {
+					objects.splice(objects.indexOf(null), 1);
+					this.giveObject(playerId, missingType);
+				}
+			});
+
+		});
+
 	}
 
 	/**
@@ -124,38 +176,7 @@ class QGFGame {
 
 		this.playerObjects[playerId].push(type);
 
-		/*
-		 * Checks whether 4 objects of type are confirmed to exist
-		 */
-		let count = 0;
-		for (let i = 0; i < this.playerIds.length; i++) {
-			let playerId = this.playerIds[i];
-			let objects = this.playerObjects[playerId];
-			for (let j = 0; j < objects.length; j++) {
-				if (objects[j] === type) {
-					count++;
-				}
-				if (count === 4) {
-					break;
-				}
-			}
-			if (count === 4) {
-				break;
-			}
-		}
-
-		/*
-		 * If 4 of type type are confirmed, then adds type to the negation of all players
-		 * Players cannot turn unknowns into type anymore
-		 */
-		if (count === 4) {
-			for (let i = 0; i < this.playerIds.length; i++) {
-				let playerId = this.playerIds[i];
-				if (!this.playerNegatives[playerId].includes(type)) {
-					this.giveNegation(playerId, type);
-				}
-			}
-		}
+		this.revealGuaranteedObjects();
 
 	}
 
@@ -167,55 +188,7 @@ class QGFGame {
 
 		this.playerNegatives[playerId].push(type);
 
-		/*
-		 * Gets the number of objects that exist of type and also gets which players can still have type
-		 */
-		let idsWithoutNegation = [];
-		let typeCount = 0;
-		for (let i = 0; i < this.playerIds.length; i++) {
-			let playerId = this.playerIds[i];
-			if (!this.playerNegatives[playerId].includes(type)) {
-				idsWithoutNegation.push(playerId);
-			}
-			let objects = this.playerObjects[playerId];
-			for (let j = 0; j < objects.length; j++) {
-				if (objects[j] === type) {
-					typeCount++;
-				}
-			}
-		}
-
-		/*
-		 * If more of type can exist, and only one player can have it, convert some of the player's unknowns into the remaining amount of type
-		 */
-		if (idsWithoutNegation.length === 1 && typeCount < 4) {
-			while (typeCount < 4) {
-				let objects = this.playerObjects[idsWithoutNegation[0]];
-				objects.splice(objects.indexOf(null), 1);
-				this.giveObject(idsWithoutNegation[0], type);
-				typeCount++;
-			}
-		}
-
-		/*
-		 * If this player has all negations except one, convert the rest of their unknowns into the remaining amount of type
-		 */
-		if (this.playerNegatives[playerId].length === this.types.length - 1 && this.types.length === this.playerIds.length) {
-			let missingType = null;
-			for (let i = 0; i < this.types.length; i++) {
-				let type = this.types[i];
-				if (!this.playerNegatives[playerId].includes(type)) {
-					missingType = type;
-					break;
-				}
-			}
-			let objects = this.playerObjects[playerId];
-			while (objects.includes(null)) {
-				objects.splice(objects.indexOf(null), 1);
-				this.giveObject(playerId, missingType);
-			}
-
-		}
+		this.revealGuaranteedObjects();
 
 	}
 
@@ -255,18 +228,8 @@ class QGFGame {
 
 			/*
 			 * Gives the object from the responder to the questioner
-			 * If losing the object has caused the responder to not have any unknown objects, the responder has all type negations
-			 * The responder can no longer have unknowns that are of any type
 			 */
 			this.playerObjects[this.targetId].splice(indexOfType, 1);
-			if (!this.playerObjects[this.targetId].includes(null)) {
-				for (let i = 0; i < this.types.length; i++) {
-					let type = this.types[i];
-					if (!this.playerNegatives[this.targetId].includes(type)) {
-						this.giveNegation(this.targetId, type);
-					}
-				}
-			}
 			this.giveObject(this.previousQuestioner, this.targetType);
 
 		} else {
@@ -301,19 +264,6 @@ class QGFGame {
 	 * If there is no game winner yet, returns null
 	 */
 	winner() {
-
-		/*
-		 * Counts the number of times that elem appears in arr
-		 */
-		let numberOfOccurrences = (arr, elem) => {
-			let count = 0;
-			for (let i = 0; i < arr.length; i++) {
-				if (arr[i] === elem) {
-					count++;
-				}
-			}
-			return count;
-		};
 
 		/*
 		 * Check the first victory condition that any player has all 4 of any type
