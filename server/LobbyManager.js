@@ -40,6 +40,9 @@ class Lobby {
      * Adds the player with the given ID to this lobby
      */
     addPlayer(id) {
+        if (this.playerIds.includes(id)) {
+            throw `PLAYER ${id} ALREADY EXISTS IN THIS LOBBY WITH ${this.playerIds}.`;
+        }
         this.playerIds.push(id);
         this.nonReadyPlayers.push(id);
         IdentityManager.ids[id].currentLobbyId = this.lobbyId;

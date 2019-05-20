@@ -32,6 +32,7 @@ io.on("connection", socket => {
             LobbyManager.lobbies[identity.currentLobbyId].removePlayer(id);
         }
         delete IdentityManager.ids[id];
+        socket.removeAllListeners();
     });
 
     /*

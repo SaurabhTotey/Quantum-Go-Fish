@@ -11,3 +11,5 @@ let id = undefined;
 socket.on("identity", incomingId => {
     id = incomingId;
 });
+
+window.onunload = () => socket.removeAllListeners();
