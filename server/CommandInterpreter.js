@@ -95,6 +95,7 @@ class InterpretTextResult {
 /**
  * The only exposed function of this file is the main function that interprets text as commands
  * Returns whether the action that the text should trigger and the type of how the text was interpreted
+ * TODO: sanitize text and make sure no HTML tags are included
  */
 module.exports.interpretText = (senderId, text, messageSendFunction) => {
 

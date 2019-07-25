@@ -1,4 +1,4 @@
-require("dotenv").load();
+require("dotenv").config();
 const express = require("express");
 const ConsoleManager = require("./ConsoleRouter");
 const IdentityManager = require("./IdentityManager");

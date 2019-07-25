@@ -20,14 +20,7 @@ body {
 #console {
     float: right;
     width: 40%;
-    background-color: gray;
-}
-
-#log, #input {
-    padding: 0;
-    margin: auto;
-    display: inline-block;
-    width: 100%;
+    background-color: silver;
 }
 
 p {
@@ -37,6 +30,7 @@ p {
 #log {
     height: 90%;
     overflow-y: auto;
+    word-wrap: break-word;
     padding-top: 5px;
     padding-bottom: 5px;
 }
