@@ -9,18 +9,18 @@ const Message = require("./Message");
  */
 function handleUserMessage(id, text) {
 
-    /*
-     * Turns the given text into the appropriate command
-     */
-    let command = CommandInterpreter.interpretText(id, text, sendMessageTo);
-    let message = new Message.Message(`Player ${id}`, "CHAT-" + command.textType, text);
+	/*
+	 * Turns the given text into the appropriate command
+	 */
+	let command = CommandInterpreter.interpretText(id, text, sendMessageTo);
+	let message = new Message.Message(`Player ${id}`, "CHAT-" + command.textType, text);
 
-    sendMessageTo(id, message);
+	sendMessageTo(id, message);
 
-    /*
-     * Runs the command specified by the text
-     */
-    command.textAction();
+	/*
+	 * Runs the command specified by the text
+	 */
+	command.textAction();
 
 }
 
@@ -29,9 +29,9 @@ function handleUserMessage(id, text) {
  * Does absolutely no extra routing
  */
 function sendMessageToIndividual(id, message) {
-    let identity = IdentityManager.ids[id];
-    identity.log.push(message);
-    identity.sendUpdates();
+	let identity = IdentityManager.ids[id];
+	identity.log.push(message);
+	identity.sendUpdates();
 }
 
 /**
@@ -39,12 +39,12 @@ function sendMessageToIndividual(id, message) {
  * Handles routing the message object to those who should see it
  */
 function sendMessageTo(id, message) {
-    let lobbyId = IdentityManager.ids[id].currentLobbyId;
-    if (lobbyId == null) {
-        sendMessageToIndividual(id, message);
-    } else {
-        sendMessageToLobby(lobbyId, message);
-    }
+	let lobbyId = IdentityManager.ids[id].currentLobbyId;
+	if (lobbyId == null) {
+		sendMessageToIndividual(id, message);
+	} else {
+		sendMessageToLobby(lobbyId, message);
+	}
 }
 
 /**
@@ -52,14 +52,14 @@ function sendMessageTo(id, message) {
  * Expects message to be a message object
  */
 function sendMessageToLobby(lobbyId, message) {
-    let lobbyPlayerIds = LobbyManager.lobbies[lobbyId].playerIds;
-    for (let i = 0; i < lobbyPlayerIds.length; i++) {
-        let playerId = lobbyPlayerIds[i];
-        sendMessageToIndividual(playerId, message);
-    }
+	let lobbyPlayerIds = LobbyManager.lobbies[lobbyId].playerIds;
+	for (let i = 0; i < lobbyPlayerIds.length; i++) {
+		let playerId = lobbyPlayerIds[i];
+		sendMessageToIndividual(playerId, message);
+	}
 }
 
 module.exports = {
-    handleUserMessage: handleUserMessage,
-    sendMessageToLobby: sendMessageToLobby
+	handleUserMessage: handleUserMessage,
+	sendMessageToLobby: sendMessageToLobby
 };

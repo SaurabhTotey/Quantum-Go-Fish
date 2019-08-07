@@ -7,16 +7,16 @@ let ids = {};
  */
 class Identity {
 
-    constructor(id, socket) {
-        this.id = id;
-        this.currentLobbyId = null;
-        this.socket = socket;
-        this.log = [];
-    }
+	constructor(id, socket) {
+		this.id = id;
+		this.currentLobbyId = null;
+		this.socket = socket;
+		this.log = [];
+	}
 
-    sendUpdates() {
-        this.socket.emit("message", this.log);
-    }
+	sendUpdates() {
+		this.socket.emit("message", this.log);
+	}
 
 }
 
@@ -25,15 +25,15 @@ class Identity {
  * Takes in the socket of the user
  */
 function makeId(socket) {
-    let i = 0;
-    do {
-        i++;
-    } while (i in ids);
-    ids[i] = new Identity(i, socket);
-    return i;
+	let i = 0;
+	do {
+		i++;
+	} while (i in ids);
+	ids[i] = new Identity(i, socket);
+	return i;
 }
 
 module.exports = {
-    ids: ids,
-    makeId: makeId
+	ids: ids,
+	makeId: makeId
 };
