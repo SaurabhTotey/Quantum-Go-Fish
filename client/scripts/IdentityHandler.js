@@ -9,7 +9,7 @@ let id = undefined;
  * Receives the identity that the server has for this user from the socket
  */
 socket.on("identity", incomingId => {
-    id = incomingId;
+	id = incomingId;
 });
 
 window.onunload = () => socket.removeAllListeners();

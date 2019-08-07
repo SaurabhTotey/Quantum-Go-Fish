@@ -1,24 +1,24 @@
 
 .timestamp {
-    color: darkblue;
+	color: darkblue;
 }
 
 .sender {
-    color: blue;
+	color: blue;
 }
 
 .INFO {
-    color: rebeccapurple;
+	color: rebeccapurple;
 }
 
 .CHAT-COMMAND {
-    color: dodgerblue;
+	color: dodgerblue;
 }
 
 .ERROR {
-    color: red;
+	color: red;
 }
 
 .GAME {
-    color: skyblue;
+	color: skyblue;
 }

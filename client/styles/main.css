@@ -1,48 +1,65 @@
 
 body {
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
+	display: grid;
+	grid-template-columns: 60% 40%;
+	margin: 0;
+	padding: 0;
 }
 
 #screen, #console {
-    padding: 0;
-    margin: auto;
-    display: inline-block;
-    height: 100vh;
+	height: 100vh;
+	margin: 0;
 }
 
 #screen {
-    float: left;
-    width: 60%;
+	grid-column: 1;
+	width: 100%;
 }
 
 #console {
-    float: right;
-    width: 40%;
-    background-color: silver;
-}
-
-p {
-    margin: 0 0 0 5px;
+	grid-column: 2;
+	background-color: silver;
+	display: flex;
+	flex-direction: column;
 }
 
 #log {
-    height: 90%;
-    overflow-y: auto;
-    word-wrap: break-word;
-    padding-top: 5px;
-    padding-bottom: 5px;
+	overflow-y: auto;
+	word-wrap: break-word;
+	flex: 1;
+	padding: 5px;
+	margin: 0;
+}
+
+#log p {
+	margin: 0;
 }
 
 #input {
-    text-align: center;
+	text-align: center;
+	overflow: hidden;
 }
 
 #user-text-input {
-    width: 100%;
+	width: 99%;
+	border: 0;
+	margin: 0;
+	padding: 5px;
 }
 
 #user-submit-button {
-    width: 100%;
+	width: 100%;
+	border: 0;
+	padding: 5px;
+	margin: 0;
+	cursor: pointer;
+	background-color: silver;
+}
+
+#user-submit-button:hover {
+	background-color: darkgray;
+}
+
+#user-submit-button:active {
+	background-color: gray;
 }
