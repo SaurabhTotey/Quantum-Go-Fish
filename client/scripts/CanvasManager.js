@@ -53,9 +53,8 @@ drawModeButton.isSelected = true;
  * Sets a procedure for how the canvas elements should get resized
  */
 window.onresize = () => {
-	// TODO: canvas resizing is janky
-	// canvas.setAttribute("width", `${canvas.offsetWidth}`);
-	// canvas.setAttribute("height", `${canvas.offsetHeight}`);
+	canvas.setAttribute("width", `${window.innerWidth * 0.6}`);
+	canvas.setAttribute("height", `${window.innerHeight}`);
 	drawModeButton.x = padding;
 	drawModeButton.y = canvas.height - padding - imageSize;
 	drawModeButton.w = imageSize;
