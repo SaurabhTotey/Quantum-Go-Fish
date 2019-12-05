@@ -25,7 +25,7 @@ text = "Join Lobby"
 
 [node name="InvitesPanel" type="Panel" parent="."]
 margin_left = 522.0
-margin_top = 380.0
+margin_top = 400.0
 margin_right = 1014.0
 margin_bottom = 590.0
 

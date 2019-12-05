@@ -16,6 +16,9 @@ public class Global : Node {
 
 	//Whether the user is a host (true) or a client (false); null means the user is neither a host nor a client
 	public bool? IsHost = null;
+	
+	//What lobby the user is in if any
+	public ulong? CurrentLobbyId;
 
 	/**
 	 * Initializes Steamworks and runs through all necessary correctness checks
