@@ -6,12 +6,19 @@ using Steamworks;
  * A global singleton that stores persistent data
  */
 public class Global : Node {
+	
+	/**
+	 * Gets the only instance of this global object
+	 */
+	public static Global getFrom(Node node) {
+		return node.GetNode<Global>("/root/Global");
+	}
 
 	//Whether the user is a host (true) or a client (false); null means the user is neither a host nor a client
 	public bool? IsHost = null;
 
 	/**
-	 * Initializes Steamworks
+	 * Initializes Steamworks and runs through all necessary correctness checks
 	 */
 	public override void _Ready() {
 		var packSize = Packsize.Test();
@@ -39,6 +46,13 @@ public class Global : Node {
 			GD.Print("Couldn't initialize Steam.");
 			this.GetTree().Quit();
 		}
+	}
+
+	/**
+	 * Continually runs Steamworks callbacks
+	 */
+	public override void _Process(float delta) {
+		SteamAPI.RunCallbacks();
 	}
 
 }

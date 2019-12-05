@@ -8,12 +8,40 @@ anchor_bottom = 1.0
 script = ExtResource( 1 )
 
 [node name="LobbyCreateButton" type="Button" parent="."]
-margin_right = 500.0
-margin_bottom = 200.0
+margin_left = 10.0
+margin_top = 380.0
+margin_right = 510.0
+margin_bottom = 480.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "Make Lobby"
 
 [node name="LobbyJoinButton" type="Button" parent="."]
-margin_top = 200.0
-margin_right = 500.0
-margin_bottom = 400.0
+margin_left = 10.0
+margin_top = 490.0
+margin_right = 510.0
+margin_bottom = 590.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "Join Lobby"
+
+[node name="InvitesPanel" type="Panel" parent="."]
+margin_left = 522.0
+margin_top = 380.0
+margin_right = 1014.0
+margin_bottom = 590.0
+
+[node name="InvitesScrollContainer" type="ScrollContainer" parent="InvitesPanel"]
+margin_right = 12.0
+margin_bottom = 12.0
+scroll_horizontal_enabled = false
+
+[node name="InvitesItemList" type="ItemList" parent="InvitesPanel/InvitesScrollContainer"]
+
+[node name="InvitesLabel" type="RichTextLabel" parent="InvitesPanel"]
+margin_top = -20.0
+margin_right = 492.0
+margin_bottom = 5.0
+custom_colors/default_color = Color( 0, 0, 0, 1 )
+bbcode_enabled = true
+bbcode_text = "[center]Invites"
+text = "Invites"
+scroll_active = false

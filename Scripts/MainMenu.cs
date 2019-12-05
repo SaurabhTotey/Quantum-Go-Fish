@@ -11,7 +11,7 @@ public class MainMenu : Node {
 	 */
 	public override void _Ready() {
 		GD.Print("Entering Main Menu.");
-		this.GetNode<Global>("/root/Global").IsHost = null;
+		Global.getFrom(this).IsHost = null;
 		this.GetNode("LobbyCreateButton").Connect("pressed", this, nameof(this.OnMenuButtonPressed),
 			new Godot.Collections.Array {true});
 		this.GetNode("LobbyJoinButton").Connect("pressed", this, nameof(this.OnMenuButtonPressed),
@@ -23,7 +23,7 @@ public class MainMenu : Node {
 	 */
 	public void OnMenuButtonPressed(bool isHost) {
 		GD.Print("Setting user to be a " + (isHost ? "Host" : "Client") + ".");
-		this.GetNode<Global>("/root/Global").IsHost = isHost;
+		Global.getFrom(this).IsHost = isHost;
 		this.GetTree().ChangeScene("res://Scenes/Lobby.tscn");
 	}
 
