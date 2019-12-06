@@ -15,7 +15,7 @@ public class Lobby : Node {
 		
 		//TODO: add some sort of functionality to display all players currently in the lobby
 		
-		//TODO: add a button to open the invitation dialog to easily allow players to invite other players
+		//TODO: add a button to open the invitation dialog to easily allow players to invite other players (should only be visible to host and enabled once lobby is created)
 		
 		if (Global.getFrom(this).IsHost.Value) {
 			new Callback<LobbyCreated_t>(creationEvent => {
@@ -25,6 +25,7 @@ public class Lobby : Node {
 				}
 				Global.getFrom(this).CurrentLobbyId = creationEvent.m_ulSteamIDLobby;
 				this.UpdateLobbyLabel();
+				GD.Print("Lobby " + creationEvent.m_ulSteamIDLobby + " created.");
 			});
 			SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 8);
 			
