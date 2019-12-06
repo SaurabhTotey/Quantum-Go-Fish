@@ -23,17 +23,17 @@ public class MainMenu : Node {
 		
 		new Callback<LobbyInvite_t>(inviteEvent => {
 			GD.Print("Got an invite from " + SteamFriends.GetFriendPersonaName((CSteamID) inviteEvent.m_ulSteamIDUser) + ".");
-			this.GetNode<ItemList>("InvitesItemList").AddItem(SteamFriends.GetFriendPersonaName((CSteamID) inviteEvent.m_ulSteamIDUser));
+			this.GetNode<ItemList>("InvitesPanel/InvitesScrollContainer/InvitesItemList").AddItem(SteamFriends.GetFriendPersonaName((CSteamID) inviteEvent.m_ulSteamIDUser));
 			this.InvitedLobbyIDs.Add(inviteEvent.m_ulSteamIDLobby);
 		});
-		this.GetNode<ItemList>("InvitesItemList").Connect("item_activated", this, nameof(this.AcceptInvite));
+		this.GetNode<ItemList>("InvitesPanel/InvitesScrollContainer/InvitesItemList").Connect("item_activated", this, nameof(this.AcceptInvite));
 	}
 
 	/**
 	 * Gets called when an invite is activated from the InvitesItemList
 	 */
 	private void AcceptInvite(int inviteIndex) {
-		GD.Print("Accepting invite from " + this.GetNode<ItemList>("InvitesItemList").Items[inviteIndex] + ".");
+		GD.Print("Accepting invite from " + this.GetNode<ItemList>("InvitesPanel/InvitesScrollContainer/InvitesItemList").Items[inviteIndex] + ".");
 		SteamMatchmaking.JoinLobby((CSteamID) this.InvitedLobbyIDs[inviteIndex]);
 		this.GoToLobby(false);
 	}

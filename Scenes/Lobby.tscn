@@ -25,9 +25,18 @@ bbcode_text = "[b][center]Lobby:[/center][/b]"
 text = "Lobby:"
 
 [node name="StartGameButton" type="Button" parent="."]
-margin_left = 170.0
+margin_left = 330.0
 margin_top = 540.0
 margin_right = 1014.0
 margin_bottom = 590.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "Start Game"
+
+[node name="InviteFriendsButton" type="Button" parent="."]
+margin_left = 170.0
+margin_top = 540.0
+margin_right = 320.0
+margin_bottom = 590.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+disabled = true
+text = "Invite Friends"

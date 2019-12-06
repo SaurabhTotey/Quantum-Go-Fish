@@ -14,8 +14,8 @@ public class Lobby : Node {
 		this.GetNode<Button>("ExitButton").Connect("pressed", this, nameof(this.GoToMainMenu));
 		
 		//TODO: add some sort of functionality to display all players currently in the lobby
-		
-		//TODO: add a button to open the invitation dialog to easily allow players to invite other players (should only be visible to host and enabled once lobby is created)
+
+		this.GetNode<Button>("InviteFriendsButton").Connect("pressed", this, nameof(this.OpenInvitesDialog));
 		
 		if (Global.getFrom(this).IsHost.Value) {
 			new Callback<LobbyCreated_t>(creationEvent => {
@@ -26,6 +26,7 @@ public class Lobby : Node {
 				Global.getFrom(this).CurrentLobbyId = creationEvent.m_ulSteamIDLobby;
 				this.UpdateLobbyLabel();
 				GD.Print("Lobby " + creationEvent.m_ulSteamIDLobby + " created.");
+				this.GetNode<Button>("InviteFriendsButton").Disabled = false;
 			});
 			SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 8);
 			
@@ -33,8 +34,17 @@ public class Lobby : Node {
 		}
 		else {
 			this.GetNode<CanvasItem>("StartGameButton").Visible = false;
+			this.GetNode<CanvasItem>("InviteFriendsButton").Visible = false;
 			this.UpdateLobbyLabel();
+			//TODO: have player get kicked back to main menu if the host leaves the lobby
 		}
+	}
+
+	/**
+	 * Allows the current user (presumably the host) to invite other players
+	 */
+	private void OpenInvitesDialog() {
+		SteamFriends.ActivateGameOverlayInviteDialog((CSteamID) Global.getFrom(this).CurrentLobbyId.Value);
 	}
 
 	/**
