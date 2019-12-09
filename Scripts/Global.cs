@@ -26,7 +26,7 @@ public class Global : Node {
 	public override void _Ready() {
 		var packSize = Packsize.Test();
 		var dllCheck = DllCheck.Test();
-		GD.Print("Packsize: " + packSize + "\tDLLCheck: " + dllCheck + ".");
+		GD.Print($"Packsize: {packSize}\tDLLCheck: {dllCheck}.");
 		if (!packSize || !dllCheck) {
 			this.GetTree().Quit();
 		}
@@ -43,7 +43,7 @@ public class Global : Node {
 		}
 
 		if (SteamAPI.Init()) {
-			GD.Print("Entering game as " + SteamFriends.GetPersonaName() + ".");
+			GD.Print($"Entering game as {SteamFriends.GetPersonaName()}.");
 		}
 		else {
 			GD.Print("Couldn't initialize Steam.");

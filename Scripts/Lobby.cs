@@ -10,7 +10,7 @@ public class Lobby : Node {
 	 * Initializes relevant display elements and starts up/joins the lobby
 	 */
 	public override void _Ready() {
-		GD.Print("Entering Lobby as a " + (Global.getFrom(this).IsHost.Value ? "Host" : "Client") + ".");
+		GD.Print($"Entering Lobby as a {(Global.getFrom(this).IsHost.Value ? "Host" : "Client")}.");
 		this.GetNode<Button>("ExitButton").Connect("pressed", this, nameof(this.GoToMainMenu));
 		
 		//TODO: add some sort of functionality to display all players currently in the lobby
@@ -25,7 +25,7 @@ public class Lobby : Node {
 				}
 				Global.getFrom(this).CurrentLobbyId = creationEvent.m_ulSteamIDLobby;
 				this.UpdateLobbyLabel();
-				GD.Print("Lobby " + creationEvent.m_ulSteamIDLobby + " created.");
+				GD.Print($"Lobby {creationEvent.m_ulSteamIDLobby} created.");
 				this.GetNode<Button>("InviteFriendsButton").Disabled = false;
 			});
 			SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 8);

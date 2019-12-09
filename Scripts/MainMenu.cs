@@ -22,7 +22,7 @@ public class MainMenu : Node {
 		this.GetNode("LobbyJoinButton").Connect("pressed", this, nameof(this.OpenSteamOverlay));
 		
 		new Callback<LobbyInvite_t>(inviteEvent => {
-			GD.Print("Got an invite from " + SteamFriends.GetFriendPersonaName((CSteamID) inviteEvent.m_ulSteamIDUser) + ".");
+			GD.Print($"Got an invite from {SteamFriends.GetFriendPersonaName((CSteamID) inviteEvent.m_ulSteamIDUser)}.");
 			this.GetNode<ItemList>("InvitesPanel/InvitesScrollContainer/InvitesItemList").AddItem(SteamFriends.GetFriendPersonaName((CSteamID) inviteEvent.m_ulSteamIDUser));
 			this.InvitedLobbyIDs.Add(inviteEvent.m_ulSteamIDLobby);
 		});
@@ -33,7 +33,7 @@ public class MainMenu : Node {
 	 * Gets called when an invite is activated from the InvitesItemList
 	 */
 	private void AcceptInvite(int inviteIndex) {
-		GD.Print("Accepting invite from " + this.GetNode<ItemList>("InvitesPanel/InvitesScrollContainer/InvitesItemList").Items[inviteIndex] + ".");
+		GD.Print($"Accepting invite from {this.GetNode<ItemList>("InvitesPanel/InvitesScrollContainer/InvitesItemList").Items[inviteIndex]}.");
 		SteamMatchmaking.JoinLobby((CSteamID) this.InvitedLobbyIDs[inviteIndex]);
 		this.GoToLobby(false);
 	}
@@ -50,7 +50,7 @@ public class MainMenu : Node {
 	 * Moves the user to the lobby screen as either a host or a client
 	 */
 	private void GoToLobby(bool isHost) {
-		GD.Print("Setting user to be a " + (isHost ? "Host" : "Client") + ".");
+		GD.Print($"Setting user to be a {(isHost ? "Host" : "Client")}.");
 		Global.getFrom(this).IsHost = isHost;
 		this.GetTree().ChangeScene("res://Scenes/Lobby.tscn");
 	}
