@@ -1,5 +1,6 @@
 using Godot;
 using Steamworks;
+//ReSharper disable PossibleInvalidOperationException
 
 /**
  * Multiplayer Lobby
@@ -61,6 +62,9 @@ public class Lobby : Node {
 		GD.Print("Leaving Lobby");
 		if (Global.getFrom(this).CurrentLobbyId.HasValue) {
 			SteamMatchmaking.LeaveLobby((CSteamID) Global.getFrom(this).CurrentLobbyId.Value);
+		}
+		if (Global.getFrom(this).IsHost.Value) {
+			//TODO: kick out all other players
 		}
 		this.GetTree().ChangeScene("res://Scenes/MainMenu.tscn");
 	}
