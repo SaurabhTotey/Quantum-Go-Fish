@@ -18,7 +18,7 @@ public class Global : Node {
 	public bool? IsHost = null;
 	
 	//What lobby the user is in if any
-	public ulong? CurrentLobbyId;
+	public CSteamID CurrentLobbyId = CSteamID.Nil;
 
 	/**
 	 * Initializes Steamworks and runs through all necessary correctness checks
