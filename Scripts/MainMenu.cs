@@ -8,7 +8,7 @@ using Steamworks;
 public class MainMenu : Node {
 
 	//All the game IDs for steam invites; is used to allow users to join a game they are invited to
-	public List<ulong> InvitedLobbyIDs = new List<ulong>();
+	private List<ulong> InvitedLobbyIDs = new List<ulong>();
 	
 	/**
 	 * When the main menu loads up, connect up the create and join buttons to the OnMenuButtonPressed method
