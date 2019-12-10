@@ -30,6 +30,7 @@ margin_top = 540.0
 margin_right = 1014.0
 margin_bottom = 590.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+disabled = true
 text = "Start Game"
 
 [node name="InviteFriendsButton" type="Button" parent="."]
@@ -40,3 +41,13 @@ margin_bottom = 590.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
 disabled = true
 text = "Invite Friends"
+
+[node name="MembersListBackgroundPanel" type="Panel" parent="."]
+margin_left = 10.0
+margin_top = 70.0
+margin_right = 1014.0
+margin_bottom = 530.0
+
+[node name="JoinedMembersList" type="ItemList" parent="MembersListBackgroundPanel"]
+margin_right = 1004.0
+margin_bottom = 460.0

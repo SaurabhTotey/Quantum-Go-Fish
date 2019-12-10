@@ -31,7 +31,7 @@ public class Lobby : Node {
 			});
 			SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 8);
 			
-			//TODO: connect functionality to the start game button
+			//TODO: connect functionality to the start game button: it should be enabled once another player joins
 		}
 		else {
 			this.GetNode<CanvasItem>("StartGameButton").Visible = false;

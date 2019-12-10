@@ -8,9 +8,20 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "Node",
+"class": "Colorblindness",
+"language": "GDScript",
+"path": "res://addons/paulloz.colorblindness/colorblindness.gd"
+}, {
+"base": "Node",
+"class": "WATTest",
+"language": "GDScript",
+"path": "res://addons/WAT/Runner/test.gd"
+} ]
 _global_script_class_icons={
-
+"Colorblindness": "",
+"WATTest": ""
 }
 
 [application]
