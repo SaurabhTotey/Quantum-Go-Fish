@@ -31,6 +31,7 @@ public class Lobby : Node {
 				this.UpdateLobbyLabel();
 				GD.Print($"Lobby {creationEvent.m_ulSteamIDLobby} created.");
 				this.GetNode<Button>("InviteFriendsButton").Disabled = false;
+				this.UpdateLobbyMembersList();
 			});
 			SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 8);
 			
@@ -40,6 +41,7 @@ public class Lobby : Node {
 			this.GetNode<CanvasItem>("StartGameButton").Visible = false;
 			this.GetNode<CanvasItem>("InviteFriendsButton").Visible = false;
 			this.UpdateLobbyLabel();
+			this.UpdateLobbyMembersList();
 			this.CurrentLobbyOwner = SteamMatchmaking.GetLobbyOwner(Global.getFrom(this).CurrentLobbyId);
 			new Callback<LobbyChatUpdate_t>(updateEvent => {
 				var newestLobbyOwner = SteamMatchmaking.GetLobbyOwner(Global.getFrom(this).CurrentLobbyId);
