@@ -1,9 +1,3 @@
 .idea/
-.import/
-.mono/
-*.import
-*.dll
-*.so
-steam_appid.txt
-Folder.DotSettings.user
-addons/
+build/
+.gradle/
