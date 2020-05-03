@@ -15,6 +15,5 @@ data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING)
  * A small data class that represents a GameObject
  * GameObjects are the objects that each player starts off with 4 of that have a superposition of types (denoted by possibleTypes)
  * A GameObject's type is only determined when possibleTypes has only 1 entry
- * A GameObject may change owners
  */
-data class GameObject(val possibleTypes: MutableList<GameObjectType>, var owner: Player)
+data class GameObject(val possibleTypes: MutableList<GameObjectType>)

@@ -3,13 +3,21 @@ package com.saurabhtotey.quantumgofish.logic
 /**
  * A class that manages type information and updating type information
  */
-class TypeManager(players: List<Player>) {
+class TypeManager(val players: List<Player>) {
 
 	//A list of all the types in the owning game
-	val gameObjectTypes = List(players.size) { GameObjectType(it) }
+	val gameObjectTypes = List(this.players.size) { GameObjectType(it) }
 
-	//A list of all the game objects in the owning game
-	val gameObjects = List(players.size * 4) { GameObject(this.gameObjectTypes.toMutableList(), players[it / players.size]) }
+	//A list of all the game objects in the game: gets them off of the players
+	val gameObjects: List<GameObject>
+		get() = this.players.flatMap { it.gameObjects }
+
+	/**
+	 * Gives game objects to all the players
+	 */
+	init {
+		this.players.forEach { it.gameObjects.addAll(List(4) { GameObject(this.gameObjectTypes.toMutableList()) }) }
+	}
 
 	/**
 	 * Registers the given string as a name for one of the types for objects in the owning game
