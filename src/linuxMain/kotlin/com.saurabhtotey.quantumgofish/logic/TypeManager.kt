@@ -42,14 +42,10 @@ class TypeManager(val players: List<Player>) {
 	 * Exploits game rules to try and infer as much as possible about the game
 	 */
 	fun determineKnowableTypes() {
-		//TODO: the below code can be improved: it determines a type if only a single player can own that type
-		this.gameObjectTypes.forEach { type ->
-			val playersWhoCanOwnType = this.players.filter { type in it.possibleOwnedTypes }
-			if (playersWhoCanOwnType.size == 1) {
-				//TODO: repeat below until 4 of this type exists
-				playersWhoCanOwnType[0].gameObjects.first { !it.hasDeterminedType }.possibleTypes.retainAll(arrayOf(type))
-			}
-		}
+		//TODO: if only one player can have a certain type, convert their unknown objects into the remaining amount of that type
+		//TODO: if the remaining amount of a type guarantees that a certain player has at some of them, convert an unknown into that type
+		//TODO: figure out more rules/ways for objects to be determinable
+		//TODO: consider maybe even generating all possible valid cases and then saving the intersection of them
 	}
 
 }

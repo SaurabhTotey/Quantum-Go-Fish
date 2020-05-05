@@ -8,9 +8,22 @@ const val UNKNOWN_TYPE_STRING = "?"
  * GameObjects may have multiple possible GameObjectTypes
  * The type has an integer ID which is used to ensure that certain types are the same
  * The name of a type is just for display
- * TODO: should probably store a count for how many of this type has been determined
  */
-data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING)
+data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING) {
+
+	//How many objects of this type are determined to be specifically this type and nothing possibly else
+	var determinedCount = 0
+		set(value) {
+			if (value > 4) {
+				throw Error("The count for objects that are determined to be of type $this has become $value which exceeds the maximum of 4.")
+			}
+			if (value < field) {
+				throw Error("The count for objects that are detetermined to be of type $this has become $value which is less than $field; the count should never go down.")
+			}
+			field = value
+		}
+
+}
 
 /**
  * A small data class that represents a GameObject
@@ -23,6 +36,20 @@ data class GameObject(val possibleTypes: MutableList<GameObjectType>) {
 	val hasDeterminedType
 		get() = this.possibleTypes.size == 1
 
-	//TODO: should probably have a function to set the definite type of this GameObject and then increment the type's determined count
+	/**
+	 * Makes the GameObject determined with only one possible type (no superposition)
+	 * This gives the GameObject a definite type
+	 */
+	fun determineType(type: GameObjectType) {
+		if (this.hasDeterminedType) {
+			throw Error("Cannot determineType of $this to be $type because it already has type ${this.possibleTypes[0]}.")
+		}
+		if (type !in this.possibleTypes) {
+			throw Error("Cannot determineType of $this to be $type because it is not contained in the list of possible types ${this.possibleTypes}.")
+		}
+		this.possibleTypes.clear()
+		this.possibleTypes.add(type)
+		type.determinedCount += 1
+	}
 
 }
