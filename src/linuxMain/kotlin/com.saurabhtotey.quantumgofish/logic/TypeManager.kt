@@ -9,7 +9,7 @@ class TypeManager(val players: List<Player>) {
 	val gameObjectTypes = List(this.players.size) { GameObjectType(it) }
 
 	//A list of all the game objects in the game: gets them off of the players
-	val gameObjects: List<GameObject>
+	val gameObjects
 		get() = this.players.flatMap { it.gameObjects }
 
 	/**
@@ -42,7 +42,14 @@ class TypeManager(val players: List<Player>) {
 	 * Exploits game rules to try and infer as much as possible about the game
 	 */
 	fun determineKnowableTypes() {
-		//TODO:
+		//TODO: the below code can be improved: it determines a type if only a single player can own that type
+		this.gameObjectTypes.forEach { type ->
+			val playersWhoCanOwnType = this.players.filter { type in it.possibleOwnedTypes }
+			if (playersWhoCanOwnType.size == 1) {
+				//TODO: repeat below until 4 of this type exists
+				playersWhoCanOwnType[0].gameObjects.first { !it.hasDeterminedType }.possibleTypes.retainAll(arrayOf(type))
+			}
+		}
 	}
 
 }
