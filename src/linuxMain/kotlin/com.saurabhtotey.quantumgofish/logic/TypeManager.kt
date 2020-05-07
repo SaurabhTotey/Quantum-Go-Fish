@@ -16,7 +16,7 @@ class TypeManager(val players: List<Player>) {
 	 * Gives game objects to all the players
 	 */
 	init {
-		this.players.forEach { it.gameObjects.addAll(List(4) { GameObject(this.gameObjectTypes.toMutableList()) }) }
+		this.players.forEach { it.gameObjects.addAll(List(4) { GameObject(this.gameObjectTypes.toMutableSet()) }) }
 	}
 
 	/**

@@ -30,19 +30,19 @@ data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING) {
  * GameObjects are the objects that each player starts off with 4 of that have a superposition of types (denoted by possibleTypes)
  * A GameObject's type is only determined when possibleTypes has only 1 entry
  */
-data class GameObject(val possibleTypes: MutableList<GameObjectType>) {
+data class GameObject(val possibleTypes: MutableSet<GameObjectType>) {
 
-	//Returns whether this game object has a definite type or not: if not, the type is still in superposition
-	val hasDeterminedType
-		get() = this.possibleTypes.size == 1
+	//Returns the determined type of this object if any (null otherwise)
+	val determinedType
+		get() = if (this.possibleTypes.size > 1) null else this.possibleTypes.first()
 
 	/**
 	 * Makes the GameObject determined with only one possible type (no superposition)
 	 * This gives the GameObject a definite type
 	 */
 	fun determineType(type: GameObjectType) {
-		if (this.hasDeterminedType) {
-			throw Error("Cannot determineType of $this to be $type because it already has type ${this.possibleTypes[0]}.")
+		if (this.determinedType != null) {
+			throw Error("Cannot determineType of $this to be $type because it already has type ${this.determinedType}.")
 		}
 		if (type !in this.possibleTypes) {
 			throw Error("Cannot determineType of $this to be $type because it is not contained in the list of possible types ${this.possibleTypes}.")
@@ -50,6 +50,23 @@ data class GameObject(val possibleTypes: MutableList<GameObjectType>) {
 		this.possibleTypes.clear()
 		this.possibleTypes.add(type)
 		type.determinedCount += 1
+	}
+
+	/**
+	 * Removes the possiblity of this GameObject being the given type
+	 */
+	fun removeTypePossibility(type: GameObjectType) {
+		if (type !in this.possibleTypes) {
+			throw Error("Cannot remove $type from $this because it is not in the possible types ${this.possibleTypes}.")
+		}
+		if (this.determinedType != null) {
+			throw Error("Cannot remove $type from $this because the type is already determined.")
+		}
+		this.possibleTypes.remove(type)
+		val determinedType = this.determinedType
+		if (determinedType != null) {
+			determinedType.determinedCount += 1
+		}
 	}
 
 }
