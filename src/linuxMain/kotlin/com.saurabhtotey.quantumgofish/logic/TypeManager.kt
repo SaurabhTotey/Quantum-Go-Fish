@@ -2,6 +2,8 @@ package com.saurabhtotey.quantumgofish.logic
 
 /**
  * A class that manages type information and updating type information
+ * Is useful because types have mutable state, and it is helpful to make the state global
+ * Therefore, all types that are used in the game should be coming from TypeManager which holds/manages those global instances
  */
 class TypeManager(val players: List<Player>) {
 

@@ -23,4 +23,11 @@ class Player (val user: User) {
 		unknownToConvert.determineType(type)
 	}
 
+	/**
+	 * Gets how many objects this player has that are determined to be the given type
+	 */
+	fun countOf(type: GameObjectType): Int {
+		return this.gameObjects.count { it.determinedType == type }
+	}
+
 }
