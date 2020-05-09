@@ -8,7 +8,7 @@ import com.saurabhtotey.quantumgofish.network.User
 class Game(users: List<User>) {
 
 	//The players of the game
-	val players = users.map { Player(it) }
+	private val players = users.map { Player(it) }
 
 	//The index of the player who gets to ask the current question
 	private var questionerIndex = 0
@@ -29,19 +29,29 @@ class Game(users: List<User>) {
 	//The game's type manager
 	val typeManager = TypeManager(this.players)
 
+	//The player who has won the game; returns null if no player satisfies any of the winning conditions of either owning all 4 of a type or asking a question that reveals the entire game state
+	private val winner: Player?
+		get() {
+			var winner = this.players.firstOrNull { player -> this.typeManager.gameObjectTypes.any { type -> player.countOf(type) == 4 } }
+			if (winner == null && typeManager.gameObjects.all { it.determinedType != null }) {
+				winner = this.questioner
+			}
+			return winner
+		}
+
 	/**
 	 * TODO: runs a turn of the game and returns the winner if any
 	 */
 	fun executeTurn(): Player? {
-		//TODO: assert that winning conditions are not met
+		if (this.winner != null) {
+			throw Error("Cannot executeTurn if the game is already won by ${this.winner}.")
+		}
 
 		//TODO: allow questioner to ask question
-		this.questionerIndex += 1
 
-		var winner = this.players.firstOrNull { player -> this.typeManager.gameObjectTypes.any { type -> player.countOf(type) == 4 } }
-		if (winner == null && typeManager.gameObjects.all { it.determinedType != null }) {
-			this.questionerIndex -= 1
-			winner = this.questioner
+		val winner = this.winner
+		if (winner == null) {
+			this.questionerIndex += 1
 		}
 		return winner
 	}
