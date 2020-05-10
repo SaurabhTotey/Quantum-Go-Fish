@@ -1,5 +1,5 @@
 package com.saurabhtotey.quantumgofish
 
 fun main() {
-	println("Hello, World!")
+	println("Welcome to Quantum Go Fish!")
 }
