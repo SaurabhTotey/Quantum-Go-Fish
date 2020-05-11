@@ -56,7 +56,18 @@ class TypeManager(val players: List<Player>) {
 			}
 		}
 
-		//TODO: for each player, consider all its possible types: if the remaining players cannot possibly fill in the remaining amount of that possible type, this player must have some of that type
+		//For each player, consider all its possible types: if the remaining players cannot possibly fill in the remaining amount of that possible type, this player must have some of that type
+		this.players.forEach { player ->
+			player.possibleOwnedTypes.forEach { type ->
+				val amountAlreadyOwnedByPlayer = player.gameObjects.count { it.determinedType == type }
+				val amountOfTypePossibleByOthers = this.players.filter { it != player }.flatMap { it.gameObjects }.count { type in it.possibleTypes }
+				val amountOfTypeToGiveToPlayer = 4 - amountOfTypePossibleByOthers - amountAlreadyOwnedByPlayer
+				if (amountOfTypeToGiveToPlayer > 0) {
+					repeat(amountOfTypeToGiveToPlayer) { player.convertUnknownInto(type) }
+					anythingChanged = true
+				}
+			}
+		}
 
 		if (anythingChanged) {
 			this.determineKnowableTypes()
