@@ -11,6 +11,9 @@ const val UNKNOWN_TYPE_STRING = "?"
  */
 data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING) {
 
+	//A state variable that is used by the TypeManager to determine when to remove this type as a possibility from all other objects
+	var justFinished = false
+
 	//How many objects of this type are determined to be specifically this type and nothing possibly else
 	var determinedCount = 0
 		set(value) {
@@ -21,6 +24,9 @@ data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING) {
 				throw Error("The count for objects that are detetermined to be of type $this has become $value which is less than $field; the count should never go down.")
 			}
 			field = value
+			if (value == 4) {
+				this.justFinished = true
+			}
 		}
 
 }

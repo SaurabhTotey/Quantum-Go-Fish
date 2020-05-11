@@ -45,16 +45,17 @@ class TypeManager(val players: List<Player>) {
 	 * Will call itself if it changed anything to make sure that it cannot continue to determine more changes
 	 */
 	tailrec fun determineKnowableTypes() {
-		var anythingChanged = false
+		var anythingChanged: Boolean
 
-		//If a type is 'finished' (has a count of 4 meaning no other objects can become that type), remove it as a possibility from all remaining objects
-		val finishedTypes = this.gameObjectTypes.filter { it.determinedCount == 4 }.toMutableSet()
+		//If a type is justFinished (has a count of 4 meaning no other objects can become that type), remove it as a possibility from all remaining objects
+		val finishedTypes = this.gameObjectTypes.filter { it.justFinished }.toMutableSet()
 		this.gameObjects.filter { it.determinedType !in finishedTypes }.forEach { obj ->
-			finishedTypes.filter { type -> type in obj.possibleTypes }.forEach { type ->
-				obj.removeTypePossibility(type)
-				anythingChanged = true
+			finishedTypes.filter { it in obj.possibleTypes }.forEach {
+				obj.removeTypePossibility(it)
 			}
 		}
+		anythingChanged = finishedTypes.isNotEmpty()
+		finishedTypes.forEach { it.justFinished = false }
 
 		//For each player, consider all its possible types: if the remaining players cannot possibly fill in the remaining amount of that possible type, this player must have some of that type
 		this.players.forEach { player ->
