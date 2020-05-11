@@ -42,12 +42,25 @@ class TypeManager(val players: List<Player>) {
 	/**
 	 * Determines the type of any GameObjects that may have their types determinable
 	 * Exploits game rules to try and infer as much as possible about the game
+	 * Will call itself if it changed anything to make sure that it cannot continue to determine more changes
 	 */
-	fun determineKnowableTypes() {
-		//TODO: if only one player can have a certain type, convert their unknown objects into the remaining amount of that type
-		//TODO: if the remaining amount of a type guarantees that a certain player has at some of them, convert an unknown into that type
-		//TODO: figure out more rules/ways for objects to be determinable
-		//TODO: consider maybe even generating all possible valid cases and then saving the intersection of them
+	tailrec fun determineKnowableTypes() {
+		var anythingChanged = false
+
+		//If a type is 'finished' (has a count of 4 meaning no other objects can become that type), remove it as a possibility from all remaining objects
+		val finishedTypes = this.gameObjectTypes.filter { it.determinedCount == 4 }.toMutableSet()
+		this.gameObjects.filter { it.determinedType !in finishedTypes }.forEach { obj ->
+			finishedTypes.filter { type -> type in obj.possibleTypes }.forEach { type ->
+				obj.removeTypePossibility(type)
+				anythingChanged = true
+			}
+		}
+
+		//TODO: for each player, consider all its possible types: if the remaining players cannot possibly fill in the remaining amount of that possible type, this player must have some of that type
+
+		if (anythingChanged) {
+			this.determineKnowableTypes()
+		}
 	}
 
 }
