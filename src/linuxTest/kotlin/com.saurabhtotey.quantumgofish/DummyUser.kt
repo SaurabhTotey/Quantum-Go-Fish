@@ -8,16 +8,10 @@ import com.saurabhtotey.quantumgofish.network.User
  * index parameter just for naming/debugging
  * None of the DummyUser methods should be called other than the id field
  */
-class DummyUser(index: Int) : User() {
+class DummyUser(index: Int) : User("Dummy User $index") {
 
-	override val id = "Dummy User $index"
-
-	override fun sendData() {
+	override fun sendData(data: String) {
 		throw Error("sendData should not be called because $this is a DummyUser.")
-	}
-
-	override fun getResponse() {
-		throw Error("getResponse should not be called because $this is a DummyUser.")
 	}
 
 }
