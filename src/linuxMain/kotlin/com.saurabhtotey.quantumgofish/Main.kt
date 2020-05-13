@@ -11,7 +11,7 @@ fun main() {
 		//Clears the terminal
 		system("setterm -reset")
 		//Displays welcome message and starting instructions
-		println("Welcome to Quantum Go Fish!\nTo host a lobby, enter \"/host [PLAYER_NAME] [MAX_PLAYERS] [PORT_NUMBER] [PASSWORD]\".\nTo instead join a lobby, enter \"/join [PLAYER_NAME] [HOST_ADDRESS] [PORT_NUMBER] [PASSWORD]\".\nPlayer names must be alphabetic and will be uppercased.\nPort numbers must exceed 1024 and be lower than 65535; default port is 6669.\nDefault amount for maximum number of players is 8.\nIf no password is specified, no password is used.")
+		println("Welcome to Quantum Go Fish!\nTo host a lobby, enter \"/host [PLAYER_NAME] [MAX_PLAYERS] [PORT_NUMBER] [PASSWORD]\".\nTo instead join a lobby, enter \"/join [PLAYER_NAME] [HOST_ADDRESS] [PORT_NUMBER] [PASSWORD]\".\nPlayer names must be alphabetic and will be uppercased. Player names will be truncated at 15 characters.\nPort numbers must exceed 1024 and be lower than 65535; default port is 6669.\nDefault amount for maximum number of players is 8.\nIf no password is specified, an empty password is used. Passwords must be alphanumeric and 15 characters at most.\nIncorrectly entered data may error or be coerced into a correct format.")
 		//Reads input to check whether user wants to join a lobby or host a lobby
 		var input: String
 		while(true) {
@@ -32,8 +32,11 @@ fun main() {
 			readLine()
 			continue
 		}
-		val name = args[1].toUpperCase()
-		val password = if (args.size >= 5) args[4] else ""
+		val name = (if (args[1].length > 15) args[1].substring(0, 15) else args[1]).toUpperCase()
+		var password = if (args.size >= 5) args[4].filter { it.isLetterOrDigit() } else ""
+		if (password.length > 15) {
+			password = password.substring(0, 15)
+		}
 		val port = if (args.size >= 4 && args[3].toIntOrNull() != null && 1024 < args[3].toInt() && args[3].toInt() < 65535) args[3].toInt() else 6669
 		//More input validation and then creation of a Lobby or Client that controls what happens until user leaves lobby
 		if (input.startsWith("/h")) {
