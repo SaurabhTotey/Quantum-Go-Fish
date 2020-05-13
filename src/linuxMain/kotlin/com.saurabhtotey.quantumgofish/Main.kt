@@ -2,7 +2,7 @@ package com.saurabhtotey.quantumgofish
 
 import com.saurabhtotey.quantumgofish.network.Client
 import com.saurabhtotey.quantumgofish.network.Lobby
-import com.saurabhtotey.quantumgofish.network.getSelfAddress
+import com.saurabhtotey.quantumgofish.network.NetworkUtil.getSelfAddress
 import platform.posix.system
 
 fun main() {
@@ -37,7 +37,7 @@ fun main() {
 		//More input validation and then creation of a Lobby or Client that controls what happens until user leaves lobby
 		if (input.startsWith("/h")) {
 			val maxPlayers = if (args.size >= 3 && args[2].toIntOrNull() != null && args[2].toInt() > 1) args[2].toInt() else 8
-			println("Creating a lobby as $name which allows up to $maxPlayers players on ${getSelfAddress()}:$port with password $password.")
+			println("Creating a lobby as $name which allows up to $maxPlayers players on ${getSelfAddress()}:$port with password \"$password\".")
 			Lobby(name, maxPlayers, port, password)
 			//TODO: some sort of blocking method
 		} else {
@@ -47,7 +47,7 @@ fun main() {
 				continue
 			}
 			val address = args[2]
-			println("Joining the lobby at $address:$port as $name with a password of $password.")
+			println("Joining the lobby at $address:$port as $name with a password of \"$password\".")
 			Client(name, address, port, password)
 			//TODO: some sort of blocking method
 		}
