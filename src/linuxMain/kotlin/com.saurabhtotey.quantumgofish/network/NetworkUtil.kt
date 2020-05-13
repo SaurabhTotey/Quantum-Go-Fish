@@ -4,9 +4,7 @@ import kotlinx.cinterop.*
 import platform.linux.getifaddrs
 import platform.linux.ifaddrs
 import platform.linux.inet_ntop
-import platform.posix.AF_INET
-import platform.posix.INET_ADDRSTRLEN
-import platform.posix.sockaddr_in
+import platform.posix.*
 
 /**
  * An object that handles the common yucky C methods methods and wraps them in nicer functions
@@ -39,6 +37,28 @@ object NetworkUtil {
 				ifa = ifa[0].ifa_next ?: break
 			}
 			return "127.0.0.1"
+		}
+	}
+
+	/**
+	 * Creates a socket and returns the socket description integer
+	 */
+	fun createSocket(): Int {
+		val socketDescription = socket(AF_INET, SOCK_STREAM, 0)
+		if (socketDescription == -1) {
+			throw Error("Unable to create socket.")
+		}
+		return socketDescription
+	}
+
+	/**
+	 * Gets a CValue for socket address
+	 */
+	fun describeAddress(port: Int, address: String = ""): CValue<sockaddr_in> {
+		return cValue {
+			this.sin_family = AF_INET.convert()
+			this.sin_port = htons(port.toUShort())
+			this.sin_addr.s_addr = INADDR_ANY //TODO: use address parameter
 		}
 	}
 
