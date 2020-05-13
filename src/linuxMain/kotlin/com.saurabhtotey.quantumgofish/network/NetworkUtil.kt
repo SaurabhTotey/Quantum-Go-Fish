@@ -3,6 +3,7 @@ package com.saurabhtotey.quantumgofish.network
 import kotlinx.cinterop.*
 import platform.linux.getifaddrs
 import platform.linux.ifaddrs
+import platform.linux.inet_addr
 import platform.linux.inet_ntop
 import platform.posix.*
 
@@ -52,13 +53,13 @@ object NetworkUtil {
 	}
 
 	/**
-	 * Gets a CValue for socket address
+	 * Gets a CValue for an IPV4 socket address
 	 */
 	fun describeAddress(port: Int, address: String = ""): CValue<sockaddr_in> {
 		return cValue {
 			this.sin_family = AF_INET.convert()
 			this.sin_port = htons(port.toUShort())
-			this.sin_addr.s_addr = INADDR_ANY //TODO: use address parameter
+			this.sin_addr.s_addr = if (address.isEmpty()) INADDR_ANY else inet_addr(address)
 		}
 	}
 
