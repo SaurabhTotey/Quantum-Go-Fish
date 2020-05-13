@@ -57,3 +57,37 @@ import kotlin.test.assertEquals
 	typeManager.determineKnowableTypes()
 	assertEquals(2, players[2].gameObjects.count { it.determinedType == typeManager.gameObjectTypes[0] })
 }
+
+/**
+ * A test that runs through the sample game on https://stacky.net/wiki/index.php?title=Quantum_Go_Fish and ensures that the output matches
+ * TODO: question asking and moving of game objects is done manually: replace with the 'real' mechanisms once implemented
+ */
+@Test fun sampleGame() {
+	val players = List(3) { Player(DummyUser(it)) }
+	val typeManager = TypeManager(players)
+	//Player A asks Player B if they have any of type 0, and B says yes
+	players[0].convertUnknownInto(typeManager.gameObjectTypes[0])
+	players[1].convertUnknownInto(typeManager.gameObjectTypes[0])
+	players[0].gameObjects.add(players[1].gameObjects.removeAt(players[1].gameObjects.indexOfFirst { it.determinedType == typeManager.gameObjectTypes[0] }))
+	typeManager.determineKnowableTypes()
+	//Player B asks Player C if they have any of type 0, and C says yes
+	players[1].convertUnknownInto(typeManager.gameObjectTypes[0])
+	players[2].convertUnknownInto(typeManager.gameObjectTypes[0])
+	players[1].gameObjects.add(players[2].gameObjects.removeAt(players[2].gameObjects.indexOfFirst { it.determinedType == typeManager.gameObjectTypes[0] }))
+	typeManager.determineKnowableTypes()
+	//Player C asks Player A if they have any of type 1, and A says no
+	players[2].convertUnknownInto(typeManager.gameObjectTypes[1])
+	players[0].gameObjects.filter { it.determinedType == null }.forEach { it.removeTypePossibility(typeManager.gameObjectTypes[1]) }
+	typeManager.determineKnowableTypes()
+	//Player A asks Player C if they have any of type 2, and C says no
+	players[2].gameObjects.filter { it.determinedType == null }.forEach { it.removeTypePossibility(typeManager.gameObjectTypes[2]) }
+	typeManager.determineKnowableTypes()
+	//Game is finished with the below state
+	assert(typeManager.gameObjects.all { it.determinedType != null })
+	assertEquals(2, players[0].countOf(typeManager.gameObjectTypes[0]))
+	assertEquals(3, players[0].countOf(typeManager.gameObjectTypes[2]))
+	assertEquals(2, players[1].countOf(typeManager.gameObjectTypes[0]))
+	assertEquals(1, players[1].countOf(typeManager.gameObjectTypes[1]))
+	assertEquals(1, players[1].countOf(typeManager.gameObjectTypes[2]))
+	assertEquals(3, players[2].countOf(typeManager.gameObjectTypes[1]))
+}
