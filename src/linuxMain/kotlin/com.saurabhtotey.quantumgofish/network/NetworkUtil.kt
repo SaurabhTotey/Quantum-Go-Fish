@@ -24,6 +24,7 @@ object NetworkUtil {
 			getifaddrs(ifa.reinterpret())
 			while (ifa.rawValue != nativeNullPtr) {
 				if (ifa[0].ifa_addr == null || ifa[0].ifa_addr.rawValue == nativeNullPtr) {
+					ifa = ifa[0].ifa_next ?: break
 					continue
 				}
 				if (ifa[0].ifa_addr?.get(0)?.sa_family?.toInt() == AF_INET) {

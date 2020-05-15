@@ -49,7 +49,8 @@ class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 		//Starts a new thread to accept players in the background
 		this.acceptPlayersThread = GlobalScope.launch { while (true) memScoped {
 			val clientInfo = cValue<sockaddr_in>()
-			val newSocket = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sizeOf<sockaddr_in>().convert())
+			val sockAddrInSize = cValuesOf(sizeOf<sockaddr_in>().toUInt())
+			val newSocket = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sockAddrInSize)
 			if (newSocket == -1) {
 				return@memScoped
 			}
@@ -78,7 +79,7 @@ class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 					this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   ${name.trimEnd()} is joining the lobby!") }
 					this@Lobby.users.add(newUser)
 					newUser.sendData("MESSAGETHE UNIVERSE   Welcome to the lobby!")
-					// this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   List of players is now [${this@Lobby.users.joinToString(",") { it.name.trimEnd() }}].") }
+					 this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   List of players in lobby is now [${this@Lobby.users.joinToString(",") { it.name.trimEnd() }}].") }
 				}
 			} catch (e: Exception) {
 				if (e is Error && e.message != null) {
