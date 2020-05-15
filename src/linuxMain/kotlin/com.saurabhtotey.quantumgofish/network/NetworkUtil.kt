@@ -9,9 +9,18 @@ import platform.posix.*
 
 /**
  * An object that handles the common yucky C methods methods and wraps them in nicer functions
+ * Also just handles common networking stuff
  * Is meant for use by Lobby and Client, but doesn't handle all the C methods that might be needed by either of them
  */
 object NetworkUtil {
+
+	fun interpretIncoming(incoming: String) {
+		if (incoming.startsWith("MESSAGE")) {
+			println("${incoming.substring(7, 22)}: ${incoming.substring(22)}")
+		}
+	}
+
+	//TODO: send method
 
 	/**
 	 * Gets the IPV4 address of the current machine
