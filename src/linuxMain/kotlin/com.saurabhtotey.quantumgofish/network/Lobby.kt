@@ -6,11 +6,14 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import platform.posix.*
+import kotlin.time.DurationUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.toDuration
 
 /**
  * A class that manages a group of users and running their games
  */
-class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
+@ExperimentalTime class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 
 	//Creates a socket that all the clients will connect to; is a C socket handle
 	private val socket = NetworkUtil.createSocket()
@@ -43,24 +46,22 @@ class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 	}
 
 	/**
-	 *
+	 * A method that takes a second to see if any players are trying to join
+	 * If a player is trying to join, it will accept them and try to exchange initial information within the first 30 seconds
+	 * If information cannot be exchanged in the first 30 seconds, the connection is terminated
 	 */
 	private fun acceptAnyJoiningPlayers() {
 		memScoped {
 			val clientInfo = cValue<sockaddr_in>()
 			val sockAddrInSize = cValuesOf(sizeOf<sockaddr_in>().toUInt())
-			val newSocket = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sockAddrInSize)
+			var newSocket: Int = -1
+			NetworkUtil.doActionOnTimeout(1.toDuration(DurationUnit.SECONDS), { newSocket = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sockAddrInSize) })
 			if (newSocket == -1) {
 				return@memScoped
 			}
 			try {
 				val initialResponse = this.allocArray<ByteVar>(30)
-				val errorAfterThirty = GlobalScope.async {
-					delay(1000 * 30)
-					throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.")
-				}
-				recv(newSocket, initialResponse, 30.convert(), 0)
-				errorAfterThirty.cancel()
+				NetworkUtil.doActionOnTimeout(30.toDuration(DurationUnit.SECONDS), { recv(newSocket, initialResponse, 30.convert(), 0) }, { throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.") })
 				val initialResponseString = initialResponse.toKString()
 				val name = initialResponseString.substring(0, 15)
 				val givenPassword = initialResponseString.substring(15, 30)
@@ -75,7 +76,7 @@ class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 					this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   ${name.trimEnd()} is joining the lobby!") }
 					this@Lobby.users.add(newUser)
 					newUser.sendData("MESSAGETHE UNIVERSE   Welcome to the lobby!")
-					this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   List of players in lobby is now [${this@Lobby.users.joinToString(",") { it.name.trimEnd() }}].") }
+					this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   List of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name.trimEnd() }}].") }
 				} }
 			} catch (e: Exception) {
 				if (e is Error && e.message != null) {

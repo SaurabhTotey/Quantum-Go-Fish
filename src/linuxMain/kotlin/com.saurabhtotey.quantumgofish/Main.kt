@@ -4,8 +4,9 @@ import com.saurabhtotey.quantumgofish.network.Client
 import com.saurabhtotey.quantumgofish.network.Lobby
 import com.saurabhtotey.quantumgofish.network.NetworkUtil
 import platform.posix.system
+import kotlin.time.ExperimentalTime
 
-fun main() {
+@ExperimentalTime fun main() {
 	print("") //Just to get the terminal open just in case
 	while (true) {
 		//Clears the terminal

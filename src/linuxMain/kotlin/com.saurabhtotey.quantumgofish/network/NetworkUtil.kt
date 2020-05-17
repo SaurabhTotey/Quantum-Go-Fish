@@ -23,7 +23,7 @@ object NetworkUtil {
 	 * A method that executes the given action over the given time
 	 * If the action fails to complete in time, it is interrupted and the failAction is executed
 	 */
-	@ExperimentalTime fun doActionOnTimeout(timeout: Duration, action: () -> Unit, failAction: () -> Unit) {
+	@ExperimentalTime fun doActionOnTimeout(timeout: Duration, action: () -> Unit, failAction: () -> Unit = {}) {
 		class TimeOutInternalException : Error()
 		try {
 			val errorJob = GlobalScope.async {
