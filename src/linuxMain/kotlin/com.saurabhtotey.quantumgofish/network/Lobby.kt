@@ -46,22 +46,28 @@ import kotlin.time.toDuration
 	}
 
 	/**
-	 * A method that takes a second to see if any players are trying to join
-	 * If a player is trying to join, it will accept them and try to exchange initial information within the first 30 seconds
-	 * If information cannot be exchanged in the first 30 seconds, the connection is terminated
+	 * A method that checks to see if any players are trying to join
+	 * If a player is trying to join, it will accept them and try to exchange initial information within the first 5 seconds
+	 * If information cannot be exchanged in the first 5 seconds, the connection is terminated
 	 */
 	private fun acceptAnyJoiningPlayers() {
 		memScoped {
 			val clientInfo = cValue<sockaddr_in>()
 			val sockAddrInSize = cValuesOf(sizeOf<sockaddr_in>().toUInt())
-			var newSocket: Int = -1
-			NetworkUtil.doActionOnTimeout(1.toDuration(DurationUnit.SECONDS), { newSocket = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sockAddrInSize) })
+			val currentSocketFlags = fcntl(this@Lobby.socket, F_GETFL)
+			if (currentSocketFlags == -1 || fcntl(this@Lobby.socket, F_SETFL, currentSocketFlags or O_NONBLOCK) == -1) {
+				return
+			}
+			val newSocket: Int = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sockAddrInSize)
+			if (fcntl(this@Lobby.socket, F_SETFL, currentSocketFlags and O_NONBLOCK.inv()) == -1) {
+				return
+			}
 			if (newSocket == -1) {
-				return@memScoped
+				return
 			}
 			try {
 				val initialResponse = this.allocArray<ByteVar>(30)
-				NetworkUtil.doActionOnTimeout(30.toDuration(DurationUnit.SECONDS), { recv(newSocket, initialResponse, 30.convert(), 0) }, { throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.") })
+				NetworkUtil.doActionOnTimeout(5.toDuration(DurationUnit.SECONDS), { recv(newSocket, initialResponse, 30.convert(), 0) }, { throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.") })
 				val initialResponseString = initialResponse.toKString()
 				val name = initialResponseString.substring(0, 15)
 				val givenPassword = initialResponseString.substring(15, 30)
