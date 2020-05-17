@@ -1,11 +1,16 @@
 package com.saurabhtotey.quantumgofish.network
 
 import kotlinx.cinterop.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import platform.linux.getifaddrs
 import platform.linux.ifaddrs
 import platform.linux.inet_addr
 import platform.linux.inet_ntop
 import platform.posix.*
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 /**
  * An object that handles the common yucky C methods methods and wraps them in nicer functions
@@ -14,6 +19,27 @@ import platform.posix.*
  */
 object NetworkUtil {
 
+	/**
+	 * A method that executes the given action over the given time
+	 * If the action fails to complete in time, it is interrupted and the failAction is executed
+	 */
+	@ExperimentalTime fun doActionOnTimeout(timeout: Duration, action: () -> Unit, failAction: () -> Unit) {
+		class TimeOutInternalException : Error()
+		try {
+			val errorJob = GlobalScope.async {
+				delay(timeout)
+				throw TimeOutInternalException()
+			}
+			action()
+			errorJob.cancel()
+		} catch (e: TimeOutInternalException) {
+			failAction()
+		}
+	}
+
+	/**
+	 * Manages handling the action of a data string sent from a lobby/host
+	 */
 	fun interpretIncoming(incoming: String) {
 		if (incoming.startsWith("MESSAGE")) {
 			println("${incoming.substring(7, 22)}: ${incoming.substring(22)}")

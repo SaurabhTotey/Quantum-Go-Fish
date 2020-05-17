@@ -12,7 +12,7 @@ import platform.posix.*
  */
 class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 
-	//Creates a socket that all the clients will connect to
+	//Creates a socket that all the clients will connect to; is a C socket handle
 	private val socket = NetworkUtil.createSocket()
 
 	//The actual 15 character password that is used
@@ -28,7 +28,7 @@ class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 	private var game: Game? = null
 
 	/**
-	 * TODO: everything
+	 * Binds the socket to the given port and listens for incoming connections
 	 */
 	init {
 		//Binds the socket to the port given by constructor parameters
@@ -42,6 +42,9 @@ class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
 		listen(this@Lobby.socket, maxPlayers)
 	}
 
+	/**
+	 *
+	 */
 	private fun acceptAnyJoiningPlayers() {
 		memScoped {
 			val clientInfo = cValue<sockaddr_in>()
