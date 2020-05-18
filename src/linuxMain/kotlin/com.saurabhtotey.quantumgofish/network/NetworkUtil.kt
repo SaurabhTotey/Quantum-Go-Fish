@@ -89,6 +89,17 @@ object NetworkUtil {
 	}
 
 	/**
+	 * Makes the given socket either blocking or non-blocking
+	 */
+	fun setIsSocketBlocking(socketHandle: Int, isBlocking: Boolean) {
+		val currentSocketFlags = fcntl(socketHandle, F_GETFL)
+		val newFlags = if (isBlocking) currentSocketFlags and O_NONBLOCK.inv() else currentSocketFlags or O_NONBLOCK
+		if (currentSocketFlags == -1 || fcntl(socketHandle, F_SETFL, newFlags) == -1) {
+			throw Error("Could not set socket $socketHandle to be ${if (isBlocking) "blocking" else "non-blocking"}.")
+		}
+	}
+
+	/**
 	 * Gets a CValue for an IPV4 socket address
 	 */
 	fun describeAddress(port: Int, address: String = ""): CValue<sockaddr_in> {

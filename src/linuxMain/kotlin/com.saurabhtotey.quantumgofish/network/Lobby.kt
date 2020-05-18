@@ -54,14 +54,9 @@ import kotlin.time.toDuration
 		memScoped {
 			val clientInfo = cValue<sockaddr_in>()
 			val sockAddrInSize = cValuesOf(sizeOf<sockaddr_in>().toUInt())
-			val currentSocketFlags = fcntl(this@Lobby.socket, F_GETFL)
-			if (currentSocketFlags == -1 || fcntl(this@Lobby.socket, F_SETFL, currentSocketFlags or O_NONBLOCK) == -1) {
-				return
-			}
+			NetworkUtil.setIsSocketBlocking(this@Lobby.socket, false)
 			val newSocket: Int = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sockAddrInSize)
-			if (fcntl(this@Lobby.socket, F_SETFL, currentSocketFlags and O_NONBLOCK.inv()) == -1) {
-				return
-			}
+			NetworkUtil.setIsSocketBlocking(this@Lobby.socket, true)
 			if (newSocket == -1) {
 				return
 			}
