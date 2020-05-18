@@ -1,0 +1,3 @@
+headers = ncurses.h
+compilerOpts = -I/usr/include
+linkerOpts = -L/usr/lib/x86_64-linux-gnu -L/lib/x86_64-linux-gnu -lncurses

@@ -3,11 +3,12 @@ package com.saurabhtotey.quantumgofish
 import com.saurabhtotey.quantumgofish.network.Client
 import com.saurabhtotey.quantumgofish.network.Lobby
 import com.saurabhtotey.quantumgofish.network.NetworkUtil
+import ncurses.initscr
 import platform.posix.system
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime fun main() {
-	print("") //Just to get the terminal open just in case
+	initscr()
 	while (true) {
 		//Clears the terminal
 		system("setterm -reset")

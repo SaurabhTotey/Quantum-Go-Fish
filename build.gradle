@@ -10,6 +10,13 @@ kotlin {
 	// For MacOS, should be changed to e.g. macosX64
 	// For Windows, should be changed to e.g. mingwX64
 	linuxX64("linux") {
+		compilations.main {
+			cinterops {
+				ncurses {
+					packageName 'ncurses'
+				}
+			}
+		}
 		binaries {
 			executable {
 				// Change to specify fully qualified name of your application's entry point:
