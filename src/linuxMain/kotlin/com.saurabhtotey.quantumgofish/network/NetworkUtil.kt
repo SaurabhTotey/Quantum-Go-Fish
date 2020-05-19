@@ -22,18 +22,21 @@ object NetworkUtil {
 	/**
 	 * A method that executes the given action over the given time
 	 * If the action fails to complete in time, it is interrupted and the failAction is executed
+	 * Returns whether the action finished execution
 	 */
-	@ExperimentalTime fun doActionOnTimeout(timeout: Duration, action: () -> Unit, failAction: () -> Unit = {}) {
+	@ExperimentalTime fun doActionOnTimeout(timeout: Duration, action: () -> Unit, failAction: () -> Unit = {}): Boolean {
 		class TimeOutInternalException : Error()
-		try {
+		return try {
 			val errorJob = GlobalScope.async {
 				delay(timeout)
 				throw TimeOutInternalException()
 			}
 			action()
 			errorJob.cancel()
+			true
 		} catch (e: TimeOutInternalException) {
 			failAction()
+			false
 		}
 	}
 
@@ -41,9 +44,7 @@ object NetworkUtil {
 	 * Manages handling the action of a data string sent from a lobby/host
 	 */
 	fun interpretIncoming(incoming: String) {
-		if (incoming.startsWith("MESSAGE")) {
-			println("${incoming.substring(7, 22)}: ${incoming.substring(22)}")
-		}
+		//TODO:
 	}
 
 	//TODO: send method
