@@ -1,16 +1,11 @@
 package com.saurabhtotey.quantumgofish.network
 
 import kotlinx.cinterop.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import platform.linux.getifaddrs
 import platform.linux.ifaddrs
 import platform.linux.inet_addr
 import platform.linux.inet_ntop
 import platform.posix.*
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
 
 /**
  * An object that handles the common yucky C methods methods and wraps them in nicer functions
@@ -18,27 +13,6 @@ import kotlin.time.ExperimentalTime
  * Is meant for use by Lobby and Client, but doesn't handle all the C methods that might be needed by either of them
  */
 object NetworkUtil {
-
-	/**
-	 * A method that executes the given action over the given time
-	 * If the action fails to complete in time, it is interrupted and the failAction is executed
-	 * Returns whether the action finished execution
-	 */
-	@ExperimentalTime fun doActionOnTimeout(timeout: Duration, action: () -> Unit, failAction: () -> Unit = {}): Boolean {
-		class TimeOutInternalException : Error()
-		return try {
-			val errorJob = GlobalScope.async {
-				delay(timeout)
-				throw TimeOutInternalException()
-			}
-			action()
-			errorJob.cancel()
-			true
-		} catch (e: TimeOutInternalException) {
-			failAction()
-			false
-		}
-	}
 
 	/**
 	 * Manages handling the action of a data string sent from a lobby/host

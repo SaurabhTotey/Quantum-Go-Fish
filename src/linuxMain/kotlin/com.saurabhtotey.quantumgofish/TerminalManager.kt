@@ -2,12 +2,13 @@ package com.saurabhtotey.quantumgofish
 
 import kotlinx.cinterop.*
 import ncurses.*
+import kotlin.time.ExperimentalTime
 
 /**
  * A terminal manager that handles actually displaying information to the screen and getting user input
  * Uses ncurses
  */
-object TerminalManager {
+@ExperimentalTime object TerminalManager {
 
 	/**
 	 * An enum of colors that wraps the allowable ncurses colors
@@ -43,7 +44,6 @@ object TerminalManager {
 
 	/**
 	 * Initialize ncurses
-	 * TODO: install sigwinch handler, and exit program if terminal is too small (not wide enough to run commands or tall enough to display info and take input)
 	 */
 	init {
 		//Initialize ncurses
@@ -60,6 +60,9 @@ object TerminalManager {
 		//Get screen size
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
+		if (this.maxX < 50 || this.maxY < 8) {
+			throw Error("Terminal is too small to be usable!")
+		}
 		//Create windows
 		this.displayWindowBox = newwin(maxY - 3, maxX, 0, 0)!!
 		this.displayWindow = newwin(maxY - 5, maxX - 2, 1, 1)!! //TODO: make this a pad https://linux.die.net/man/3/newpad
@@ -69,7 +72,6 @@ object TerminalManager {
 		wrefresh(this.displayWindowBox)
 		wrefresh(this.displayWindow)
 		wrefresh(this.inputWindow)
-		//TODO: start thread to repeatedly call getInput and store the results in some queue with mutex
 	}
 
 	/**

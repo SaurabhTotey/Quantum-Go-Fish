@@ -1,5 +1,6 @@
 package com.saurabhtotey.quantumgofish.network
 
+import com.saurabhtotey.quantumgofish.doActionOnTimeout
 import com.saurabhtotey.quantumgofish.logic.Game
 import kotlinx.cinterop.*
 import kotlinx.coroutines.*
@@ -62,7 +63,7 @@ import kotlin.time.toDuration
 			}
 			try {
 				val initialResponse = this.allocArray<ByteVar>(30)
-				NetworkUtil.doActionOnTimeout(5.toDuration(DurationUnit.SECONDS), { recv(newSocket, initialResponse, 30.convert(), 0) }, { throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.") })
+				doActionOnTimeout(5.toDuration(DurationUnit.SECONDS), { recv(newSocket, initialResponse, 30.convert(), 0) }, { throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.") })
 				val initialResponseString = initialResponse.toKString()
 				val name = initialResponseString.substring(0, 15)
 				val givenPassword = initialResponseString.substring(15, 30)
