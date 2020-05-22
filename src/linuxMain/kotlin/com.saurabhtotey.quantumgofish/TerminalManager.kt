@@ -10,8 +10,9 @@ import kotlin.time.ExperimentalTime
 /**
  * A terminal manager that handles actually displaying information to the screen and getting user input
  * Uses ncurses
+ * Is a class instead of an object because of https://github.com/JetBrains/kotlin-native/blob/master/IMMUTABILITY.md
  */
-@ExperimentalTime object TerminalManager {
+@ExperimentalTime class TerminalManager {
 
 	/**
 	 * An enum of colors that wraps the allowable ncurses colors
@@ -36,7 +37,7 @@ import kotlin.time.ExperimentalTime
 	private val terminalModificationMutex = Mutex()
 
 	//All the data that has been printed to the screen: is stored for scrolling purposes
-//	private val printedLines = mutableListOf<TerminalMessage>()
+	private val printedLines = mutableListOf<TerminalMessage>()
 
 	//The input that the user is currently inputting
 	var currentInput = ""
@@ -142,7 +143,7 @@ import kotlin.time.ExperimentalTime
 		runBlocking {
 			this@TerminalManager.terminalModificationMutex.withLock {
 				wclear(this@TerminalManager.displayWindow)
-//				this@TerminalManager.printedLines.clear()
+				this@TerminalManager.printedLines.clear()
 			}
 		}
 	}
@@ -162,7 +163,7 @@ import kotlin.time.ExperimentalTime
 				if (this@TerminalManager.printWithColors) {
 					attroff(COLOR_PAIR(1))
 				}
-//				this@TerminalManager.printedLines.add(TerminalMessage(info, textColor, backgroundColor))
+				this@TerminalManager.printedLines.add(TerminalMessage(info, textColor, backgroundColor))
 			}
 		}
 	}
