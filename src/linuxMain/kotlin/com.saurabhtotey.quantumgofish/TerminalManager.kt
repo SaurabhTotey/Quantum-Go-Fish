@@ -1,6 +1,9 @@
 package com.saurabhtotey.quantumgofish
 
 import kotlinx.cinterop.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ncurses.*
 import kotlin.time.ExperimentalTime
 
@@ -24,6 +27,20 @@ import kotlin.time.ExperimentalTime
 		YELLOW(COLOR_YELLOW)
 	}
 
+	/**
+	 * A small data class that stores the information of a printed message
+	 */
+	data class TerminalMessage(val message: String, val textColor: Color, val backgroundColor: Color)
+
+	//A mutex that must be used whenever modifying the terminal
+	private val terminalModificationMutex = Mutex()
+
+	//All the data that has been printed to the screen: is stored for scrolling purposes
+//	private val printedLines = mutableListOf<TerminalMessage>()
+
+	//The input that the user is currently inputting
+	var currentInput = ""
+
 	//Whether we can print with colors or not
 	private val printWithColors: Boolean
 
@@ -36,11 +53,20 @@ import kotlin.time.ExperimentalTime
 	//The section of the terminal where user input is taken
 	private val inputWindow: CPointer<WINDOW>
 
+	//The max height of the terminal
+	private val maxY: Int
+
 	//The max width of the terminal
 	private val maxX: Int
 
-	//The max height of the terminal
-	private val maxY: Int
+	//The y position of the cursor
+	private val cursorY: Int
+
+	//The x position of the cursor
+	private var cursorX: Int
+
+	//A job that repeatedly calls getch and echos it appropriately
+//	private val acceptInputThread: Job
 
 	/**
 	 * Initialize ncurses
@@ -53,10 +79,10 @@ import kotlin.time.ExperimentalTime
 		if (this.printWithColors) {
 			start_color()
 		}
-		//Program only needs to handle input when the user submits it: allow the user to see their input
-		nocbreak()
-		echo()
-		//TODO: allow keypad entry and make arrow keys functional
+		//Program will manage all input
+		cbreak()
+		noecho()
+		keypad(stdscr, true)
 		//Get screen size
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
@@ -64,58 +90,80 @@ import kotlin.time.ExperimentalTime
 			throw Error("Terminal is too small to be usable!")
 		}
 		//Create windows
-		this.displayWindowBox = newwin(maxY - 3, maxX, 0, 0)!!
-		this.displayWindow = newwin(maxY - 5, maxX - 2, 1, 1)!! //TODO: make this a pad https://linux.die.net/man/3/newpad
-		this.inputWindow = newwin(1, maxX - 2, maxY - 2, 1)!!
+		this.displayWindowBox = newwin(this.maxY - 3, this.maxX, 0, 0)!!
+		this.displayWindow = newwin(this.maxY - 5, this.maxX - 2, 1, 1)!!
+		this.inputWindow = newwin(1, this.maxX - 2, this.maxY - 2, 1)!!
+		//Moves the cursor to the input window
+		this.cursorY = this.maxY - 2
+		this.cursorX = 1
 		//Actually updates/displays the windows after giving a border to the relevant window
 		box(this.displayWindowBox, 0u, 0u)
 		wrefresh(this.displayWindowBox)
 		wrefresh(this.displayWindow)
 		wrefresh(this.inputWindow)
+		//Starts a thread that repeatedly polls input
+//		this.acceptInputThread = GlobalScope.launch {
+//			while (this.isActive) {
+//				val inputtedCharacter = getch()
+//				this@TerminalManager.terminalModificationMutex.withLock {
+//					when (inputtedCharacter) {
+//						KEY_ENTER, '\n'.toInt() -> {
+//							//TODO: input has been submitted
+//							this@TerminalManager.currentInput = ""
+//							this@TerminalManager.cursorX = 1
+//						}
+//						inputtedCharacter.shl(24).ushr(24) -> {
+//							if (this@TerminalManager.currentInput.length < this@TerminalManager.maxX - 2) {
+//								this@TerminalManager.currentInput += inputtedCharacter.toChar()
+//								this@TerminalManager.cursorX += 1
+//							}
+//						}
+//						KEY_BACKSPACE -> {
+//							if (this@TerminalManager.currentInput.isNotEmpty()) {
+//								this@TerminalManager.currentInput = this@TerminalManager.currentInput.dropLast(1)
+//								this@TerminalManager.cursorX -= 1
+//							}
+//						}
+//						//TODO: arrow keys and other stuff to make this cleaner
+//					}
+//					wclear(this@TerminalManager.inputWindow)
+//					wprintw(this@TerminalManager.inputWindow, this@TerminalManager.currentInput)
+//					wrefresh(this@TerminalManager.inputWindow)
+//					move(this@TerminalManager.cursorY, this@TerminalManager.cursorX)
+//				}
+//			}
+//		}
 	}
 
 	/**
 	 * Clears the display section of the terminal
 	 */
 	fun clear() {
-		wclear(this.displayWindow)
+		runBlocking {
+			this@TerminalManager.terminalModificationMutex.withLock {
+				wclear(this@TerminalManager.displayWindow)
+//				this@TerminalManager.printedLines.clear()
+			}
+		}
 	}
 
 	/**
 	 * Prints the given information out on the display section of the screen with the given colors
-	 * TODO: ensure that this correctly prints at the same time that the user is typing
 	 */
 	fun print(info: String, textColor: Color = Color.WHITE, backgroundColor: Color = Color.BLACK) {
-		if (this.printWithColors) {
-			init_pair(1, textColor.ncursesColor.convert(), backgroundColor.ncursesColor.convert())
-			attron(COLOR_PAIR(1))
-		}
-		wprintw(this.displayWindow, info)
-		wrefresh(this.displayWindow)
-		wrefresh(this.inputWindow)
-		if (this.printWithColors) {
-			attroff(COLOR_PAIR(1))
-		}
-	}
-
-	/**
-	 * Returns any inputted string
-	 * Is blocking
-	 * TODO: caps the allowed input length based on the size of the terminal (this is bad)
-	 */
-	fun getInput(): String {
-		memScoped {
-			val maxInputLength = this@TerminalManager.maxX - 2
-			val inputCString = this.allocArray<ByteVar>(maxInputLength + 1)
-			wscanw(this@TerminalManager.inputWindow, "%${maxInputLength + 1}[^\\n]", inputCString)
-			wclear(this@TerminalManager.inputWindow)
-			wrefresh(this@TerminalManager.inputWindow)
-			val inputKString = inputCString.toKString()
-			if (inputKString.length > maxInputLength) {
-				this@TerminalManager.print("TODO: SOME SORT OF ERROR ABOUT THE INPUT STRING BEING TOO LONG AND THAT IT IS NOT BEING HANDLED")
-				return ""
+		runBlocking {
+			this@TerminalManager.terminalModificationMutex.withLock {
+				if (this@TerminalManager.printWithColors) {
+					init_pair(1, textColor.ncursesColor.convert(), backgroundColor.ncursesColor.convert())
+					attron(COLOR_PAIR(1))
+				}
+				wprintw(this@TerminalManager.displayWindow, info)
+				wrefresh(this@TerminalManager.displayWindow)
+				if (this@TerminalManager.printWithColors) {
+					attroff(COLOR_PAIR(1))
+				}
+//				this@TerminalManager.printedLines.add(TerminalMessage(info, textColor, backgroundColor))
 			}
-			return inputKString
 		}
 	}
 
@@ -123,6 +171,8 @@ import kotlin.time.ExperimentalTime
 	 * Closes ncurses properly
 	 */
 	fun end() {
+//		this.acceptInputThread.cancel()
+		delwin(this.displayWindowBox)
 		delwin(this.displayWindow)
 		delwin(this.inputWindow)
 		endwin()
