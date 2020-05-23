@@ -73,9 +73,6 @@ class TerminalManager {
 		//Get screen size
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
-		if (this.maxX < 50 || this.maxY < 8) {
-			throw Error("Terminal is too small to be usable!")
-		}
 		//Create windows
 		this.displayWindowBox = newwin(this.maxY - 3, this.maxX, 0, 0)!!
 		this.displayWindow = newwin(this.maxY - 5, this.maxX - 2, 1, 1)!!
@@ -146,7 +143,7 @@ class TerminalManager {
 		}
 		if (this.currentInput != oldInput) {
 			wclear(this.inputWindow)
-			wprintw(this.inputWindow, this.currentInput)
+			wprintw(this.inputWindow, this.currentInput.takeLast(this.maxX - 3))
 			wrefresh(this.inputWindow)
 		}
 	}
