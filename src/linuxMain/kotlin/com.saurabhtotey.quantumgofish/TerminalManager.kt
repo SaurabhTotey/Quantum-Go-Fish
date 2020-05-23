@@ -27,10 +27,13 @@ class TerminalManager {
 	/**
 	 * A small data class that stores the information of a printed message
 	 */
-	data class TerminalMessage(val message: String, val textColor: Color, val backgroundColor: Color)
+	private data class TerminalMessage(val message: String, val textColor: Color, val backgroundColor: Color)
 
 	//All the data that has been printed to the screen: is stored for scrolling purposes
 	private val printedLines = mutableListOf<TerminalMessage>()
+
+	//A map of color pairs to their id
+	private val colorPairToId: Map<Pair<Color, Color>, Short>
 
 	//All the messages that have been inputted by the user
 	val inputQueue = mutableListOf<String>()
@@ -66,10 +69,16 @@ class TerminalManager {
 		this.printWithColors = has_colors()
 		if (this.printWithColors) {
 			start_color()
+			//Initialize all possible color pairs
+			this.colorPairToId = Color.values().flatMap { color1 -> Color.values().map { color2 -> Pair(color1, color2) } }
+					.mapIndexed { i: Int, pair: Pair<Color, Color> -> pair to (i + 1).toShort() }.toMap()
+			this.colorPairToId.keys.forEach { pair -> init_pair(this.colorPairToId[pair]!!, pair.first.ncursesColor.toShort(), pair.second.ncursesColor.toShort()) }
+		} else {
+			this.colorPairToId = mapOf()
 		}
 		//Handle input as it comes and allow it to be echoed back on screen
 		cbreak()
-		echo()
+		noecho()
 		//Get screen size
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
@@ -99,16 +108,17 @@ class TerminalManager {
 	 * Prints the given information out on the display section of the screen with the given colors
 	 */
 	fun print(info: String, textColor: Color = Color.WHITE, backgroundColor: Color = Color.BLACK) {
+		var colorId = 0.toShort()
 		if (this.printWithColors) {
-			init_pair(1, textColor.ncursesColor.convert(), backgroundColor.ncursesColor.convert())
-			attron(COLOR_PAIR(1))
+			colorId = this.colorPairToId[Pair(textColor, backgroundColor)]!!
+			wattron(this.displayWindow, COLOR_PAIR(colorId.toInt()))
 		}
 		wprintw(this.displayWindow, info)
+		if (this.printWithColors) {
+			wattroff(this.displayWindow, COLOR_PAIR(colorId.toInt()))
+		}
 		wrefresh(this.displayWindow)
 		wrefresh(this.inputWindow)
-		if (this.printWithColors) {
-			attroff(COLOR_PAIR(1))
-		}
 		this.printedLines.add(TerminalMessage(info, textColor, backgroundColor))
 	}
 
