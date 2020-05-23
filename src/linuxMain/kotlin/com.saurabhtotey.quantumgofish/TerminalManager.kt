@@ -67,8 +67,8 @@ class TerminalManager {
 		if (this.printWithColors) {
 			start_color()
 		}
-		//Program doesn't need to manage input until it is entered
-		nocbreak()
+		//Handle input as it comes and allow it to be echoed back on screen
+		cbreak()
 		echo()
 		//Get screen size
 		this.maxY = getmaxy(stdscr)
@@ -116,20 +116,24 @@ class TerminalManager {
 
 	/**
 	 * Checks to see if anything has been inputted
+	 * Also checks for a window resize
 	 * Must be called within an event loop
-	 * TODO: cursor placement is incorrect
+	 * TODO: backspace (and ideally arrows and stuff too eventually)
 	 */
-	fun manageInput() {
+	fun run() {
 		var inputtedChar = wgetch(this.inputWindow)
 		while (inputtedChar != ERR) {
+			move(getcury(this.inputWindow), getcurx(this.inputWindow) + 1)
 			this.currentInput += inputtedChar.toChar()
 			if (currentInput.endsWith("\n")) {
 				this.inputQueue.add(currentInput)
-				//print(currentInput)
+				print(currentInput) //TODO: REMOVE THIS LINE
 				this.currentInput = ""
+				wclear(this.inputWindow)
 			}
 			inputtedChar = wgetch(this.inputWindow)
 		}
+		wrefresh(this.inputWindow)
 	}
 
 	/**
