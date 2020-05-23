@@ -82,6 +82,7 @@ class TerminalManager {
 		this.inputWindow = newwin(1, this.maxX - 2, this.maxY - 2, 1)!!
 		//Do not block on input
 		nodelay(this.inputWindow, true)
+		keypad(this.inputWindow, true)
 		//Actually updates/displays the windows after giving a border to the relevant window
 		box(this.displayWindowBox, 0u, 0u)
 		wrefresh(this.displayWindowBox)
@@ -118,22 +119,36 @@ class TerminalManager {
 	 * Checks to see if anything has been inputted
 	 * Also checks for a window resize
 	 * Must be called within an event loop
-	 * TODO: backspace (and ideally arrows and stuff too eventually)
+	 * TODO: maybe eventually handle arrows and control arrows and maybe even shift arrows to highlight for copying, and pasting
 	 */
 	fun run() {
 		var inputtedChar = wgetch(this.inputWindow)
+		val oldInput = this.currentInput
 		while (inputtedChar != ERR) {
-			move(getcury(this.inputWindow), getcurx(this.inputWindow) + 1)
-			this.currentInput += inputtedChar.toChar()
-			if (currentInput.endsWith("\n")) {
-				this.inputQueue.add(currentInput)
-				print(currentInput) //TODO: REMOVE THIS LINE
-				this.currentInput = ""
-				wclear(this.inputWindow)
+			when (inputtedChar) {
+				KEY_RESIZE -> {
+					//TODO:
+				}
+				KEY_BACKSPACE, '\b'.toInt() -> {
+					if (this.currentInput.isNotEmpty()) {
+						this.currentInput = this.currentInput.dropLast(1)
+					}
+				}
+				KEY_ENTER, '\n'.toInt() -> {
+					this.inputQueue.add(this.currentInput)
+					this.currentInput = ""
+				}
+				inputtedChar.shl(24).ushr(24) -> {
+					this.currentInput += inputtedChar.toChar()
+				}
 			}
 			inputtedChar = wgetch(this.inputWindow)
 		}
-		wrefresh(this.inputWindow)
+		if (this.currentInput != oldInput) {
+			wclear(this.inputWindow)
+			wprintw(this.inputWindow, this.currentInput)
+			wrefresh(this.inputWindow)
+		}
 	}
 
 	/**
