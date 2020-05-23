@@ -36,7 +36,11 @@ class TerminalManager {
 	private val colorPairToId: Map<Pair<Color, Color>, Short>
 
 	//All the messages that have been inputted by the user
-	val inputQueue = mutableListOf<String>()
+	private val inputQueue = mutableListOf<String>()
+
+	//The first message to be handled: will return an empty string if none
+	val input
+		get() = if (inputQueue.size > 0) inputQueue.removeAt(0) else ""
 
 	//The input that the user is currently inputting
 	private var currentInput = ""
