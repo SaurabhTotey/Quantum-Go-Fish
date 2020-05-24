@@ -30,7 +30,21 @@ class TerminalManager {
 	private data class TerminalMessage(val message: String, val textColor: Color, val backgroundColor: Color)
 
 	//All the data that has been printed to the screen: is stored for scrolling purposes
-	private val printedLines = mutableListOf<TerminalMessage>()
+	private val printedMessages = mutableListOf<TerminalMessage>()
+
+	//The index of the last displayed message: is used and edited for scrolling purposes
+	private var lastDisplayedMessageIndex = -1
+		set(value) {
+			wclear(this.displayWindow)
+			scrollok(this.displayWindow, true)
+			(0 .. value).forEach {
+				this.displayTerminalMessage(this.printedMessages[it])
+			}
+			scrollok(this.displayWindow, false)
+			wrefresh(this.displayWindow)
+			wrefresh(this.inputWindow)
+			field = value
+		}
 
 	//A map of color pairs to their id
 	private val colorPairToId: Map<Pair<Color, Color>, Short>
@@ -80,7 +94,7 @@ class TerminalManager {
 		} else {
 			this.colorPairToId = mapOf()
 		}
-		//Handle input as it comes and allow it to be echoed back on screen
+		//Handle input as it comes; don't echo because we echo it ourselves anyways
 		cbreak()
 		noecho()
 		//Get screen size
@@ -90,7 +104,7 @@ class TerminalManager {
 		this.displayWindowBox = newwin(this.maxY - 3, this.maxX, 0, 0)!!
 		this.displayWindow = newwin(this.maxY - 5, this.maxX - 2, 1, 1)!!
 		this.inputWindow = newwin(1, this.maxX - 2, this.maxY - 2, 1)!!
-		//Do not block on input
+		//Do not block on input but catch all keys (unless they generate signals)
 		nodelay(this.inputWindow, true)
 		keypad(this.inputWindow, true)
 		//Actually updates/displays the windows after giving a border to the relevant window
@@ -104,42 +118,53 @@ class TerminalManager {
 	 * Clears the display section of the terminal
 	 */
 	fun clear() {
+		this.lastDisplayedMessageIndex = -1
 		wclear(this.displayWindow)
-		this.printedLines.clear()
+		this.printedMessages.clear()
+	}
+
+	/**
+	 * Actually handles printing a terminalMessage to the display window; is called from the setter of lastDisplayedMessageIndex
+	 */
+	private fun displayTerminalMessage(terminalMessage: TerminalMessage) {
+		var colorId = 0.toShort()
+		if (this.printWithColors) {
+			colorId = this.colorPairToId[Pair(terminalMessage.textColor, terminalMessage.backgroundColor)]!!
+			wattron(this.displayWindow, COLOR_PAIR(colorId.toInt()))
+		}
+		wprintw(this.displayWindow, terminalMessage.message)
+		if (this.printWithColors) {
+			wattroff(this.displayWindow, COLOR_PAIR(colorId.toInt()))
+		}
 	}
 
 	/**
 	 * Prints the given information out on the display section of the screen with the given colors
+	 * Automatically scrolls entire display down to bottom
 	 */
 	fun print(info: String, textColor: Color = Color.WHITE, backgroundColor: Color = Color.BLACK) {
-		var colorId = 0.toShort()
-		if (this.printWithColors) {
-			colorId = this.colorPairToId[Pair(textColor, backgroundColor)]!!
-			wattron(this.displayWindow, COLOR_PAIR(colorId.toInt()))
-		}
-		wprintw(this.displayWindow, info)
-		if (this.printWithColors) {
-			wattroff(this.displayWindow, COLOR_PAIR(colorId.toInt()))
-		}
-		wrefresh(this.displayWindow)
-		wrefresh(this.inputWindow)
-		this.printedLines.add(TerminalMessage(info, textColor, backgroundColor))
+		this.printedMessages.add(TerminalMessage(info, textColor, backgroundColor))
+		this.lastDisplayedMessageIndex = this.printedMessages.lastIndex
 	}
 
 	/**
 	 * Checks to see if anything has been inputted
 	 * Also checks for a window resize
 	 * Must be called within an event loop
-	 * TODO: maybe eventually handle arrows and control arrows and maybe even shift arrows to highlight for copying, and pasting
+	 * TODO: maybe eventually handle arrows and control arrows and maybe even shift arrows to highlight for copying, and pasting (basically better cursor controls)
 	 */
 	fun run() {
 		var inputtedChar = wgetch(this.inputWindow)
 		val oldInput = this.currentInput
 		while (inputtedChar != ERR) {
 			when (inputtedChar) {
+
+				//Handle resizes
 				KEY_RESIZE -> {
 					//TODO:
 				}
+
+				//Handle actual typing
 				KEY_BACKSPACE, '\b'.toInt() -> {
 					if (this.currentInput.isNotEmpty()) {
 						this.currentInput = this.currentInput.dropLast(1)
@@ -152,6 +177,19 @@ class TerminalManager {
 				inputtedChar.shl(24).ushr(24) -> {
 					this.currentInput += inputtedChar.toChar()
 				}
+
+				//Handle scrolling
+				KEY_UP -> {
+					if (this.lastDisplayedMessageIndex > 0) { //TODO: this allows for weird scrolling early on that should be disabled; only enable this once the index is greater than the first index in this.printedMessages that fills the screen
+						this.lastDisplayedMessageIndex -= 1
+					}
+				}
+				KEY_DOWN -> {
+					if (this.lastDisplayedMessageIndex < this.printedMessages.lastIndex) {
+						this.lastDisplayedMessageIndex += 1
+					}
+				}
+
 			}
 			inputtedChar = wgetch(this.inputWindow)
 		}
