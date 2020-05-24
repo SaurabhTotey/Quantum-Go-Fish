@@ -63,19 +63,19 @@ class TerminalManager {
 	private val printWithColors: Boolean
 
 	//The section of the terminal enclosing the displayWindow: draws a box around it
-	private val displayWindowBox: CPointer<WINDOW>
+	private lateinit var displayWindowBox: CPointer<WINDOW>
 
 	//The section of the terminal where information will be displayed
-	private val displayWindow: CPointer<WINDOW>
+	private lateinit var displayWindow: CPointer<WINDOW>
 
 	//The section of the terminal where user input is taken
-	private val inputWindow: CPointer<WINDOW>
+	private lateinit var inputWindow: CPointer<WINDOW>
 
 	//The max height of the terminal
-	private val maxY: Int
+	private var maxY: Int = 0
 
 	//The max width of the terminal
-	private val maxX: Int
+	private var maxX: Int = 0
 
 	/**
 	 * Initialize ncurses
@@ -97,9 +97,20 @@ class TerminalManager {
 		//Handle input as it comes; don't echo because we echo it ourselves anyways
 		cbreak()
 		noecho()
+		//Actually initializes all relevant windows
+		this.setupWindows()
+	}
+
+	/**
+	 * Initializes all windows: is called on start and resize
+	 */
+	private fun setupWindows() {
 		//Get screen size
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
+		if (this.maxY < 7) {
+			throw Error("Terminal is too small to be usable!")
+		}
 		//Create windows
 		this.displayWindowBox = newwin(this.maxY - 3, this.maxX, 0, 0)!!
 		this.displayWindow = newwin(this.maxY - 5, this.maxX - 2, 1, 1)!!
@@ -161,7 +172,13 @@ class TerminalManager {
 
 				//Handle resizes
 				KEY_RESIZE -> {
-					//TODO:
+					ncurses.clear()
+					refresh()
+					delwin(this.displayWindowBox)
+					delwin(this.displayWindow)
+					delwin(this.inputWindow)
+					this.setupWindows()
+					this.lastDisplayedMessageIndex = this.lastDisplayedMessageIndex //so that messages are updated
 				}
 
 				//Handle actual typing
