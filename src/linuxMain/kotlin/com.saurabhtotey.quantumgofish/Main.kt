@@ -1,31 +1,7 @@
 package com.saurabhtotey.quantumgofish
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-
-/**
- * A method that executes the given action over the given time
- * If the action fails to complete in time, it is interrupted and the failAction is executed
- * Returns whether the action finished execution
- */
-@ExperimentalTime fun doActionOnTimeout(timeout: Duration, action: () -> Unit, failAction: () -> Unit = {}): Boolean {
-	class TimeOutInternalException : Error()
-	return try {
-		val errorJob = GlobalScope.launch {
-			delay(timeout)
-			throw TimeOutInternalException()
-		}
-		action()
-		errorJob.cancel()
-		true
-	} catch (e: TimeOutInternalException) {
-		failAction()
-		false
-	}
-}
+import com.saurabhtotey.quantumgofish.network.Client
+import com.saurabhtotey.quantumgofish.network.Lobby
 
 /**
  * Entry point for the program
@@ -46,14 +22,15 @@ fun main() {
 		terminalManager.print("If no password is specified, an empty password is used. Passwords can be at most 15 characters.\n", TerminalManager.Color.BLUE)
 
 		//An input loop that runs until the user enters valid interpretable input
-		var input: String
+		var input = ""
 		var isInputValid = false
 		inputLoop@ while (!isInputValid) {
 			input = ""
 			while (input.isEmpty()) {
 				terminalManager.run()
-				input = terminalManager.input
+				input = terminalManager.input.trimEnd()
 			}
+			terminalManager.print("$input\n", TerminalManager.Color.GREEN)
 			if (!input.startsWith("/")) {
 				terminalManager.print("Input must be a command while not in a lobby.\n", TerminalManager.Color.RED)
 				continue@inputLoop
@@ -65,11 +42,62 @@ fun main() {
 				terminalManager.print("Unable to interpret inputted command.\n", TerminalManager.Color.RED)
 				continue@inputLoop
 			}
-			//TODO: validation on input
+			var args = input.split(" ")
+			if (input.startsWith("/host") && args.size < 2 || input.startsWith("/join") && args.size < 3 || args.size > 5) {
+				terminalManager.print("Incorrect number of arguments.\n", TerminalManager.Color.RED)
+				continue@inputLoop
+			}
+			if (input.startsWith("/host") && args.size < 3) {
+				input += " 8"
+			}
+			if (args.size < 4) {
+				input += " 6669"
+			}
+			if (args.size < 5) {
+				input += " "
+			}
+			args = input.split(" ")
+			val validNameResponse = TextValidator.isValidName(args[1].toUpperCase())
+			if (validNameResponse.isNotBlank()) {
+				terminalManager.print("$validNameResponse\n", TerminalManager.Color.RED)
+				continue@inputLoop
+			}
+			val validPortResponse = TextValidator.isValidPort(args[3])
+			if (validPortResponse.isNotBlank()) {
+				terminalManager.print("$validPortResponse\n", TerminalManager.Color.RED)
+				continue@inputLoop
+			}
+			val validPasswordResponse = TextValidator.isValidPassword(args[4])
+			if (validPasswordResponse.isNotBlank()) {
+				terminalManager.print("$validPasswordResponse\n", TerminalManager.Color.RED)
+				continue@inputLoop
+			}
+			if (input.startsWith("/host")) {
+				val validMaxPlayersResponse = TextValidator.isValidNumberOfMaxPlayers(args[2])
+				if (validMaxPlayersResponse.isNotBlank()) {
+					terminalManager.print("$validMaxPlayersResponse\n", TerminalManager.Color.RED)
+					continue@inputLoop
+				}
+			} else {
+				val validAddressResponse = TextValidator.isValidAddress(args[2])
+				if (validAddressResponse.isNotBlank()) {
+					terminalManager.print("$validAddressResponse\n", TerminalManager.Color.RED)
+					continue@inputLoop
+				}
+			}
 			isInputValid = true
 		}
 
-		//TOOD: create a lobby or a client and run until they are finished
+		//Now that all that input has been validated, start the game
+		val validArgs = input.split(" ")
+		val playerName = validArgs[1].toUpperCase()
+		val port = validArgs[3].toInt()
+		val password = validArgs[4]
+		if (input.startsWith("/host")) {
+			Lobby(terminalManager, playerName, validArgs[2].toInt(), port, password).runUntilDone()
+		} else {
+			Client(terminalManager, playerName, validArgs[2], port, password).runUntilDone()
+		}
 
 	}
 	terminalManager.end()

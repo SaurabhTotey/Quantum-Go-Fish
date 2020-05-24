@@ -1,5 +1,6 @@
 package com.saurabhtotey.quantumgofish.network
 
+import com.saurabhtotey.quantumgofish.TerminalManager
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
@@ -9,7 +10,7 @@ import platform.posix.*
 /**
  * A client class that manages the connection and networking to a host/lobby
  */
-class Client(clientName: String, hostAddress: String, port: Int, password: String) {
+class Client(val terminalManager: TerminalManager, clientName: String, hostAddress: String, port: Int, password: String) {
 
 	//C socket handle
 	private val socket = NetworkUtil.createSocket()

@@ -1,5 +1,7 @@
 package com.saurabhtotey.quantumgofish.logic
 
+import com.saurabhtotey.quantumgofish.TextValidator
+
 /**
  * A class that manages type information and updating type information
  * Is useful because types have mutable state, and it is helpful to make the state global
@@ -26,11 +28,9 @@ class TypeManager(val players: List<Player>) {
 	 * name must be an alphabetic string (only characters from the alphabet) and must be upper-cased
 	 */
 	fun registerTypeName(name: String) {
-		if (name.any { !it.isLetter() }) {
-			throw Error("Cannot register \"$name\" because it contains non-alphabetic characters.")
-		}
-		if (name != name.toUpperCase()) {
-			throw Error("Cannot register \"$name\" because it is not entirely upper-cased.")
+		val validatorResponse = TextValidator.isValidName(name)
+		if (validatorResponse.isNotEmpty()) {
+			throw Error(validatorResponse)
 		}
 		if (this.gameObjectTypes.any { it.name == name }) {
 			throw Error("Cannot register \"$name\" because it is already registered.")

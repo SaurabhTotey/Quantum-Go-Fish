@@ -1,20 +1,17 @@
 package com.saurabhtotey.quantumgofish.network
 
-import com.saurabhtotey.quantumgofish.doActionOnTimeout
+import com.saurabhtotey.quantumgofish.TerminalManager
 import com.saurabhtotey.quantumgofish.logic.Game
 import kotlinx.cinterop.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import platform.posix.*
-import kotlin.time.DurationUnit
-import kotlin.time.ExperimentalTime
-import kotlin.time.toDuration
 
 /**
  * A class that manages a group of users and running their games
  */
-@ExperimentalTime class Lobby(hostName: String, maxPlayers: Int, port: Int, password: String) {
+class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: Int, port: Int, password: String) {
 
 	//Creates a socket that all the clients will connect to; is a C socket handle
 	private val socket = NetworkUtil.createSocket()
@@ -63,7 +60,7 @@ import kotlin.time.toDuration
 			}
 			try {
 				val initialResponse = this.allocArray<ByteVar>(30)
-				doActionOnTimeout(5.toDuration(DurationUnit.SECONDS), { recv(newSocket, initialResponse, 30.convert(), 0) }, { throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.") })
+				recv(newSocket, initialResponse, 30.convert(), 0)//TODO: implement timeout and throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.")
 				val initialResponseString = initialResponse.toKString()
 				val name = initialResponseString.substring(0, 15)
 				val givenPassword = initialResponseString.substring(15, 30)
