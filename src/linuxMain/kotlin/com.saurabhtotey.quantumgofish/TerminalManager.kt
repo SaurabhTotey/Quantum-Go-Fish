@@ -183,7 +183,9 @@ class TerminalManager {
 
 				//Handle actual typing
 				KEY_BACKSPACE, '\b'.toInt() -> {
-					if (this.currentInput.isNotEmpty()) {
+					if (keyname(inputtedChar)?.toKString()?.startsWith("^") == true) {
+						this.currentInput = this.currentInput.split(" ").dropLast(1).joinToString(" ")
+					} else if (this.currentInput.isNotEmpty()) {
 						this.currentInput = this.currentInput.dropLast(1)
 					}
 				}
