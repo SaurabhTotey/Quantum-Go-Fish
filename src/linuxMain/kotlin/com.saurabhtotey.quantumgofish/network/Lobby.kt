@@ -3,7 +3,6 @@ package com.saurabhtotey.quantumgofish.network
 import com.saurabhtotey.quantumgofish.TerminalManager
 import com.saurabhtotey.quantumgofish.logic.Game
 import kotlinx.cinterop.*
-import kotlinx.coroutines.*
 import platform.posix.*
 
 /**
@@ -61,8 +60,7 @@ class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: 
 					val initialResponse = this.allocArray<ByteVar>(32)
 					recv(newSocket, initialResponse, 32.convert(), MSG_DONTWAIT)
 					initialResponseString += initialResponse.toKString()
-					this@Lobby.terminalManager.run()
-					NetworkUtil.interpretIncoming() //TODO: make sure this is running on all sockets except newSocket
+					this@Lobby.handleUserInputs()
 					if (time(null) - startTime > 5) {
 						throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.")
 					}
@@ -81,9 +79,6 @@ class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: 
 				newUser.sendData("M\nTHE UNIVERSE\nWelcome to the lobby!\n")
 				this@Lobby.users.add(newUser)
 				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\nList of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name }}].\n") }
-
-				//TODO: below is temporary
-				this@Lobby.terminalManager.print("YAY, CONNECTION!\n", TerminalManager.Color.YELLOW)
 			} catch (e: Exception) {
 				if (e is Error && e.message != null) {
 					val returnMessage = "E\n${e.message!!.replace("\n", " ")}\n"
@@ -96,14 +91,21 @@ class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: 
 	}
 
 	/**
+	 * Handles any incoming messages from users
+	 */
+	private fun handleUserInputs() {
+		this.users.forEach { it.receiveData() }
+		//TODO: get each user's .input and do something with it if necessary
+	}
+
+	/**
 	 * A method that doesn't return until the lobby should be terminated
 	 * Cleanly closes everything down once the lobby is done
 	 */
 	fun runUntilDone() {
 		while (this.isActive) {
-			this.terminalManager.run()
 			this.acceptAnyJoiningPlayers()
-			NetworkUtil.interpretIncoming()
+			this.handleUserInputs()
 		}
 		shutdown(this.socket, SHUT_RDWR)
 		close(this.socket)

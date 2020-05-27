@@ -10,8 +10,15 @@ import com.saurabhtotey.quantumgofish.network.User
  */
 class DummyUser(index: Int) : User("Dummy User $index") {
 
+	override val input: String
+		get() = throw Error("input should not be called because $this is a DummyUser.")
+
 	override fun sendData(data: String) {
 		throw Error("sendData should not be called because $this is a DummyUser.")
+	}
+
+	override fun receiveData() {
+		throw Error("receiveData should not be called because $this is a DummyUser.")
 	}
 
 }

@@ -38,7 +38,8 @@ class Client(val terminalManager: TerminalManager, clientName: String, hostAddre
 	fun runUntilDone() {
 		while (true) {
 			this.terminalManager.run()
-			NetworkUtil.interpretIncoming()
+			//TODO: send this.terminalManager.input to host if not blank
+			NetworkUtil.handleMessageFromHost(NetworkUtil.receiveIncomingFrom(this.socket))
 		}
 		shutdown(this.socket, SHUT_RDWR)
 		close(this.socket)

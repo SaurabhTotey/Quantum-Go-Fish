@@ -54,7 +54,7 @@ class TerminalManager {
 
 	//The first message to be handled: will return an empty string if none
 	val input
-		get() = if (inputQueue.size > 0) inputQueue.removeAt(0) else ""
+		get() = if (this.inputQueue.size > 0) this.inputQueue.removeAt(0) else ""
 
 	//The input that the user is currently inputting
 	private var currentInput = ""

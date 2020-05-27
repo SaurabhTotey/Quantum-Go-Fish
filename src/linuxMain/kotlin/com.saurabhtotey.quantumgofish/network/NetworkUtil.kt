@@ -15,13 +15,22 @@ import platform.posix.*
 object NetworkUtil {
 
 	/**
-	 * Calls recv in a non-blocking fashion while there is a message to interpret and then tries to interpret/handle/run it
+	 * Repeatedly calls recv and returns the built up message if any
+	 * If no message from recv, returns an empty string
+	 * Is non-blocking
+	 * Assumes that messages are always sent in their entirety: will freeze if a complete message cannot be received
 	 */
-	fun interpretIncoming() {
+	fun receiveIncomingFrom(socketHandle: Int): String {
 		//TODO:
+		return ""
 	}
 
-	//TODO: send method
+	/**
+	 * Runs/interprets the given message that came from the host
+	 */
+	fun handleMessageFromHost(messageFromHost: String) {
+
+	}
 
 	/**
 	 * Gets the IPV4 address of the current machine
