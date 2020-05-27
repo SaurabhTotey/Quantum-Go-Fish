@@ -4,26 +4,21 @@ import com.saurabhtotey.quantumgofish.TerminalManager
 import com.saurabhtotey.quantumgofish.logic.Game
 import kotlinx.cinterop.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import platform.posix.*
 
 /**
  * A class that manages a group of users and running their games
  */
-class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: Int, port: Int, password: String) {
+class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: Int, port: Int, val password: String) {
+
+	//Whether the lobby is/should be running
+	private var isActive = true
 
 	//Creates a socket that all the clients will connect to; is a C socket handle
 	private val socket = NetworkUtil.createSocket()
 
-	//The actual 15 character password that is used
-	private val passString = password.padEnd(15, ' ')
-
-	//A mutex that is supposed to be used whenever modifying the users list
-	private val usersModificationMutex = Mutex()
-
 	//All users in the lobby: order corresponds to turn order for the game
-	private val users = mutableListOf<User>(HostUser(this, hostName.padEnd(15, ' ')))
+	private val users = mutableListOf<User>(HostUser(this, hostName))
 
 	//The current in-progress game if any
 	private var game: Game? = null
@@ -36,11 +31,14 @@ class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: 
 		memScoped {
 			val addressDescription = NetworkUtil.describeAddress(port)
 			if (bind(this@Lobby.socket, addressDescription.ptr.reinterpret(), addressDescription.size.convert()) == -1) {
-				throw Error("Could not bind lobby socket to port $port.")
+				throw Error("Could not bind lobby socket to port $port. Make sure that $port is free.")
 			}
 		}
 		//Sets the socket to listen for incoming connections
-		listen(this@Lobby.socket, maxPlayers)
+		if (listen(this@Lobby.socket, maxPlayers) == -1) {
+			throw Error("Could not listen for up to $maxPlayers connections on the socket bound to port $port.")
+		}
+		this.terminalManager.print("Started a lobby as $hostName on ${NetworkUtil.getSelfAddress()}:$port with password \"$password\" that allows up to $maxPlayers players.\n", TerminalManager.Color.MAGENTA)
 	}
 
 	/**
@@ -52,34 +50,43 @@ class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: 
 		memScoped {
 			val clientInfo = cValue<sockaddr_in>()
 			val sockAddrInSize = cValuesOf(sizeOf<sockaddr_in>().toUInt())
-			NetworkUtil.setIsSocketBlocking(this@Lobby.socket, false)
 			val newSocket: Int = accept(this@Lobby.socket, clientInfo.ptr.reinterpret(), sockAddrInSize)
-			NetworkUtil.setIsSocketBlocking(this@Lobby.socket, true)
 			if (newSocket == -1) {
 				return
 			}
 			try {
-				val initialResponse = this.allocArray<ByteVar>(30)
-				recv(newSocket, initialResponse, 30.convert(), 0)//TODO: implement timeout and throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.")
-				val initialResponseString = initialResponse.toKString()
-				val name = initialResponseString.substring(0, 15)
-				val givenPassword = initialResponseString.substring(15, 30)
-				if (givenPassword != this@Lobby.passString) {
+				var initialResponseString = ""
+				val startTime = time(null)
+				while (initialResponseString.count { it == '\n' } < 2) {
+					val initialResponse = this.allocArray<ByteVar>(32)
+					recv(newSocket, initialResponse, 32.convert(), MSG_DONTWAIT)
+					initialResponseString += initialResponse.toKString()
+					this@Lobby.terminalManager.run()
+					NetworkUtil.interpretIncoming() //TODO: make sure this is running on all sockets except newSocket
+					if (time(null) - startTime > 5) {
+						throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.")
+					}
+				}
+				val parts = initialResponseString.dropLast(1).split('\n')
+				val name = parts[0]
+				val givenPassword = parts[1]
+				if (givenPassword != this@Lobby.password) {
 					throw Error("Connection attempted with incorrect password.")
 				}
 				if (this@Lobby.users.any { it.name == name }) {
 					throw Error("Connection attempted with a taken name.")
 				}
 				val newUser = RemoteClientUser(name, newSocket)
-				runBlocking { this@Lobby.usersModificationMutex.withLock {
-					this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   ${name.trimEnd()} is joining the lobby!") }
-					this@Lobby.users.add(newUser)
-					newUser.sendData("MESSAGETHE UNIVERSE   Welcome to the lobby!")
-					this@Lobby.users.forEach { it.sendData("MESSAGETHE UNIVERSE   List of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name.trimEnd() }}].") }
-				} }
+				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\n$name is joining the lobby!\n") }
+				newUser.sendData("M\nTHE UNIVERSE\nWelcome to the lobby!\n")
+				this@Lobby.users.add(newUser)
+				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\nList of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name }}].\n") }
+
+				//TODO: below is temporary
+				this@Lobby.terminalManager.print("YAY, CONNECTION!\n", TerminalManager.Color.YELLOW)
 			} catch (e: Exception) {
 				if (e is Error && e.message != null) {
-					val returnMessage = "FAILURE${e.message!!}"
+					val returnMessage = "E\n${e.message!!.replace("\n", " ")}\n"
 					send(newSocket, returnMessage.cstr, returnMessage.length.convert(), MSG_DONTWAIT)
 				}
 				shutdown(newSocket, SHUT_RDWR)
@@ -93,8 +100,10 @@ class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: 
 	 * Cleanly closes everything down once the lobby is done
 	 */
 	fun runUntilDone() {
-		while (true) {
+		while (this.isActive) {
+			this.terminalManager.run()
 			this.acceptAnyJoiningPlayers()
+			NetworkUtil.interpretIncoming()
 		}
 		shutdown(this.socket, SHUT_RDWR)
 		close(this.socket)

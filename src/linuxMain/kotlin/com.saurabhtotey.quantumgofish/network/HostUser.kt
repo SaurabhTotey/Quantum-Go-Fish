@@ -9,7 +9,6 @@ class HostUser constructor(val lobby: Lobby, name: String): User(name) {
 	 * TODO: handle data
 	 */
 	override fun sendData(data: String) {
-		NetworkUtil.interpretIncoming(data)
 	}
 
 }

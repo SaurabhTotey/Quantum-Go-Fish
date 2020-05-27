@@ -15,9 +15,9 @@ import platform.posix.*
 object NetworkUtil {
 
 	/**
-	 * Manages handling the action of a data string sent from a lobby/host
+	 * Calls recv in a non-blocking fashion while there is a message to interpret and then tries to interpret/handle/run it
 	 */
-	fun interpretIncoming(incoming: String) {
+	fun interpretIncoming() {
 		//TODO:
 	}
 
@@ -60,6 +60,7 @@ object NetworkUtil {
 		if (socketDescription == -1) {
 			throw Error("Unable to create socket.")
 		}
+		this.setIsSocketBlocking(socketDescription, false)
 		return socketDescription
 	}
 

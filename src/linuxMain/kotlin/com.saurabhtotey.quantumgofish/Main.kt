@@ -57,29 +57,29 @@ fun main() {
 				input += " "
 			}
 			args = input.split(" ")
-			val validNameResponse = TextValidator.isValidName(args[1].toUpperCase())
+			val validNameResponse = TextUtil.isValidName(args[1].toUpperCase())
 			if (validNameResponse.isNotBlank()) {
 				terminalManager.print("$validNameResponse\n", TerminalManager.Color.RED)
 				continue@inputLoop
 			}
-			val validPortResponse = TextValidator.isValidPort(args[3])
+			val validPortResponse = TextUtil.isValidPort(args[3])
 			if (validPortResponse.isNotBlank()) {
 				terminalManager.print("$validPortResponse\n", TerminalManager.Color.RED)
 				continue@inputLoop
 			}
-			val validPasswordResponse = TextValidator.isValidPassword(args[4])
+			val validPasswordResponse = TextUtil.isValidPassword(args[4])
 			if (validPasswordResponse.isNotBlank()) {
 				terminalManager.print("$validPasswordResponse\n", TerminalManager.Color.RED)
 				continue@inputLoop
 			}
 			if (input.startsWith("/host")) {
-				val validMaxPlayersResponse = TextValidator.isValidNumberOfMaxPlayers(args[2])
+				val validMaxPlayersResponse = TextUtil.isValidNumberOfMaxPlayers(args[2])
 				if (validMaxPlayersResponse.isNotBlank()) {
 					terminalManager.print("$validMaxPlayersResponse\n", TerminalManager.Color.RED)
 					continue@inputLoop
 				}
 			} else {
-				val validAddressResponse = TextValidator.isValidAddress(args[2])
+				val validAddressResponse = TextUtil.isValidAddress(args[2])
 				if (validAddressResponse.isNotBlank()) {
 					terminalManager.print("$validAddressResponse\n", TerminalManager.Color.RED)
 					continue@inputLoop
@@ -93,10 +93,18 @@ fun main() {
 		val playerName = validArgs[1].toUpperCase()
 		val port = validArgs[3].toInt()
 		val password = validArgs[4]
-		if (input.startsWith("/host")) {
-			Lobby(terminalManager, playerName, validArgs[2].toInt(), port, password).runUntilDone()
-		} else {
-			Client(terminalManager, playerName, validArgs[2], port, password).runUntilDone()
+		terminalManager.clear()
+		try {
+			if (input.startsWith("/host")) {
+				Lobby(terminalManager, playerName, validArgs[2].toInt(), port, password).runUntilDone()
+			} else {
+				Client(terminalManager, playerName, validArgs[2], port, password).runUntilDone()
+			}
+		} catch (e: Exception) {
+			terminalManager.print("${e.message ?: "An error was thrown with no message."}\nPress enter to continue...", TerminalManager.Color.RED)
+			while (terminalManager.input.isEmpty()) {
+				terminalManager.run()
+			}
 		}
 
 	}

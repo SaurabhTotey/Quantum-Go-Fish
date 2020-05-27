@@ -1,6 +1,6 @@
 package com.saurabhtotey.quantumgofish.logic
 
-import com.saurabhtotey.quantumgofish.TextValidator
+import com.saurabhtotey.quantumgofish.TextUtil
 
 /**
  * A class that manages type information and updating type information
@@ -28,7 +28,7 @@ class TypeManager(val players: List<Player>) {
 	 * name must be an alphabetic string (only characters from the alphabet) and must be upper-cased
 	 */
 	fun registerTypeName(name: String) {
-		val validatorResponse = TextValidator.isValidName(name)
+		val validatorResponse = TextUtil.isValidName(name)
 		if (validatorResponse.isNotEmpty()) {
 			throw Error(validatorResponse)
 		}

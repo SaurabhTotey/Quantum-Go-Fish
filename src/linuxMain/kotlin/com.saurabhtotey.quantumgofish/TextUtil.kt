@@ -7,7 +7,7 @@ import platform.posix.INADDR_NONE
  * A utility object that is used to validate given text
  * All methods return a string that is either empty if the input is valid, or the reason why the input was invalid
  */
-object TextValidator {
+object TextUtil {
 
 	/**
 	 * Returns whether the input string can be used as a port

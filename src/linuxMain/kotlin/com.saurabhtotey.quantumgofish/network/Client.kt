@@ -22,17 +22,24 @@ class Client(val terminalManager: TerminalManager, clientName: String, hostAddre
 		//Attempts connection to the host
 		memScoped {
 			val addressDescription = NetworkUtil.describeAddress(port, hostAddress)
-			if (connect(this@Client.socket, addressDescription.ptr.reinterpret(), addressDescription.size.convert()) == -1) {
-				throw Error("Could not connect to $hostAddress:$port.")
+			val startTime = time(null)
+			while (connect(this@Client.socket, addressDescription.ptr.reinterpret(), addressDescription.size.convert()) == -1) {
+				this@Client.terminalManager.run()
+				if (time(null) - startTime > 5) {
+					throw Error("Could not connect to $hostAddress:$port.")
+				}
 			}
 		}
 		//Sends an initial message that the host is expecting of the client's name and password
-		val firstMessage = clientName.padEnd(15) + password.padEnd(15)
+		val firstMessage = "$clientName\n$password\n"
 		send(this@Client.socket, firstMessage.cstr, firstMessage.length.convert(), MSG_DONTWAIT)
 	}
 
 	fun runUntilDone() {
-		while (true) {}
+		while (true) {
+			this.terminalManager.run()
+			NetworkUtil.interpretIncoming()
+		}
 		shutdown(this.socket, SHUT_RDWR)
 		close(this.socket)
 	}
