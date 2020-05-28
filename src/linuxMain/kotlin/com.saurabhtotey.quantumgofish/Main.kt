@@ -101,7 +101,8 @@ fun main() {
 				Client(terminalManager, playerName, validArgs[2], port, password).runUntilDone()
 			}
 		} catch (e: Exception) {
-			terminalManager.print("${e.message ?: "An error was thrown with no message."}\nPress enter to continue...", TerminalManager.Color.RED)
+			terminalManager.print("${e.message ?: "An error was thrown with no message."}\n", TerminalManager.Color.RED)
+			terminalManager.print("Press enter to continue...", TerminalManager.Color.RED)
 			while (terminalManager.input.isEmpty()) {
 				terminalManager.run()
 			}

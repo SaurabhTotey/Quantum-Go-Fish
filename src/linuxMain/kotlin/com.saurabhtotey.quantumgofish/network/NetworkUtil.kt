@@ -1,5 +1,6 @@
 package com.saurabhtotey.quantumgofish.network
 
+import com.saurabhtotey.quantumgofish.TerminalManager
 import kotlinx.cinterop.*
 import platform.linux.getifaddrs
 import platform.linux.ifaddrs
@@ -28,7 +29,7 @@ object NetworkUtil {
 	/**
 	 * Runs/interprets the given message that came from the host
 	 */
-	fun handleMessageFromHost(messageFromHost: String) {
+	fun handleMessageFromHost(messageFromHost: String, terminalManager: TerminalManager) {
 
 	}
 

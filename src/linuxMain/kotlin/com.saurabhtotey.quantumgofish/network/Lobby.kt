@@ -8,7 +8,7 @@ import platform.posix.*
 /**
  * A class that manages a group of users and running their games
  */
-class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: Int, port: Int, val password: String) {
+class Lobby(private val terminalManager: TerminalManager, hostName: String, maxPlayers: Int, port: Int, private val password: String) {
 
 	//Whether the lobby is/should be running
 	private var isActive = true
@@ -17,7 +17,7 @@ class Lobby(val terminalManager: TerminalManager, hostName: String, maxPlayers: 
 	private val socket = NetworkUtil.createSocket()
 
 	//All users in the lobby: order corresponds to turn order for the game
-	private val users = mutableListOf<User>(HostUser(this, hostName))
+	private val users = mutableListOf<User>(HostUser(hostName, this.terminalManager))
 
 	//The current in-progress game if any
 	private var game: Game? = null

@@ -10,7 +10,10 @@ import platform.posix.*
 /**
  * A client class that manages the connection and networking to a host/lobby
  */
-class Client(val terminalManager: TerminalManager, clientName: String, hostAddress: String, port: Int, password: String) {
+class Client(private val terminalManager: TerminalManager, clientName: String, hostAddress: String, port: Int, password: String) {
+
+	//Whether the client is/should be running
+	private var isActive = true
 
 	//C socket handle
 	private val socket = NetworkUtil.createSocket()
@@ -36,10 +39,10 @@ class Client(val terminalManager: TerminalManager, clientName: String, hostAddre
 	}
 
 	fun runUntilDone() {
-		while (true) {
+		while (this.isActive) {
 			this.terminalManager.run()
 			//TODO: send this.terminalManager.input to host if not blank
-			NetworkUtil.handleMessageFromHost(NetworkUtil.receiveIncomingFrom(this.socket))
+			NetworkUtil.handleMessageFromHost(NetworkUtil.receiveIncomingFrom(this.socket), this.terminalManager)
 		}
 		shutdown(this.socket, SHUT_RDWR)
 		close(this.socket)
