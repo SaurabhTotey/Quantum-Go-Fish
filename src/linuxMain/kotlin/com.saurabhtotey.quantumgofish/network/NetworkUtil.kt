@@ -16,21 +16,27 @@ import platform.posix.*
 object NetworkUtil {
 
 	/**
-	 * Repeatedly calls recv and returns the built up message if any
-	 * If no message from recv, returns an empty string
-	 * Is non-blocking
-	 * Assumes that messages are always sent in their entirety: will freeze if a complete message cannot be received
+	 * Returns the next char from recv (non-blocking)
+	 * Will return an empty string if nothing
 	 */
 	fun receiveIncomingFrom(socketHandle: Int): String {
-		//TODO:
-		return ""
+		memScoped {
+			val nextChar = this.allocArray<ByteVar>(2)
+			nextChar[1] = 0.toByte()
+			val length = recv(socketHandle, nextChar, 1.convert(), MSG_DONTWAIT).toInt()
+			if (length != -1 && length != 1) { //TODO: this condition is probably wrong since this throws on a client disconnect
+				throw Error("Receive received something, but it received more than a byte.")
+			}
+			return nextChar.toKString()
+		}
 	}
 
 	/**
 	 * Runs/interprets the given message that came from the host
 	 */
 	fun handleMessageFromHost(messageFromHost: String, terminalManager: TerminalManager) {
-
+		//TODO: temporary
+		terminalManager.print(messageFromHost, TerminalManager.Color.YELLOW)
 	}
 
 	/**
@@ -77,7 +83,7 @@ object NetworkUtil {
 	/**
 	 * Makes the given socket either blocking or non-blocking
 	 */
-	fun setIsSocketBlocking(socketHandle: Int, isBlocking: Boolean) {
+	private fun setIsSocketBlocking(socketHandle: Int, isBlocking: Boolean) {
 		val currentSocketFlags = fcntl(socketHandle, F_GETFL)
 		val newFlags = if (isBlocking) currentSocketFlags and O_NONBLOCK.inv() else currentSocketFlags or O_NONBLOCK
 		if (currentSocketFlags == -1 || fcntl(socketHandle, F_SETFL, newFlags) == -1) {

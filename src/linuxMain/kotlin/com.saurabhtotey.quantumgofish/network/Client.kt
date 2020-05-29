@@ -15,6 +15,9 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 	//Whether the client is/should be running
 	private var isActive = true
 
+	//The current input being sent from the host (that is not yet ready to be interpretted)
+	private var currentInput = ""
+
 	//C socket handle
 	private val socket = NetworkUtil.createSocket()
 
@@ -38,11 +41,19 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 		send(this@Client.socket, firstMessage.cstr, firstMessage.length.convert(), MSG_DONTWAIT)
 	}
 
+	/**
+	 * A method that doesn't return until the Client is done
+	 * Cleanly closes everything down once the client is done
+	 */
 	fun runUntilDone() {
 		while (this.isActive) {
 			this.terminalManager.run()
 			//TODO: send this.terminalManager.input to host if not blank
-			NetworkUtil.handleMessageFromHost(NetworkUtil.receiveIncomingFrom(this.socket), this.terminalManager)
+			this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket)
+			if (false) { //TODO: determine when currentInput can be interpretted
+				NetworkUtil.handleMessageFromHost(this.currentInput, this.terminalManager)
+				this.currentInput = ""
+			}
 		}
 		shutdown(this.socket, SHUT_RDWR)
 		close(this.socket)

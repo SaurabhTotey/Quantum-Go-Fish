@@ -11,6 +11,9 @@ import platform.posix.send
  */
 class RemoteClientUser(name: String, private val socket: Int) : User(name) {
 
+	//The current message being built from network by this user
+	private var currentInput = ""
+
 	//All unhandled messages received from this user
 	private val inputQueue = mutableListOf<String>()
 
@@ -31,9 +34,10 @@ class RemoteClientUser(name: String, private val socket: Int) : User(name) {
 	 * Tries to receive data from this user
 	 */
 	override fun receiveData() {
-		val receivedData = NetworkUtil.receiveIncomingFrom(this.socket)
-		if (receivedData.isNotBlank()) {
-			this.inputQueue.add(receivedData)
+		this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket)
+		if (this.currentInput.endsWith('\n')) {
+			this.inputQueue.add(this.currentInput.dropLast(1))
+			this.currentInput = ""
 		}
 	}
 
