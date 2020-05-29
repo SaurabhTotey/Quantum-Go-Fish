@@ -1,6 +1,7 @@
 package com.saurabhtotey.quantumgofish.network
 
 import com.saurabhtotey.quantumgofish.TerminalManager
+import com.saurabhtotey.quantumgofish.TextUtil
 import kotlinx.cinterop.*
 import platform.linux.getifaddrs
 import platform.linux.ifaddrs
@@ -35,8 +36,25 @@ object NetworkUtil {
 	 * Runs/interprets the given message that came from the host
 	 */
 	fun handleMessageFromHost(messageFromHost: String, terminalManager: TerminalManager) {
-		//TODO: temporary
-		terminalManager.print(messageFromHost, TerminalManager.Color.YELLOW)
+		if (!TextUtil.isValidHostMessage(messageFromHost)) {
+			throw Error("Cannot handle message from host because the given message is not a valid host message.")
+		}
+		val constituents = messageFromHost.split("\n")
+		when (constituents[0]) {
+			"M" -> {
+				val sender = constituents[1]
+				if (sender == "THE UNIVERSE") {
+					terminalManager.print("THE UNIVERSE".padEnd(15), TerminalManager.Color.MAGENTA)
+					terminalManager.print("${constituents[2]}\n", TerminalManager.Color.BLUE)
+				} else {
+					terminalManager.print(constituents[1].padEnd(15), TerminalManager.Color.WHITE)
+					terminalManager.print("${constituents[2]}\n", TerminalManager.Color.GREEN)
+				}
+			}
+			"E" -> {
+				terminalManager.print(constituents[1], TerminalManager.Color.RED)
+			}
+		}
 	}
 
 	/**

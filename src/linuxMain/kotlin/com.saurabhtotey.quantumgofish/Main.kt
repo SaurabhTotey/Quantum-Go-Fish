@@ -6,6 +6,7 @@ import com.saurabhtotey.quantumgofish.network.Lobby
 /**
  * Entry point for the program
  * Handles main flow/logic for the user
+ * TODO: OH MY GOD I'M THROWING ERRORS EVERYWHERE, BUT I AM MEANING TO THROW EXCEPTIONS SO THEY CAN BE CAUGHT!!! FIXME!!
  */
 fun main() {
 	val terminalManager = TerminalManager()

@@ -36,6 +36,9 @@ object TextUtil {
 		if (input.any { it.isLowerCase() }) {
 			return "Name is not upper-cased."
 		}
+		if (input.contains("THE UNIVERSE")) {
+			return "Name cannot contain the string 'THE UNIVERSE'."
+		}
 		return ""
 	}
 
@@ -71,6 +74,27 @@ object TextUtil {
 			return "Address is invalid."
 		}
 		return ""
+	}
+
+	/**
+	 * Returns whether the input is a complete message from the host that can be interpretted
+	 */
+	fun isValidHostMessage(input: String): Boolean {
+		if (!input.endsWith("\n")) {
+			return false
+		}
+		if (input.length < 2 || input[1] != '\n') {
+			return false
+		}
+		val separatorCount = input.count { it == '\n' }
+		if (input.startsWith("M") && separatorCount == 3) {
+			return true
+		}
+		if (input.startsWith("E") && separatorCount == 2) {
+			return true
+		}
+		//TODO:
+		return false
 	}
 
 }

@@ -95,7 +95,15 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	 */
 	private fun handleUserInputs() {
 		this.users.forEach { it.receiveData() }
-		//TODO: get each user's .input and do something with it if necessary
+		this.users.forEach { user ->
+			val sender = user.name
+			val input = user.input
+			if (input.isBlank()) {
+				return@forEach
+			}
+			this.users.forEach { it.sendData("M\n$sender\n$input\n") }
+			//TODO: check if input is a command and run it if necessary
+		}
 	}
 
 	/**

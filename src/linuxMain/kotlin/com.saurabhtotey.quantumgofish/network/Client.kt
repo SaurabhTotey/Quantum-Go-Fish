@@ -1,6 +1,7 @@
 package com.saurabhtotey.quantumgofish.network
 
 import com.saurabhtotey.quantumgofish.TerminalManager
+import com.saurabhtotey.quantumgofish.TextUtil
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
@@ -38,7 +39,7 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 		}
 		//Sends an initial message that the host is expecting of the client's name and password
 		val firstMessage = "$clientName\n$password\n"
-		send(this@Client.socket, firstMessage.cstr, firstMessage.length.convert(), MSG_DONTWAIT)
+		send(this.socket, firstMessage.cstr, firstMessage.length.convert(), MSG_DONTWAIT)
 	}
 
 	/**
@@ -48,9 +49,13 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 	fun runUntilDone() {
 		while (this.isActive) {
 			this.terminalManager.run()
-			//TODO: send this.terminalManager.input to host if not blank
+			val terminalManagerInput = this.terminalManager.input
+			if (terminalManagerInput.isNotBlank()) {
+				val message = "$terminalManagerInput\n"
+				send(this.socket, message.cstr, message.length.convert(), MSG_DONTWAIT)
+			}
 			this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket)
-			if (false) { //TODO: determine when currentInput can be interpretted
+			if (TextUtil.isValidHostMessage(this.currentInput)) {
 				NetworkUtil.handleMessageFromHost(this.currentInput, this.terminalManager)
 				this.currentInput = ""
 			}
