@@ -14,10 +14,10 @@ class Game(users: List<User>) {
 	private var questionerIndex = 0
 		set(value) {
 			if (value > players.size) {
-				throw Error("Attempt to set questionerIndex to $value, but it should never be set to a value greater than ${players.size}.")
+				throw Exception("Attempt to set questionerIndex to $value, but it should never be set to a value greater than ${players.size}.")
 			}
 			if (value < -1) {
-				throw Error("Attempt to set questionerIndex to $value, but it should never be set to a value less than -1.")
+				throw Exception("Attempt to set questionerIndex to $value, but it should never be set to a value less than -1.")
 			}
 			field = if (value == players.size) 0 else if (value == -1) players.size - 1 else value
 		}
@@ -44,7 +44,7 @@ class Game(users: List<User>) {
 	 */
 	fun executeTurn(): Player? {
 		if (this.winner != null) {
-			throw Error("Cannot executeTurn if the game is already won by ${this.winner}.")
+			throw Exception("Cannot executeTurn if the game is already won by ${this.winner}.")
 		}
 
 		//TODO: allow questioner to ask question

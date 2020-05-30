@@ -26,7 +26,7 @@ class RemoteClientUser(name: String, private val socket: Int) : User(name) {
 	 */
 	override fun sendData(data: String) {
 		if (send(this@RemoteClientUser.socket, data.cstr, data.length.convert(), MSG_DONTWAIT).convert<Int>() == -1) {
-			throw Error("Could not send data '$data' to $name.")
+			throw Exception("Could not send data '$data' to $name.")
 		}
 	}
 

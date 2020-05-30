@@ -19,7 +19,7 @@ class Player (val user: User) {
 	 */
 	fun convertUnknownInto(type: GameObjectType) {
 		val unknownToConvert = this.gameObjects.firstOrNull { it.determinedType == null && type in it.possibleTypes }
-				?: throw Error("$this cannot convertUnknownInto($type) because there are no valid unknown objects that can be converted to $type in ${this.gameObjects}.")
+				?: throw Exception("$this cannot convertUnknownInto($type) because there are no valid unknown objects that can be converted to $type in ${this.gameObjects}.")
 		unknownToConvert.determineType(type)
 	}
 

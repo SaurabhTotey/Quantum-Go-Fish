@@ -26,7 +26,7 @@ object NetworkUtil {
 			nextChar[1] = 0.toByte()
 			val length = recv(socketHandle, nextChar, 1.convert(), MSG_DONTWAIT).toInt()
 			if (length != -1 && length != 1) { //TODO: this condition is probably wrong since this throws on a client disconnect
-				throw Error("Receive received something, but it received more than a byte.")
+				throw Exception("Receive received something, but it received more than a byte.")
 			}
 			return nextChar.toKString()
 		}
@@ -37,7 +37,7 @@ object NetworkUtil {
 	 */
 	fun handleMessageFromHost(messageFromHost: String, terminalManager: TerminalManager) {
 		if (!TextUtil.isValidHostMessage(messageFromHost)) {
-			throw Error("Cannot handle message from host because the given message is not a valid host message.")
+			throw Exception("Cannot handle message from host because the given message is not a valid host message.")
 		}
 		val constituents = messageFromHost.split("\n")
 		when (constituents[0]) {
@@ -92,7 +92,7 @@ object NetworkUtil {
 	fun createSocket(): Int {
 		val socketDescription = socket(AF_INET, SOCK_STREAM, 0)
 		if (socketDescription == -1) {
-			throw Error("Unable to create socket.")
+			throw Exception("Unable to create socket.")
 		}
 		this.setIsSocketBlocking(socketDescription, false)
 		return socketDescription
@@ -105,7 +105,7 @@ object NetworkUtil {
 		val currentSocketFlags = fcntl(socketHandle, F_GETFL)
 		val newFlags = if (isBlocking) currentSocketFlags and O_NONBLOCK.inv() else currentSocketFlags or O_NONBLOCK
 		if (currentSocketFlags == -1 || fcntl(socketHandle, F_SETFL, newFlags) == -1) {
-			throw Error("Could not set socket $socketHandle to be ${if (isBlocking) "blocking" else "non-blocking"}.")
+			throw Exception("Could not set socket $socketHandle to be ${if (isBlocking) "blocking" else "non-blocking"}.")
 		}
 	}
 

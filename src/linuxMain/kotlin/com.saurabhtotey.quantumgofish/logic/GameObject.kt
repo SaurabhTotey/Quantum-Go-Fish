@@ -18,10 +18,10 @@ data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING) {
 	var determinedCount = 0
 		set(value) {
 			if (value > 4) {
-				throw Error("The count for objects that are determined to be of type $this has become $value which exceeds the maximum of 4.")
+				throw Exception("The count for objects that are determined to be of type $this has become $value which exceeds the maximum of 4.")
 			}
 			if (value < field) {
-				throw Error("The count for objects that are detetermined to be of type $this has become $value which is less than $field; the count should never go down.")
+				throw Exception("The count for objects that are detetermined to be of type $this has become $value which is less than $field; the count should never go down.")
 			}
 			field = value
 			if (value == 4) {
@@ -48,10 +48,10 @@ data class GameObject(val possibleTypes: MutableSet<GameObjectType>) {
 	 */
 	fun determineType(type: GameObjectType) {
 		if (this.determinedType != null) {
-			throw Error("Cannot determineType of $this to be $type because it already has type ${this.determinedType}.")
+			throw Exception("Cannot determineType of $this to be $type because it already has type ${this.determinedType}.")
 		}
 		if (type !in this.possibleTypes) {
-			throw Error("Cannot determineType of $this to be $type because it is not contained in the list of possible types ${this.possibleTypes}.")
+			throw Exception("Cannot determineType of $this to be $type because it is not contained in the list of possible types ${this.possibleTypes}.")
 		}
 		this.possibleTypes.clear()
 		this.possibleTypes.add(type)
@@ -63,10 +63,10 @@ data class GameObject(val possibleTypes: MutableSet<GameObjectType>) {
 	 */
 	fun removeTypePossibility(type: GameObjectType) {
 		if (type !in this.possibleTypes) {
-			throw Error("Cannot remove $type from $this because it is not in the possible types ${this.possibleTypes}.")
+			throw Exception("Cannot remove $type from $this because it is not in the possible types ${this.possibleTypes}.")
 		}
 		if (this.determinedType != null) {
-			throw Error("Cannot remove $type from $this because the type is already determined.")
+			throw Exception("Cannot remove $type from $this because the type is already determined.")
 		}
 		this.possibleTypes.remove(type)
 		val determinedType = this.determinedType

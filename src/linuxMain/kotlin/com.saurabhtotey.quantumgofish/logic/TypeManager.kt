@@ -30,10 +30,10 @@ class TypeManager(val players: List<Player>) {
 	fun registerTypeName(name: String) {
 		val validatorResponse = TextUtil.isValidName(name)
 		if (validatorResponse.isNotEmpty()) {
-			throw Error(validatorResponse)
+			throw Exception(validatorResponse)
 		}
 		if (this.gameObjectTypes.any { it.name == name }) {
-			throw Error("Cannot register \"$name\" because it is already registered.")
+			throw Exception("Cannot register \"$name\" because it is already registered.")
 		}
 		val updatedIndex = this.gameObjectTypes.indexOfFirst { it.name == UNKNOWN_TYPE_STRING }
 		this.gameObjectTypes[updatedIndex].name = name

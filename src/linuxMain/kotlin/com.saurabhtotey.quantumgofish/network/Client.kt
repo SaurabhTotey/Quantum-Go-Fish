@@ -33,7 +33,7 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 			while (connect(this@Client.socket, addressDescription.ptr.reinterpret(), addressDescription.size.convert()) == -1) {
 				this@Client.terminalManager.run()
 				if (time(null) - startTime > 5) {
-					throw Error("Could not connect to $hostAddress:$port.")
+					throw Exception("Could not connect to $hostAddress:$port.")
 				}
 			}
 		}

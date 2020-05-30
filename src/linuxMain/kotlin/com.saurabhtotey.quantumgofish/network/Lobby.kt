@@ -30,12 +30,12 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 		memScoped {
 			val addressDescription = NetworkUtil.describeAddress(port)
 			if (bind(this@Lobby.socket, addressDescription.ptr.reinterpret(), addressDescription.size.convert()) == -1) {
-				throw Error("Could not bind lobby socket to port $port. Make sure that $port is free.")
+				throw Exception("Could not bind lobby socket to port $port. Make sure that $port is free.")
 			}
 		}
 		//Sets the socket to listen for incoming connections
 		if (listen(this@Lobby.socket, maxPlayers) == -1) {
-			throw Error("Could not listen for up to $maxPlayers connections on the socket bound to port $port.")
+			throw Exception("Could not listen for up to $maxPlayers connections on the socket bound to port $port.")
 		}
 		this.terminalManager.print("Started a lobby as $hostName on ${NetworkUtil.getSelfAddress()}:$port with password \"$password\" that allows up to $maxPlayers players.\n", TerminalManager.Color.MAGENTA)
 	}
@@ -62,17 +62,17 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 					initialResponseString += initialResponse.toKString()
 					this@Lobby.handleUserInputs()
 					if (time(null) - startTime > 5) {
-						throw Error("Connection couldn't be accepted in a timely fashion, so it was terminated.")
+						throw Exception("Connection couldn't be accepted in a timely fashion, so it was terminated.")
 					}
 				}
 				val parts = initialResponseString.dropLast(1).split('\n')
 				val name = parts[0]
 				val givenPassword = parts[1]
 				if (givenPassword != this@Lobby.password) {
-					throw Error("Connection attempted with incorrect password.")
+					throw Exception("Connection attempted with incorrect password.")
 				}
 				if (this@Lobby.users.any { it.name == name }) {
-					throw Error("Connection attempted with a taken name.")
+					throw Exception("Connection attempted with a taken name.")
 				}
 				val newUser = RemoteClientUser(name, newSocket)
 				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\n$name is joining the lobby!\n") }
@@ -80,7 +80,7 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 				this@Lobby.users.add(newUser)
 				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\nList of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name }}].\n") }
 			} catch (e: Exception) {
-				if (e is Error && e.message != null) {
+				if (e is Exception && e.message != null) {
 					val returnMessage = "E\n${e.message!!.replace("\n", " ")}\n"
 					send(newSocket, returnMessage.cstr, returnMessage.length.convert(), MSG_DONTWAIT)
 				}

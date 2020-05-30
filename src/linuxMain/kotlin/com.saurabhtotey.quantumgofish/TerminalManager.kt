@@ -109,7 +109,7 @@ class TerminalManager {
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
 		if (this.maxY < 7) {
-			throw Error("Terminal is too small to be usable!")
+			throw Exception("Terminal is too small to be usable!")
 		}
 		//Create windows
 		this.displayWindowBox = newwin(this.maxY - 3, this.maxX, 0, 0)!!

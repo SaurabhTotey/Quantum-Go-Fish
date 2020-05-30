@@ -6,7 +6,6 @@ import com.saurabhtotey.quantumgofish.network.Lobby
 /**
  * Entry point for the program
  * Handles main flow/logic for the user
- * TODO: OH MY GOD I'M THROWING ERRORS EVERYWHERE, BUT I AM MEANING TO THROW EXCEPTIONS SO THEY CAN BE CAUGHT!!! FIXME!!
  */
 fun main() {
 	val terminalManager = TerminalManager()
@@ -102,7 +101,7 @@ fun main() {
 				Client(terminalManager, playerName, validArgs[2], port, password).runUntilDone()
 			}
 		} catch (e: Exception) {
-			terminalManager.print("${e.message ?: "An error was thrown with no message."}\n", TerminalManager.Color.RED)
+			terminalManager.print("${e.message ?: "An Exception was thrown with no message."}\n", TerminalManager.Color.RED)
 			terminalManager.print("Press enter to continue...", TerminalManager.Color.RED)
 			while (terminalManager.input.isEmpty()) {
 				terminalManager.run()
