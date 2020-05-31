@@ -48,21 +48,24 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 	 * Cleanly closes everything down once the client is done
 	 */
 	fun runUntilDone() {
-		while (this.isActive) {
-			this.terminalManager.run()
-			val terminalManagerInput = this.terminalManager.input
-			if (terminalManagerInput.isNotBlank()) {
-				val message = "$terminalManagerInput\n"
-				send(this.socket, message.cstr, message.length.convert(), MSG_DONTWAIT)
+		try {
+			while (this.isActive) {
+				this.terminalManager.run()
+				val terminalManagerInput = this.terminalManager.input
+				if (terminalManagerInput.isNotBlank()) {
+					val message = "$terminalManagerInput\n"
+					send(this.socket, message.cstr, message.length.convert(), MSG_DONTWAIT)
+				}
+				this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket)
+				if (TextUtil.isValidHostMessage(this.currentInput)) {
+					NetworkUtil.handleMessageFromHost(this.currentInput, this.terminalManager)
+					this.currentInput = ""
+				}
 			}
-			this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket)
-			if (TextUtil.isValidHostMessage(this.currentInput)) {
-				NetworkUtil.handleMessageFromHost(this.currentInput, this.terminalManager)
-				this.currentInput = ""
-			}
+		} finally {
+			shutdown(this.socket, SHUT_RDWR)
+			close(this.socket)
 		}
-		shutdown(this.socket, SHUT_RDWR)
-		close(this.socket)
 	}
 
 }

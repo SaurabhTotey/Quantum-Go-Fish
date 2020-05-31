@@ -3,7 +3,7 @@ package com.saurabhtotey.quantumgofish.network
 import com.saurabhtotey.quantumgofish.TerminalManager
 
 /**
- * The user that is hosting the given lobby
+ * The user that is hosting a lobby
  */
 class HostUser constructor(name: String, private val terminalManager: TerminalManager): User(name) {
 

@@ -3,6 +3,7 @@ package com.saurabhtotey.quantumgofish.network
 /**
  * A definition for what a User is
  * Implementations should handle sending data to the user
+ * Is only used by the lobby so that the lobby doesn't need to know how data is sent or received
  */
 abstract class User(val name: String) {
 

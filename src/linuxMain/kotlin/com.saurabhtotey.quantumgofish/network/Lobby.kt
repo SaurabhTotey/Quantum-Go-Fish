@@ -80,7 +80,7 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 				this@Lobby.users.add(newUser)
 				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\nList of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name }}].\n") }
 			} catch (e: Exception) {
-				if (e is Exception && e.message != null) {
+				if (e.message != null) {
 					val returnMessage = "E\n${e.message!!.replace("\n", " ")}\n"
 					send(newSocket, returnMessage.cstr, returnMessage.length.convert(), MSG_DONTWAIT)
 				}
@@ -111,12 +111,15 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	 * Cleanly closes everything down once the lobby is done
 	 */
 	fun runUntilDone() {
-		while (this.isActive) {
-			this.acceptAnyJoiningPlayers()
-			this.handleUserInputs()
+		try {
+			while (this.isActive) {
+				this.acceptAnyJoiningPlayers()
+				this.handleUserInputs()
+			}
+		} finally {
+			shutdown(this.socket, SHUT_RDWR)
+			close(this.socket)
 		}
-		shutdown(this.socket, SHUT_RDWR)
-		close(this.socket)
 	}
 
 }
