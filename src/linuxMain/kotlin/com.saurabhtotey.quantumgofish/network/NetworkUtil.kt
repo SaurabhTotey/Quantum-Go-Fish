@@ -52,7 +52,7 @@ object NetworkUtil {
 				}
 			}
 			"E" -> {
-				terminalManager.print(constituents[1], TerminalManager.Color.RED)
+				terminalManager.print("${constituents[1]}\n", TerminalManager.Color.RED)
 			}
 		}
 	}

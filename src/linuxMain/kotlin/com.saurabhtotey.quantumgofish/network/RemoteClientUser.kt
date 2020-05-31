@@ -10,7 +10,7 @@ import platform.posix.send
  * Manages sending data to them and getting data from them
  * Is only used by the lobby: the client on their machine uses the Client class to communicate with the lobby
  */
-class RemoteClientUser(name: String, private val socket: Int) : User(name) {
+class RemoteClientUser(name: String, val socket: Int) : User(name) {
 
 	//The current message being built from network by this user
 	private var currentInput = ""

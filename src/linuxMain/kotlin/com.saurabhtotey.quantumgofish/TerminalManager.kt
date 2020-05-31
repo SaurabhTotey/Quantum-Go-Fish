@@ -52,9 +52,9 @@ class TerminalManager {
 	//All the messages that have been inputted by the user
 	private val inputQueue = mutableListOf<String>()
 
-	//The first message to be handled: will return an empty string if none
+	//The first message to be handled: will return null if none
 	val input
-		get() = if (this.inputQueue.size > 0) this.inputQueue.removeAt(0) else ""
+		get() = if (this.inputQueue.size > 0) this.inputQueue.removeAt(0).trimEnd() else null
 
 	//The input that the user is currently inputting
 	private var currentInput = ""

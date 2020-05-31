@@ -9,7 +9,7 @@ class HostUser constructor(name: String, private val terminalManager: TerminalMa
 
 	//An input from the host is an input from the terminal
 	override val input: String
-		get() = this.terminalManager.input
+		get() = this.terminalManager.input ?: ""
 
 	/**
 	 * Handles data immediately that was given to it because this user is the host

@@ -52,7 +52,7 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 			while (this.isActive) {
 				this.terminalManager.run()
 				val terminalManagerInput = this.terminalManager.input
-				if (terminalManagerInput.isNotBlank()) {
+				if (terminalManagerInput?.isNotBlank() == true) {
 					val message = "$terminalManagerInput\n"
 					send(this.socket, message.cstr, message.length.convert(), MSG_DONTWAIT)
 				}

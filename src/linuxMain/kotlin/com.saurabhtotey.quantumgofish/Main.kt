@@ -22,13 +22,13 @@ fun main() {
 		terminalManager.print("If no password is specified, an empty password is used. Passwords can be at most 15 characters.\n", TerminalManager.Color.BLUE)
 
 		//An input loop that runs until the user enters valid interpretable input
-		var input = ""
+		var input: String? = null
 		var isInputValid = false
 		inputLoop@ while (!isInputValid) {
-			input = ""
-			while (input.isEmpty()) {
+			input = null
+			while (input == null) {
 				terminalManager.run()
-				input = terminalManager.input.trimEnd()
+				input = terminalManager.input
 			}
 			terminalManager.print("$input\n", TerminalManager.Color.GREEN)
 			if (!input.startsWith("/")) {
@@ -89,7 +89,7 @@ fun main() {
 		}
 
 		//Now that all that input has been validated, start the game
-		val validArgs = input.split(" ")
+		val validArgs = input!!.split(" ")
 		val playerName = validArgs[1].toUpperCase()
 		val port = validArgs[3].toInt()
 		val password = validArgs[4]
@@ -103,7 +103,7 @@ fun main() {
 		} catch (e: Exception) {
 			terminalManager.print("${e.message ?: "An Exception was thrown with no message."}\n", TerminalManager.Color.RED)
 			terminalManager.print("Press enter to continue...", TerminalManager.Color.RED)
-			while (terminalManager.input.isEmpty()) {
+			while (terminalManager.input == null) {
 				terminalManager.run()
 			}
 		}

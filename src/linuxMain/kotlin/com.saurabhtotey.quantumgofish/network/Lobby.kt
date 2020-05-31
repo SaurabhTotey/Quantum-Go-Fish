@@ -117,6 +117,11 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 				this.handleUserInputs()
 			}
 		} finally {
+			this.users.filterIsInstance<RemoteClientUser>().forEach {
+				it.sendData("E\nThe lobby is being shut down. You are being kicked.")
+				shutdown(it.socket, SHUT_RDWR)
+				close(it.socket)
+			}
 			shutdown(this.socket, SHUT_RDWR)
 			close(this.socket)
 		}
