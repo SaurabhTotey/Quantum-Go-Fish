@@ -19,13 +19,17 @@ object NetworkUtil {
 	/**
 	 * Returns the next char from recv (non-blocking)
 	 * Will return an empty string if nothing
+	 * Will return null if the given socket has disconnected
 	 */
-	fun receiveIncomingFrom(socketHandle: Int): String {
+	fun receiveIncomingFrom(socketHandle: Int): String? {
 		memScoped {
 			val nextChar = this.allocArray<ByteVar>(2)
 			nextChar[1] = 0.toByte()
 			val length = recv(socketHandle, nextChar, 1.convert(), MSG_DONTWAIT).toInt()
-			if (length != -1 && length != 1) { //TODO: this condition is probably wrong since this throws on a client disconnect
+			if (length == 0) {
+				return null
+			}
+			if (length != -1 && length != 1) {
 				throw Exception("Receive received something, but it received more than a byte.")
 			}
 			return nextChar.toKString()

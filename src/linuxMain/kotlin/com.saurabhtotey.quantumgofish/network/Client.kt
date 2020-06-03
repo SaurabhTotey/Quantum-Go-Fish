@@ -53,10 +53,11 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 				this.terminalManager.run()
 				val terminalManagerInput = this.terminalManager.input
 				if (terminalManagerInput?.isNotBlank() == true) {
+					//TODO: check if the input is "/leave" and leave gracefully if so (without sending message to host)
 					val message = "$terminalManagerInput\n"
 					send(this.socket, message.cstr, message.length.convert(), MSG_DONTWAIT)
 				}
-				this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket)
+				this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket) ?: throw Exception("Lobby has been closed.")
 				if (TextUtil.isValidHostMessage(this.currentInput)) {
 					NetworkUtil.handleMessageFromHost(this.currentInput, this.terminalManager)
 					this.currentInput = ""

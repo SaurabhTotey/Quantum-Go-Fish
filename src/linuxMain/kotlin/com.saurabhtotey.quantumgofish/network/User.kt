@@ -10,6 +10,9 @@ abstract class User(val name: String) {
 	//Should return the first unhandled message received from receiveData: empty string if none
 	abstract val input: String
 
+	//Whether the user is connected to whatever Lobby it is in
+	var isConnected = true
+
 	/**
 	 * Sends the inputted data to this user (either over network or locally depending on implementation)
 	 */

@@ -95,6 +95,10 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	 */
 	private fun handleUserInputs() {
 		this.users.forEach { it.receiveData() }
+		val usersToDisconnect = this.users.filterNot { it.isConnected }
+		this.users.removeAll(usersToDisconnect)
+		usersToDisconnect.forEach { disconnectedUser -> this.users.forEach { it.sendData("M\nTHE UNIVERSE\n${disconnectedUser.name} has disconnected.\n") } }
+		//TODO check if any of the usersToDisconnect were in this.game and stop the game if that is the case and notify lobby
 		this.users.forEach { user ->
 			val sender = user.name
 			val input = user.input

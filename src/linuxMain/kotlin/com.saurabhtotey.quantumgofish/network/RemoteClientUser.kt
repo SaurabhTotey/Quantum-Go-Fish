@@ -35,7 +35,12 @@ class RemoteClientUser(name: String, val socket: Int) : User(name) {
 	 * Tries to receive data from this user
 	 */
 	override fun receiveData() {
-		this.currentInput += NetworkUtil.receiveIncomingFrom(this.socket)
+		val incoming = NetworkUtil.receiveIncomingFrom(this.socket)
+		if (incoming == null) {
+			this.isConnected = false
+			return
+		}
+		this.currentInput += incoming
 		if (this.currentInput.endsWith('\n')) {
 			this.inputQueue.add(this.currentInput.dropLast(1))
 			this.currentInput = ""
