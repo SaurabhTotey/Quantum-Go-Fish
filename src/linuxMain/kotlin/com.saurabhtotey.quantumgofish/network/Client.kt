@@ -53,7 +53,10 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 				this.terminalManager.run()
 				val terminalManagerInput = this.terminalManager.input
 				if (terminalManagerInput?.isNotBlank() == true) {
-					//TODO: check if the input is "/leave" and leave gracefully if so (without sending message to host)
+					if (terminalManagerInput == "/leave") {
+						this.isActive = false
+						return
+					}
 					val message = "$terminalManagerInput\n"
 					send(this.socket, message.cstr, message.length.convert(), MSG_DONTWAIT)
 				}

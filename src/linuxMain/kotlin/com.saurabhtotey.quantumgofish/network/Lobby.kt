@@ -105,6 +105,13 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			if (input.isBlank()) {
 				return@forEach
 			}
+			if (input == "/leave") {
+				if (user !is HostUser) {
+					throw Exception("Received a call to '/leave' from a remote user. This should not be possible unless receiving messages from a different program.")
+				}
+				this.isActive = false
+				return
+			}
 			this.users.forEach { it.sendData("M\n$sender\n$input\n") }
 			//TODO: check if input is a command and run it if necessary
 		}
