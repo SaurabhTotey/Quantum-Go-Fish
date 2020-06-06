@@ -75,10 +75,10 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 					throw Exception("Connection attempted with a taken name.")
 				}
 				val newUser = RemoteClientUser(name, newSocket)
-				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\n$name is joining the lobby!\n") }
+				this@Lobby.broadcast("M\nTHE UNIVERSE\n$name is joining the lobby!\n")
 				newUser.sendData("M\nTHE UNIVERSE\nWelcome to the lobby!\n")
 				this@Lobby.users.add(newUser)
-				this@Lobby.users.forEach { it.sendData("M\nTHE UNIVERSE\nList of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name }}].\n") }
+				this@Lobby.broadcast("M\nTHE UNIVERSE\nList of players in lobby is now [${this@Lobby.users.joinToString(", ") { it.name }}].\n")
 			} catch (e: Exception) {
 				if (e.message != null) {
 					val returnMessage = "E\n${e.message!!.replace("\n", " ")}\n"
@@ -91,13 +91,21 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	}
 
 	/**
+	 * Sends the given broadcast to all users
+	 * Broadcast still needs to conform to being interpretable as a host message
+	 */
+	private fun broadcast(broadcast: String) {
+		this.users.forEach { it.sendData(broadcast) }
+	}
+
+	/**
 	 * Handles any incoming messages from users
 	 */
 	private fun handleUserInputs() {
 		this.users.forEach { it.receiveData() }
 		val usersToDisconnect = this.users.filterNot { it.isConnected }
 		this.users.removeAll(usersToDisconnect)
-		usersToDisconnect.forEach { disconnectedUser -> this.users.forEach { it.sendData("M\nTHE UNIVERSE\n${disconnectedUser.name} has disconnected.\n") } }
+		usersToDisconnect.forEach { disconnectedUser -> this.broadcast("M\nTHE UNIVERSE\n${disconnectedUser.name} has disconnected.\n") }
 		//TODO check if any of the usersToDisconnect were in this.game and stop the game if that is the case and notify lobby
 		this.users.forEach { user ->
 			val sender = user.name
@@ -112,8 +120,15 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 				this.isActive = false
 				return
 			}
-			this.users.forEach { it.sendData("M\n$sender\n$input\n") }
-			//TODO: check if input is a command and run it if necessary
+			this.broadcast("M\n$sender\n$input\n")
+			if (!input.startsWith("/")) {
+				return@forEach
+			}
+			if (input == "/help") {
+				this.broadcast("M\nTHE UNIVERSE\nTODO: I need to make some sort of help message for those in a lobby.\n")
+			} else { //TODO: obviously I need to add in more commands (eg. command to start a game)
+				this.broadcast("E\nWas not able to interpret the command...\n")
+			}
 		}
 	}
 
