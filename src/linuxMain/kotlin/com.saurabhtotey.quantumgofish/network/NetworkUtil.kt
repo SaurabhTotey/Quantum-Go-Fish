@@ -45,15 +45,16 @@ object NetworkUtil {
 		}
 		val constituents = messageFromHost.split("\n")
 		when (constituents[0]) {
+			"I" -> {
+				terminalManager.print("${constituents[1]}\n", TerminalManager.Color.MAGENTA)
+			}
 			"M" -> {
-				val sender = constituents[1]
-				if (sender == "THE UNIVERSE") {
-					terminalManager.print("THE UNIVERSE".padEnd(15), TerminalManager.Color.MAGENTA)
-					terminalManager.print("${constituents[2]}\n", TerminalManager.Color.BLUE)
-				} else {
-					terminalManager.print(constituents[1].padEnd(15), TerminalManager.Color.WHITE)
-					terminalManager.print("${constituents[2]}\n", TerminalManager.Color.GREEN)
-				}
+				terminalManager.print(constituents[1].padEnd(15), TerminalManager.Color.WHITE)
+				terminalManager.print("${constituents[2]}\n", TerminalManager.Color.GREEN)
+			}
+			"C" -> {
+				terminalManager.print(constituents[1].padEnd(15), TerminalManager.Color.WHITE)
+				terminalManager.print("${constituents[2]}\n", TerminalManager.Color.BLUE)
 			}
 			"E" -> {
 				terminalManager.print("${constituents[1]}\n", TerminalManager.Color.RED)
