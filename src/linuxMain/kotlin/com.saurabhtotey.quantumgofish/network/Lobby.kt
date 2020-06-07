@@ -37,7 +37,7 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 		if (listen(this@Lobby.socket, maxPlayers) == -1) {
 			throw Exception("Could not listen for up to $maxPlayers connections on the socket bound to port $port.")
 		}
-		this.terminalManager.print("Started a lobby as $hostName on ${NetworkUtil.getSelfAddress()}:$port with password \"$password\" that allows up to $maxPlayers players.\n", TerminalManager.Color.MAGENTA)
+		this.terminalManager.print("Started a lobby as $hostName on ${NetworkUtil.getSelfAddress()}:$port with password \"$password\" that allows up to $maxPlayers players.\n\n", TerminalManager.Color.BLUE)
 	}
 
 	/**

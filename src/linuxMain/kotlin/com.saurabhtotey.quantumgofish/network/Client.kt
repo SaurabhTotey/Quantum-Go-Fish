@@ -40,7 +40,7 @@ class Client(private val terminalManager: TerminalManager, clientName: String, h
 		//Sends an initial message that the host is expecting of the client's name and password
 		val firstMessage = "$clientName\n$password\n"
 		send(this.socket, firstMessage.cstr, firstMessage.length.convert(), MSG_DONTWAIT)
-		this.terminalManager.print("Joining as a $clientName to $hostAddress:$port with password \"$password\".\n", TerminalManager.Color.MAGENTA)
+		this.terminalManager.print("Joining as a $clientName to $hostAddress:$port with password \"$password\".\n\n", TerminalManager.Color.BLUE)
 	}
 
 	/**

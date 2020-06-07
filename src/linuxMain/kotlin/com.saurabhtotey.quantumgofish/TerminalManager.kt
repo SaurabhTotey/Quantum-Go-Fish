@@ -164,7 +164,11 @@ class TerminalManager {
 				current = this.textLines.last()
 			}
 			val remainingCharsInCurrentLine = this.maxX - 2 - current.length
-			val amountOfCharactersToAddToCurrentLine = min(remainingCharsInCurrentLine, remainingString.length)
+			var placeToCutInString = remainingString.indexOf('\n') + 1
+			if (placeToCutInString == 0) {
+				placeToCutInString = remainingString.length
+			}
+			val amountOfCharactersToAddToCurrentLine = min(remainingCharsInCurrentLine, placeToCutInString)
 			current.terminalMessages.add(TerminalMessage(remainingString.substring(0, amountOfCharactersToAddToCurrentLine), message.textColor, message.backgroundColor))
 			remainingString = remainingString.substring(amountOfCharactersToAddToCurrentLine)
 		}
