@@ -2,6 +2,7 @@ package com.saurabhtotey.quantumgofish
 
 import kotlinx.cinterop.*
 import ncurses.*
+import kotlin.math.min
 
 /**
  * A terminal manager that handles actually displaying information to the screen and getting user input
@@ -29,16 +30,30 @@ class TerminalManager {
 	 */
 	private data class TerminalMessage(val message: String, val textColor: Color, val backgroundColor: Color)
 
+	/**
+	 * A small internal class that stores a line of text
+	 * Is a useful abstraction because scrolling can scroll through multiple messages and can even break up messages
+	 * The broken up messages are stored in this class to allow nice scrolling behaviour
+	 */
+	private class TextLine(val terminalMessages: MutableList<TerminalMessage> = mutableListOf())  {
+		val length
+			get() = this.terminalMessages.sumBy { it.message.length }
+	}
+
+	//All lines of text that the terminal can scroll though: is a useful representation only for scrolling
+	private val textLines = mutableListOf<TextLine>()
+
 	//All the data that has been printed to the screen: is stored for scrolling purposes
 	private val printedMessages = mutableListOf<TerminalMessage>()
 
-	//The index of the last displayed message: is used and edited for scrolling purposes
-	private var lastDisplayedMessageIndex = -1
+	//The index of the last displayed message: is used and edited for scrolling purposes TODO: we don't need to print all lines until the last index, we can just print from lastIndex - maxY - 3 to lastIndex, or something like that
+	private var lastDisplayedLineIndex = -1
 		set(value) {
 			wclear(this.displayWindow)
 			scrollok(this.displayWindow, true)
-			(0 .. value).forEach {
-				this.displayTerminalMessage(this.printedMessages[it])
+			(0 .. value).forEach { lineIndex ->
+				val textLine = this.textLines[lineIndex]
+				textLine.terminalMessages.forEach { this.displayTerminalMessage(it) }
 			}
 			scrollok(this.displayWindow, false)
 			wrefresh(this.displayWindow)
@@ -108,7 +123,7 @@ class TerminalManager {
 		//Get screen size
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
-		if (this.maxY < 7) {
+		if (this.maxY < 7 || this.maxX < 5) {
 			throw Exception("Terminal is too small to be usable!")
 		}
 		//Create windows
@@ -129,9 +144,31 @@ class TerminalManager {
 	 * Clears the display section of the terminal
 	 */
 	fun clear() {
-		this.lastDisplayedMessageIndex = -1
+		this.lastDisplayedLineIndex = -1
 		wclear(this.displayWindow)
+		this.textLines.clear()
 		this.printedMessages.clear()
+	}
+
+	/**
+	 * Adds the given message to the list of messages and breaks it up and adds it to the correct lines
+	 */
+	private fun addMessageToTextLines(message: TerminalMessage) {
+		if (this.textLines.isEmpty()) {
+			this.textLines.add(TextLine())
+		}
+		var remainingString = message.message
+		var current = this.textLines.last()
+		while (remainingString.isNotEmpty()) {
+			if (current.terminalMessages.lastOrNull()?.message?.lastOrNull() == '\n' || current.length == this.maxX - 2) {
+				this.textLines.add(TextLine())
+				current = this.textLines.last()
+			}
+			val remainingCharsInCurrentLine = this.maxX - 2 - current.length
+			val amountOfCharactersToAddToCurrentLine = min(remainingCharsInCurrentLine, remainingString.length)
+			current.terminalMessages.add(TerminalMessage(remainingString.substring(0, amountOfCharactersToAddToCurrentLine), message.textColor, message.backgroundColor))
+			remainingString = remainingString.substring(amountOfCharactersToAddToCurrentLine)
+		}
 	}
 
 	/**
@@ -154,8 +191,10 @@ class TerminalManager {
 	 * Automatically scrolls entire display down to bottom
 	 */
 	fun print(info: String, textColor: Color = Color.WHITE, backgroundColor: Color = Color.BLACK) {
-		this.printedMessages.add(TerminalMessage(info, textColor, backgroundColor))
-		this.lastDisplayedMessageIndex = this.printedMessages.lastIndex
+		val terminalMessage = TerminalMessage(info, textColor, backgroundColor)
+		this.printedMessages.add(terminalMessage)
+		this.addMessageToTextLines(terminalMessage)
+		this.lastDisplayedLineIndex = this.textLines.lastIndex
 	}
 
 	/**
@@ -178,7 +217,9 @@ class TerminalManager {
 					delwin(this.displayWindow)
 					delwin(this.inputWindow)
 					this.setupWindows()
-					this.lastDisplayedMessageIndex = this.lastDisplayedMessageIndex //so that messages are updated
+					this.textLines.clear()
+					this.printedMessages.forEach { this.addMessageToTextLines(it) }
+					this.lastDisplayedLineIndex = this.textLines.lastIndex
 				}
 
 				//Handle actual typing
@@ -197,15 +238,15 @@ class TerminalManager {
 					this.currentInput += inputtedChar.toChar()
 				}
 
-				//Handle scrolling
+				//Handle scrolling TODO: maybe add bells for when the user cannot continue scrolling in whatever direction they are trying
 				KEY_UP -> {
-					if (this.lastDisplayedMessageIndex > 0) { //TODO: this allows for weird scrolling early on that should be disabled; only enable this once the index is greater than the first index in this.printedMessages that fills the screen
-						this.lastDisplayedMessageIndex -= 1
+					if (this.lastDisplayedLineIndex > this.maxY - 5) {
+						this.lastDisplayedLineIndex -= 1
 					}
 				}
 				KEY_DOWN -> {
-					if (this.lastDisplayedMessageIndex < this.printedMessages.lastIndex) {
-						this.lastDisplayedMessageIndex += 1
+					if (this.lastDisplayedLineIndex < this.textLines.lastIndex) {
+						this.lastDisplayedLineIndex += 1
 					}
 				}
 
