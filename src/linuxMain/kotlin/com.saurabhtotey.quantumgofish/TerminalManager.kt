@@ -2,6 +2,7 @@ package com.saurabhtotey.quantumgofish
 
 import kotlinx.cinterop.*
 import ncurses.*
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -46,16 +47,14 @@ class TerminalManager {
 	//All the data that has been printed to the screen: is stored for scrolling purposes
 	private val printedMessages = mutableListOf<TerminalMessage>()
 
-	//The index of the last displayed message: is used and edited for scrolling purposes TODO: we don't need to print all lines until the last index, we can just print from lastIndex - maxY - 3 to lastIndex, or something like that
+	//The index of the last displayed message: is used and edited for scrolling purposes
 	private var lastDisplayedLineIndex = -1
 		set(value) {
 			wclear(this.displayWindow)
-			scrollok(this.displayWindow, true)
-			(0 .. value).forEach { lineIndex ->
+			(max(0, value - this.maxY + 6) .. value).forEach { lineIndex ->
 				val textLine = this.textLines[lineIndex]
 				textLine.terminalMessages.forEach { this.displayTerminalMessage(it) }
 			}
-			scrollok(this.displayWindow, false)
 			wrefresh(this.displayWindow)
 			wrefresh(this.inputWindow)
 			field = value
@@ -124,7 +123,7 @@ class TerminalManager {
 		this.maxY = getmaxy(stdscr)
 		this.maxX = getmaxx(stdscr)
 		if (this.maxY < 7 || this.maxX < 5) {
-			throw Exception("Terminal is too small to be usable!")
+			throw Error("Terminal is too small to be usable!")
 		}
 		//Create windows
 		this.displayWindowBox = newwin(this.maxY - 3, this.maxX, 0, 0)!!
@@ -240,7 +239,7 @@ class TerminalManager {
 
 				//Handle scrolling TODO: maybe add bells for when the user cannot continue scrolling in whatever direction they are trying
 				KEY_UP -> {
-					if (this.lastDisplayedLineIndex > this.maxY - 5) {
+					if (this.lastDisplayedLineIndex > this.maxY - 6) {
 						this.lastDisplayedLineIndex -= 1
 					}
 				}
