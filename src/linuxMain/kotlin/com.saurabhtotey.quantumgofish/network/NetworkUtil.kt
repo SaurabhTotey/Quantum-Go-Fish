@@ -59,11 +59,11 @@ object NetworkUtil {
 				terminalManager.print("\n")
 			}
 			"M" -> {
-				terminalManager.print(constituents[1].padEnd(15), TerminalManager.Color.WHITE)
+				terminalManager.print(constituents[1].padEnd(16), TerminalManager.Color.WHITE)
 				terminalManager.print("${constituents[2]}\n", TerminalManager.Color.GREEN)
 			}
 			"C" -> {
-				terminalManager.print(constituents[1].padEnd(15), TerminalManager.Color.WHITE)
+				terminalManager.print(constituents[1].padEnd(16), TerminalManager.Color.WHITE)
 				terminalManager.print("${constituents[2]}\n", TerminalManager.Color.MAGENTA)
 			}
 			"E" -> {
