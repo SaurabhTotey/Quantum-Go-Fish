@@ -69,6 +69,9 @@ object NetworkUtil {
 			"E" -> {
 				terminalManager.print("${constituents[1]}\n", TerminalManager.Color.RED)
 			}
+			"G" -> {
+				terminalManager.print("${constituents[1]}\n", TerminalManager.Color.CYAN)
+			}
 			"V" -> {
 				terminalManager.clear()
 			}

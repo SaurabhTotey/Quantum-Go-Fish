@@ -26,8 +26,9 @@ class TypeManager(val players: List<Player>) {
 	/**
 	 * Registers the given string as a name for one of the types for objects in the owning game
 	 * name must be an alphabetic string (only characters from the alphabet) and must be upper-cased
+	 * Returns the type that had its name changed
 	 */
-	fun registerTypeName(name: String) {
+	fun registerTypeName(name: String): GameObjectType {
 		val validatorResponse = TextUtil.isValidName(name)
 		if (validatorResponse.isNotEmpty()) {
 			throw Exception(validatorResponse)
@@ -36,7 +37,11 @@ class TypeManager(val players: List<Player>) {
 			throw Exception("Cannot register \"$name\" because it is already registered.")
 		}
 		val updatedIndex = this.gameObjectTypes.indexOfFirst { it.name == UNKNOWN_TYPE_STRING }
+		if (updatedIndex == -1) {
+			throw Exception("Cannot register \"$name\" because all types have names.")
+		}
 		this.gameObjectTypes[updatedIndex].name = name
+		return this.gameObjectTypes[updatedIndex]
 	}
 
 	/**

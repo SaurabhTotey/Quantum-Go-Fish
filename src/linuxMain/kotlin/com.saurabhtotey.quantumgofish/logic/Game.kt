@@ -11,7 +11,7 @@ class Game(val users: List<User>) {
 	private val players = this.users.map { Player(it) }
 
 	//The index of the player who gets to ask the current question
-	var questionerIndex = 0
+	private var questionerIndex = 0
 		set(value) {
 			if (value > players.size) {
 				throw Exception("Attempt to set questionerIndex to $value, but it should never be set to a value greater than ${players.size}.")
@@ -38,5 +38,19 @@ class Game(val users: List<User>) {
 			}
 			return winner
 		}
+
+	/**
+	 * A method that should be called when the questioner wants to ask the given target whether they have the given type
+	 */
+	fun ask(target: User, type: GameObjectType) {
+		TODO()
+	}
+
+	/**
+	 * A method that should be called when the target of a question either answers yes or no
+	 */
+	fun answer(hasType: Boolean) {
+		TODO()
+	}
 
 }

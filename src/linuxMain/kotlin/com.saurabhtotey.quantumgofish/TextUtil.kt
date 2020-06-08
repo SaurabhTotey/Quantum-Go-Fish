@@ -100,6 +100,9 @@ object TextUtil {
 		if (input.startsWith("E") && separatorCount == 2) {
 			return true
 		}
+		if (input.startsWith("G") && separatorCount == 2) {
+			return true
+		}
 		//TODO:
 		return false
 	}

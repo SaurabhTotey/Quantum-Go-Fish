@@ -103,6 +103,16 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	}
 
 	/**
+	 * A method that handles running a game command safely
+	 * Will check for winners or if the game has been lost and also handles exceptions
+	 * Returns if the game is done
+	 */
+	private fun runGameCommand(gameCommand: () -> Unit): Boolean {
+		//TODO:
+		return false
+	}
+
+	/**
 	 * Handles any incoming messages from users
 	 */
 	private fun handleUserInputs() {
@@ -133,38 +143,73 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			}
 			this.broadcast("C\n$sender\n$input\n")
 			val args = input.split(" ")
-			if (args[0] == "/help") {
-				this.broadcast("I\nAnything typed in will be interpretted as a chat message unless prepended with a forward-slash.\n")
-				this.broadcast("I\nEntering \"/leave\" will allow you to leave the lobby. If a host leaves, the lobby is shutdown.\n")
-				this.broadcast("I\nIf anyone leaves during a game, the game is closed.\n")
-				this.broadcast("I\nTo start a game, the host must enter \"/start [EASY_MODE]\".\n")
-				this.broadcast("I\nThe easy mode argument must be 'y' or 'n', where 'y' means yes and 'n' means no. The default is no.\n")
-				this.broadcast("I\nEasy mode just shows the state of the game after every turn.\n")
-				this.broadcast("I\nAll players in the lobby will join the game and the turn order will be randomized.\n")
-				this.broadcast("I\nTo see the rules of the game, please visit https://stacky.net/wiki/index.php?title=Quantum_Go_Fish.\n")
-				this.broadcast("I\nEnter \"/ask [PLAYER_NAME] [TYPE_NAME]\" to ask the given player about the given type.\n")
-				this.broadcast("I\nEnter \"/answer [ANSWER]\" to answer any question directed towards yourself. Answer must be 'y' for yes or 'n' for no.\n")
-			} else if (args[0] == "/start") {
-				if (this.game != null) {
-					this.broadcast("E\nCannot start game while another game is in process.\n")
-					return@forEach
+			when {
+				args[0] == "/help" -> {
+					this.broadcast("I\nAnything typed in will be interpretted as a chat message unless prepended with a forward-slash.\n")
+					this.broadcast("I\nEntering \"/leave\" will allow you to leave the lobby. If a host leaves, the lobby is shutdown.\n")
+					this.broadcast("I\nIf anyone leaves during a game, the game is closed.\n")
+					this.broadcast("I\nTo start a game, the host must enter \"/start [EASY_MODE]\".\n")
+					this.broadcast("I\nThe easy mode argument must be 'y' or 'n', where 'y' means yes and 'n' means no. The default is no.\n")
+					this.broadcast("I\nEasy mode just shows the state of the game after every turn.\n")
+					this.broadcast("I\nAll players in the lobby will join the game and the turn order will be randomized.\n")
+					this.broadcast("I\nTo see the rules of the game, please visit https://stacky.net/wiki/index.php?title=Quantum_Go_Fish.\n")
+					this.broadcast("I\nEnter \"/ask [PLAYER_NAME] [TYPE_NAME]\" to ask the given player about the given type.\n")
+					this.broadcast("I\nEnter \"/answer [ANSWER]\" to answer any question directed towards yourself. Answer must be 'y' for yes or 'n' for no.\n")
 				}
-				if (user !is HostUser) {
-					this.broadcast("E\nOnly the host may start the game.\n")
-					return@forEach
+				args[0] == "/start" -> {
+					if (this.game != null) {
+						this.broadcast("E\nCannot start game while another game is in process.\n")
+						return@forEach
+					}
+					if (user !is HostUser) {
+						this.broadcast("E\nOnly the host may start the game.\n")
+						return@forEach
+					}
+					//TODO: easy mode stuff
+					val playerOrder = this.users.shuffled()
+					this.broadcast("V\nG\nStarting a game with player order [${playerOrder.joinToString(", ") { it.name }}].\n")
+					this.game = Game(playerOrder)
+					this.broadcast("G\nIt is ${this.game!!.questioner.name}'s turn to ask a question!\n")
 				}
-				val playerOrder = this.users.shuffled()
-				this.broadcast("V\nI\nStarting a game with player order [${playerOrder.joinToString(", ") { it.name }}].\n")
-				this.game = Game(playerOrder)
-				//TODO: print game  info
-			} else if (args[0] == "/ask") {
-				//TODO: do game stuff and print game info
-				this.broadcast("I\nTODO\n")
-			} else if (args[0] == "/answer") {
-				//TODO: do game stuff and print game info
-				this.broadcast("I\nTODO\n")
-			} else {
-				this.broadcast("E\nWas not able to interpret the command...\n")
+				args[0] == "/ask" -> {
+					if (this.game == null) {
+						this.broadcast("E\nCannot ask a question when no game is in progress.\n")
+						return@forEach
+					}
+					if (user != this.game!!.questioner) {
+						this.broadcast("E\nCannot ask a question if it is not your turn to ask a question!\n")
+						return@forEach
+					}
+					//TODO: check that they haven't already asked a question
+					if (args.size != 3) {
+						this.broadcast("E\nIncorrect number of arguments.\n")
+						return@forEach
+					}
+					if (!this.game!!.users.any { it.name == args[1] }) {
+						this.broadcast("E\nThere is no player with the name \"${args[1]}\" in the current game.\n")
+						return@forEach
+					}
+					val validatorResponse = TextUtil.isValidName(args[2])
+					if (validatorResponse.isNotEmpty()) {
+						this.broadcast("E\nGiven type name is not valid. $validatorResponse\n")
+						return@forEach
+					}
+					var type = this.game!!.typeManager.gameObjectTypes.firstOrNull { it.name == args[2] }
+					if (type == null) {
+						if (this.runGameCommand { type = this.game!!.typeManager.registerTypeName(args[2]) }) {
+							return@forEach
+						}
+					}
+					this.broadcast("G\n${this.game!!.questioner.name} has asked ${args[1]} if they have any objects of type $type.\n")
+					this.runGameCommand { this.game!!.ask(this.users.find { it.name == args[1] }!!, type!!) }
+				}
+				args[0] == "/answer" -> {
+					//TODO: do game stuff and print game info
+					this.broadcast("I\nTODO\n")
+				}
+				else -> {
+					this.broadcast("E\nWas not able to interpret the command...\n")
+				}
 			}
 		}
 	}
