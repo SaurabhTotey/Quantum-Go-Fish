@@ -5,13 +5,13 @@ import com.saurabhtotey.quantumgofish.network.User
 /**
  * A class that stores all the information for the game and handles/facilitates the logic
  */
-class Game(users: List<User>) {
+class Game(val users: List<User>) {
 
 	//The players of the game
-	private val players = users.map { Player(it) }
+	private val players = this.users.map { Player(it) }
 
 	//The index of the player who gets to ask the current question
-	private var questionerIndex = 0
+	var questionerIndex = 0
 		set(value) {
 			if (value > players.size) {
 				throw Exception("Attempt to set questionerIndex to $value, but it should never be set to a value greater than ${players.size}.")
@@ -23,37 +23,20 @@ class Game(users: List<User>) {
 		}
 
 	//The player who can currently ask a question whenever executeTurn is called
-	private val questioner
-		get() = this.players[questionerIndex]
+	val questioner
+		get() = this.players[questionerIndex].user
 
 	//The game's type manager
 	val typeManager = TypeManager(this.players)
 
 	//The player who has won the game; returns null if no player satisfies any of the winning conditions of either owning all 4 of a type or asking a question that reveals the entire game state
-	private val winner: Player?
+	private val winner: User?
 		get() {
-			var winner = this.players.firstOrNull { player -> this.typeManager.gameObjectTypes.any { type -> player.countOf(type) == 4 } }
+			var winner = this.players.firstOrNull { player -> this.typeManager.gameObjectTypes.any { type -> player.countOf(type) == 4 } }?.user
 			if (winner == null && typeManager.gameObjects.all { it.determinedType != null }) {
 				winner = this.questioner
 			}
 			return winner
 		}
-
-	/**
-	 * TODO: runs a turn of the game and returns the winner if any
-	 */
-	fun executeTurn(): Player? {
-		if (this.winner != null) {
-			throw Exception("Cannot executeTurn if the game is already won by ${this.winner}.")
-		}
-
-		//TODO: allow questioner to ask question
-
-		val winner = this.winner
-		if (winner == null) {
-			this.questionerIndex += 1
-		}
-		return winner
-	}
 
 }

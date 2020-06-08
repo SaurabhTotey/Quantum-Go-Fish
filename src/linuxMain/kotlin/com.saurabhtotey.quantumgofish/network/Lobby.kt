@@ -110,7 +110,10 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 		val usersToDisconnect = this.users.filterNot { it.isConnected }
 		this.users.removeAll(usersToDisconnect)
 		usersToDisconnect.forEach { disconnectedUser -> this.broadcast("I\n${disconnectedUser.name} has disconnected.\n") }
-		//TODO check if any of the usersToDisconnect were in this.game and stop the game if that is the case and notify lobby
+		if (usersToDisconnect.any { this.game?.users?.contains(it) == true }) {
+			this.broadcast("E\nThe current game has been stopped.\n")
+			this.game = null
+		}
 		this.users.forEach { user ->
 			val sender = user.name
 			val input = user.input
@@ -129,7 +132,8 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 				return@forEach
 			}
 			this.broadcast("C\n$sender\n$input\n")
-			if (input == "/help") {
+			val args = input.split(" ")
+			if (args[0] == "/help") {
 				this.broadcast("I\nAnything typed in will be interpretted as a chat message unless prepended with a forward-slash.\n")
 				this.broadcast("I\nEntering \"/leave\" will allow you to leave the lobby. If a host leaves, the lobby is shutdown.\n")
 				this.broadcast("I\nIf anyone leaves during a game, the game is closed.\n")
@@ -140,7 +144,26 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 				this.broadcast("I\nTo see the rules of the game, please visit https://stacky.net/wiki/index.php?title=Quantum_Go_Fish.\n")
 				this.broadcast("I\nEnter \"/ask [PLAYER_NAME] [TYPE_NAME]\" to ask the given player about the given type.\n")
 				this.broadcast("I\nEnter \"/answer [ANSWER]\" to answer any question directed towards yourself. Answer must be 'y' for yes or 'n' for no.\n")
-			} else { //TODO: obviously I need to add in more commands (eg. command to start a game)
+			} else if (args[0] == "/start") {
+				if (this.game != null) {
+					this.broadcast("E\nCannot start game while another game is in process.\n")
+					return@forEach
+				}
+				if (user !is HostUser) {
+					this.broadcast("E\nOnly the host may start the game.\n")
+					return@forEach
+				}
+				val playerOrder = this.users.shuffled()
+				this.broadcast("V\nI\nStarting a game with player order [${playerOrder.joinToString(", ") { it.name }}].\n")
+				this.game = Game(playerOrder)
+				//TODO: print game  info
+			} else if (args[0] == "/ask") {
+				//TODO: do game stuff and print game info
+				this.broadcast("I\nTODO\n")
+			} else if (args[0] == "/answer") {
+				//TODO: do game stuff and print game info
+				this.broadcast("I\nTODO\n")
+			} else {
 				this.broadcast("E\nWas not able to interpret the command...\n")
 			}
 		}

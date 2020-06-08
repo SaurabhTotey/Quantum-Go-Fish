@@ -85,6 +85,9 @@ object TextUtil {
 			return false
 		}
 		val separatorCount = input.count { it == '\n' }
+		if (input == "V\n") {
+			return true
+		}
 		if  (input.startsWith("I") && separatorCount == 2) {
 			return true
 		}
