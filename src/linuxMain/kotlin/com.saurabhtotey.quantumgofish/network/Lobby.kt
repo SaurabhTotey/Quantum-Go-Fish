@@ -180,7 +180,10 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						this.broadcast("E\nCannot ask a question if it is not your turn to ask a question!\n")
 						return@forEach
 					}
-					//TODO: check that they haven't already asked a question
+					if (this.game!!.answerer != null) {
+						this.broadcast("E\nCannot ask a question if a question is already standing.\n")
+						return@forEach
+					}
 					if (args.size != 3) {
 						this.broadcast("E\nIncorrect number of arguments.\n")
 						return@forEach

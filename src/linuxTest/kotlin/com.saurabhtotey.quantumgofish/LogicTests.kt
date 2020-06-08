@@ -1,13 +1,8 @@
 package com.saurabhtotey.quantumgofish
 
-import com.saurabhtotey.quantumgofish.logic.GameObject
-import com.saurabhtotey.quantumgofish.logic.GameObjectType
-import com.saurabhtotey.quantumgofish.logic.Player
-import com.saurabhtotey.quantumgofish.logic.TypeManager
+import com.saurabhtotey.quantumgofish.logic.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-//TODO: more tests!!!!
 
 /**
  * A test that ensures that objects determine their type if all but one of their type possibilities is removed
@@ -60,9 +55,9 @@ import kotlin.test.assertEquals
 
 /**
  * A test that runs through the sample game on https://stacky.net/wiki/index.php?title=Quantum_Go_Fish and ensures that the output matches
- * TODO: question asking and moving of game objects is done manually: replace with the 'real' mechanisms once implemented
+ * This test manually facilitates the game and is more for testing the TypeManager
  */
-@Test fun sampleGame() {
+@Test fun sampleGameManual() {
 	val players = List(3) { Player(DummyUser(it)) }
 	val typeManager = TypeManager(players)
 	//Player A asks Player B if they have any of type 0, and B says yes
@@ -90,4 +85,36 @@ import kotlin.test.assertEquals
 	assertEquals(1, players[1].countOf(typeManager.gameObjectTypes[1]))
 	assertEquals(1, players[1].countOf(typeManager.gameObjectTypes[2]))
 	assertEquals(3, players[2].countOf(typeManager.gameObjectTypes[1]))
+}
+
+/**
+ * A test that runs through the sample game on https://stacky.net/wiki/index.php?title=Quantum_Go_Fish and ensures that the output matches
+ * This test facilitates the game using the actual Game class as is done during the actual application
+ */
+@Test fun sampleGameReal() {
+	val users = List(3) { DummyUser(it) }
+	val game = Game(users)
+	//Player A asks Player B if they have any of type 0, and B says yes
+	game.ask(users[1], game.typeManager.gameObjectTypes[0])
+	game.answer(true)
+	assertEquals(null, game.winner)
+	//Player B asks Player C if they have any of type 0, and C says yes
+	game.ask(users[2], game.typeManager.gameObjectTypes[0])
+	game.answer(true)
+	assertEquals(null, game.winner)
+	//Player C asks Player A if they have any of type 1, and A says no
+	game.ask(users[0], game.typeManager.gameObjectTypes[1])
+	game.answer(false)
+	assertEquals(null, game.winner)
+	//Player A asks Player C if they have any of type 2, and C says no
+	game.ask(users[2], game.typeManager.gameObjectTypes[2])
+	game.answer(false)
+	assertEquals(users[0], game.winner)
+	//Game is finished with the below state
+	assertEquals(2, game.players[0].countOf(game.typeManager.gameObjectTypes[0]))
+	assertEquals(3, game.players[0].countOf(game.typeManager.gameObjectTypes[2]))
+	assertEquals(2, game.players[1].countOf(game.typeManager.gameObjectTypes[0]))
+	assertEquals(1, game.players[1].countOf(game.typeManager.gameObjectTypes[1]))
+	assertEquals(1, game.players[1].countOf(game.typeManager.gameObjectTypes[2]))
+	assertEquals(3, game.players[2].countOf(game.typeManager.gameObjectTypes[1]))
 }
