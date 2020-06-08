@@ -1,6 +1,7 @@
 package com.saurabhtotey.quantumgofish.network
 
 import com.saurabhtotey.quantumgofish.TerminalManager
+import com.saurabhtotey.quantumgofish.TextUtil
 import com.saurabhtotey.quantumgofish.logic.Game
 import kotlinx.cinterop.*
 import platform.posix.*
@@ -95,6 +96,9 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	 * Broadcast still needs to conform to being interpretable as a host message
 	 */
 	private fun broadcast(broadcast: String) {
+		if (!TextUtil.isValidHostMessage(broadcast)) {
+			throw Error("Cannot broadcast \"$broadcast\" because it is not a valid host message!")
+		}
 		this.users.forEach { it.sendData(broadcast) }
 	}
 
@@ -126,7 +130,16 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			}
 			this.broadcast("C\n$sender\n$input\n")
 			if (input == "/help") {
-				this.broadcast("I\nTODO: I need to make some sort of help message for those in a lobby.\n")
+				this.broadcast("I\nAnything typed in will be interpretted as a chat message unless prepended with a forward-slash.\n")
+				this.broadcast("I\nEntering \"/leave\" will allow you to leave the lobby. If a host leaves, the lobby is shutdown.\n")
+				this.broadcast("I\nIf anyone leaves during a game, the game is closed.\n")
+				this.broadcast("I\nTo start a game, the host must enter \"/start [EASY_MODE]\".\n")
+				this.broadcast("I\nThe easy mode argument must be 'y' or 'n', where 'y' means yes and 'n' means no. The default is no.\n")
+				this.broadcast("I\nEasy mode just shows the state of the game after every turn.\n")
+				this.broadcast("I\nAll players in the lobby will join the game and the turn order will be randomized.\n")
+				this.broadcast("I\nTo see the rules of the game, please visit https://stacky.net/wiki/index.php?title=Quantum_Go_Fish.\n")
+				this.broadcast("I\nEnter \"/ask [PLAYER_NAME] [TYPE_NAME]\" to ask the given player about the given type.\n")
+				this.broadcast("I\nEnter \"/answer [ANSWER]\" to answer any question directed towards yourself. Answer must be 'y' for yes or 'n' for no.\n")
 			} else { //TODO: obviously I need to add in more commands (eg. command to start a game)
 				this.broadcast("E\nWas not able to interpret the command...\n")
 			}

@@ -46,7 +46,17 @@ object NetworkUtil {
 		val constituents = messageFromHost.split("\n")
 		when (constituents[0]) {
 			"I" -> {
-				terminalManager.print("${constituents[1]}\n", TerminalManager.Color.BLUE)
+				constituents[1].split("\"").forEachIndexed { i, messageChunk ->
+					val isCommand = i % 2 == 1
+					if (isCommand) {
+						terminalManager.print("\"", TerminalManager.Color.BLUE)
+					}
+					terminalManager.print(messageChunk, if (isCommand) TerminalManager.Color.MAGENTA else TerminalManager.Color.BLUE)
+					if (isCommand) {
+						terminalManager.print("\"", TerminalManager.Color.BLUE)
+					}
+				}
+				terminalManager.print("\n")
 			}
 			"M" -> {
 				terminalManager.print(constituents[1].padEnd(15), TerminalManager.Color.WHITE)
@@ -58,6 +68,9 @@ object NetworkUtil {
 			}
 			"E" -> {
 				terminalManager.print("${constituents[1]}\n", TerminalManager.Color.RED)
+			}
+			"V" -> {
+				terminalManager.clear()
 			}
 		}
 	}

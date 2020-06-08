@@ -14,32 +14,13 @@ fun main() {
 		//Prints initial instructions
 		terminalManager.clear()
 		terminalManager.print("Welcome to Quantum Go Fish!\n", TerminalManager.Color.BLUE)
-		terminalManager.print("\n")
 		terminalManager.print("To host a lobby, enter \"")
 		terminalManager.print("/host [PLAYER_NAME] [MAX_PLAYERS] [PORT_NUMBER] [PASSWORD]", TerminalManager.Color.MAGENTA)
-		terminalManager.print("\".\n")
-		terminalManager.print("To instead join a lobby, enter \"")
+		terminalManager.print("\".\nTo instead join a lobby, enter \"")
 		terminalManager.print("/join [PLAYER_NAME] [HOST_ADDRESS] [PORT_NUMBER] [PASSWORD]", TerminalManager.Color.MAGENTA)
-		terminalManager.print("\".\n")
-		terminalManager.print("\n")
-		//TODO: most of this information can be hidden behind /help: just expose that /help exists and then print the rest of this
-		terminalManager.print("Valid names for players and types are those that are alphabetic and at most 15 characters. All names will be uppercased.\n")
-		terminalManager.print("Port numbers must exceed 1024 and be lower than 65535; default port is 6669.\n")
-		terminalManager.print("Default amount for maximum number of players is 8.\n")
-		terminalManager.print("If no password is specified, an empty password is used. Passwords can be at most 15 characters.\n")
-		terminalManager.print("\n")
-		terminalManager.print("For help, enter \"")
+		terminalManager.print("\".\nFor help, enter \"")
 		terminalManager.print("/help", TerminalManager.Color.MAGENTA)
-		terminalManager.print("\".\n")
-		terminalManager.print("To quit, enter \"")
-		terminalManager.print("/exit", TerminalManager.Color.MAGENTA)
-		terminalManager.print("\". This command is disabled while in a lobby.\n")
-		terminalManager.print("If you are in a lobby, you may enter \"")
-		terminalManager.print("/leave", TerminalManager.Color.MAGENTA)
-		terminalManager.print("\" to return back to this menu. Leaving a game will stop the game for everyone. Leaving a lobby as a host closes the lobby.\n")
-		terminalManager.print("\n")
-		terminalManager.print("The up and down arrow keys may be used for scrolling.\n")
-		terminalManager.print("\n")
+		terminalManager.print("\".\nThe up and down arrow keys may be used for scrolling.\n")
 
 		//An input loop that runs until the user enters valid interpretable input
 		var input: String? = null
@@ -59,7 +40,17 @@ fun main() {
 				break@mainLoop
 			}
 			if (input == "/help") {
-				terminalManager.print("TODO: this is supposed to be some sort of help message.\n")
+				terminalManager.print("Valid names for players and types are those that are alphabetic and at most 15 characters. All names will be uppercased.\n")
+				terminalManager.print("Port numbers must exceed 1024 and be lower than 65535; default port is 6669.\n")
+				terminalManager.print("Default amount for maximum number of players is 8.\n")
+				terminalManager.print("If no password is specified, an empty password is used. Passwords can be at most 15 characters.\n")
+				terminalManager.print("\n")
+				terminalManager.print("To quit, enter \"")
+				terminalManager.print("/exit", TerminalManager.Color.MAGENTA)
+				terminalManager.print("\". This command is disabled while in a lobby.\n")
+				terminalManager.print("If you are in a lobby, you may enter \"")
+				terminalManager.print("/leave", TerminalManager.Color.MAGENTA)
+				terminalManager.print("\" to return back to this menu. Leaving a game will stop the game for everyone. Leaving a lobby as a host closes the lobby.\n")
 				continue@inputLoop
 			}
 			if (!input.startsWith("/host ") && !input.startsWith("/join ")) {
