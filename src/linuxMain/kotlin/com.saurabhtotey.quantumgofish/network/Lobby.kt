@@ -108,7 +108,19 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	 * Returns if the game is done
 	 */
 	private fun runGameCommand(gameCommand: () -> Unit): Boolean {
-		//TODO:
+		try {
+			gameCommand()
+			val winner = this.game!!.winner
+			if (winner != null) {
+				this.broadcast("G\n${winner.name} has won the game!\n")
+				return true
+			}
+		} catch (e: Exception) {
+			this.broadcast("E\n${e.message?.replace("\n", " ") ?: "An error hapenned in the game."}\n")
+			this.broadcast("G\nSince the game entered an incorrect state, the game has ended and everyone has lost.\n")
+			this.game = null
+			return true
+		}
 		return false
 	}
 

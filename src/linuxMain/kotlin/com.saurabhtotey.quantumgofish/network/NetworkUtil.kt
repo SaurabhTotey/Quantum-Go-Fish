@@ -13,6 +13,7 @@ import platform.posix.*
  * An object that handles the common yucky C methods methods and wraps them in nicer functions
  * Also just handles common networking stuff
  * Is meant for use by Lobby and Client, but doesn't handle all the C methods that might be needed by either of them
+ * TODO: ensure unicode support and make sure everything is platform.posix instead of platform.linux
  */
 object NetworkUtil {
 
