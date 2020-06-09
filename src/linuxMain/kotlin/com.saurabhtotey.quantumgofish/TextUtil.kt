@@ -107,4 +107,17 @@ object TextUtil {
 		return false
 	}
 
+	/**
+	 * Tries to interpret the given string as a boolean
+	 * null if the string cannot be interpretted
+	 */
+	fun interpretAsBoolean(input: String): Boolean? {
+		if (input.toLowerCase() in setOf("y", "yes", "t", "true")) {
+			return true
+		} else if (input.toLowerCase() in setOf("n", "no", "f", "false")) {
+			return false
+		}
+		return null
+	}
+
 }

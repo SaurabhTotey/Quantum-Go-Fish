@@ -23,6 +23,9 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	//The current in-progress game if any
 	private var game: Game? = null
 
+	//Whether the in-progress game is in easy mode (null if no game)
+	private var isGameInEasyMode: Boolean? = null
+
 	/**
 	 * Binds the socket to the given port and listens for incoming connections
 	 */
@@ -113,12 +116,15 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			val winner = this.game!!.winner
 			if (winner != null) {
 				this.broadcast("G\n${winner.name} has won the game!\n")
+				this.game = null
+				this.isGameInEasyMode = null
 				return true
 			}
 		} catch (e: Exception) {
 			this.broadcast("E\n${e.message?.replace("\n", " ") ?: "An error hapenned in the game."}\n")
 			this.broadcast("G\nSince the game entered an incorrect state, the game has ended and everyone has lost.\n")
 			this.game = null
+			this.isGameInEasyMode = null
 			return true
 		}
 		return false
@@ -177,7 +183,15 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						this.broadcast("E\nOnly the host may start the game.\n")
 						return@forEach
 					}
-					//TODO: easy mode stuff
+					if (args.size > 2) {
+						this.broadcast("E\nToo many arguments.\n")
+						return@forEach
+					}
+					this.isGameInEasyMode = if (args.size == 2) { TextUtil.interpretAsBoolean(args[1]) } else { false }
+					if (this.isGameInEasyMode == null) {
+						this.broadcast("E\nCould not parse whether the game should be in easy mode or not.\n")
+						return@forEach
+					}
 					val playerOrder = this.users.shuffled()
 					this.broadcast("V\nG\nStarting a game with player order [${playerOrder.joinToString(", ") { it.name }}].\n")
 					this.game = Game(playerOrder)
@@ -216,7 +230,9 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						}
 					}
 					this.broadcast("G\n${this.game!!.questioner.name} has asked ${args[1]} if they have any objects of type $type.\n")
-					this.runGameCommand { this.game!!.ask(this.users.find { it.name == args[1] }!!, type!!) }
+					if (!this.runGameCommand { this.game!!.ask(this.users.find { it.name == args[1] }!!, type!!) } && this.isGameInEasyMode!!) {
+						//TODO: easy mode stuff
+					}
 				}
 				args[0] == "/answer" -> {
 					//TODO: do game stuff and print game info
