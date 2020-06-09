@@ -27,7 +27,8 @@ class Game(val users: List<User>) {
 		get() = this.players[questionerIndex].user
 
 	//The type that is being asked about by questioner to answerer (null if none)
-	private var typeInQuestion: GameObjectType? = null
+	var typeInQuestion: GameObjectType? = null
+		private set
 
 	//The user who must answer to questioner whether they have an object of typeInQuestion (null if none)
 	var answerer: User? = null

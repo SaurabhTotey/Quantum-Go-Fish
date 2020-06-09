@@ -8,6 +8,8 @@ import platform.posix.*
 
 /**
  * A class that manages a group of users and running their games
+ * This class is monstorous in size because it handles everything about managing games and players and connections and such
+ * Most of the size of this class comes from interpretting commands
  */
 class Lobby(private val terminalManager: TerminalManager, hostName: String, maxPlayers: Int, port: Int, private val password: String) {
 
@@ -124,6 +126,9 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			val winner = this.game!!.winner
 			if (winner != null) {
 				this.broadcast("G\n${winner.name} has won the game!\n")
+				if (this.isGameInEasyMode!!) {
+					//TODO: easy mode stuff
+				}
 				this.game = null
 				return true
 			}
@@ -241,8 +246,31 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 					}
 				}
 				args[0] == "/answer" -> {
-					//TODO: do game stuff and print game info
-					this.broadcast("I\nTODO\n")
+					if (this.game == null) {
+						this.broadcast("E\nCannot answer a question when no game is in progress.\n")
+						return@forEach
+					}
+					if (user != this.game!!.answerer) {
+						this.broadcast("E\nCannot answer a question if it is not your turn to answer a question!\n")
+						return@forEach
+					}
+					if (args.size != 2) {
+						this.broadcast("E\nIncorrect number of arguments.\n")
+						return@forEach
+					}
+					val hasType = TextUtil.interpretAsBoolean(args[1])
+					if (hasType == null) {
+						this.broadcast("E\nCould not parse whether the answer was yes or no.\n")
+						return@forEach
+					}
+					if (hasType) {
+						this.broadcast("G\n${this.game!!.answerer!!.name} has answered that they do have an object of type ${this.game!!.typeInQuestion!!.name}. They will give an object of that type to ${this.game!!.questioner}.\n")
+					} else {
+						this.broadcast("G\n${this.game!!.answerer!!.name} has answered that they don't have an object of type ${this.game!!.typeInQuestion!!.name}.\n")
+					}
+					if (!this.runGameCommand { this.game!!.answer(hasType) } && this.isGameInEasyMode!!) {
+						//TODO: easy mode stuff
+					}
 				}
 				else -> {
 					this.broadcast("E\nWas not able to interpret the command...\n")
