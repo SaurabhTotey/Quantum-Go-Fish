@@ -75,7 +75,6 @@ object TextUtil {
 
 	/**
 	 * Returns whether the input is a complete message from the host that can be interpretted
-	 * TODO: there are more checks that can be done for validity of host message
 	 */
 	fun isValidHostMessage(input: String): Boolean {
 		if (!input.endsWith("\n")) {
@@ -85,16 +84,17 @@ object TextUtil {
 			return false
 		}
 		val separatorCount = input.count { it == '\n' }
+		val args = input.split("\n")
 		if (input == "V\n") {
 			return true
 		}
 		if  (input.startsWith("I") && separatorCount == 2) {
 			return true
 		}
-		if (input.startsWith("M") && separatorCount == 3) {
+		if (input.startsWith("M") && separatorCount == 3 && this.isValidName(args[1]).isBlank()) {
 			return true
 		}
-		if (input.startsWith("C") && separatorCount == 3) {
+		if (input.startsWith("C") && separatorCount == 3 && this.isValidName(args[1]).isBlank()) {
 			return true
 		}
 		if (input.startsWith("E") && separatorCount == 2) {
@@ -103,7 +103,6 @@ object TextUtil {
 		if (input.startsWith("G") && separatorCount == 2) {
 			return true
 		}
-		//TODO:
 		return false
 	}
 
