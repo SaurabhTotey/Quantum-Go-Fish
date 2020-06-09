@@ -27,7 +27,7 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 		set(value) {
 			if (value == null) {
 				this.isGameInEasyMode = null
-			} else if (this.isGameInEasyMode != null) {
+			} else if (this.isGameInEasyMode == null) {
 				throw Exception("Cannot set the game of a lobby if the easy mode setting has not been set!")
 			}
 			field = value
@@ -194,6 +194,10 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						this.broadcast("E\nOnly the host may start the game.\n")
 						return@forEach
 					}
+					if (this.users.size < 2) {
+						this.broadcast("E\nCannot start a game with less than 2 players.\n")
+						return@forEach
+					}
 					if (args.size > 2) {
 						this.broadcast("E\nToo many arguments.\n")
 						return@forEach
@@ -204,7 +208,8 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						return@forEach
 					}
 					val playerOrder = this.users.shuffled()
-					this.broadcast("V\nG\nStarting a game with player order [${playerOrder.joinToString(", ") { it.name }}].\n")
+					this.broadcast("V\n")
+					this.broadcast("G\nStarting a game with player order [${playerOrder.joinToString(", ") { it.name }}].\n")
 					this.game = Game(playerOrder)
 					this.broadcast("G\nIt is ${this.game!!.questioner.name}'s turn to ask a question!\n")
 				}
@@ -225,23 +230,25 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						this.broadcast("E\nIncorrect number of arguments.\n")
 						return@forEach
 					}
-					if (!this.game!!.users.any { it.name == args[1] }) {
-						this.broadcast("E\nThere is no player with the name \"${args[1]}\" in the current game.\n")
+					val name = args[1].toUpperCase()
+					if (!this.game!!.users.any { it.name == name }) {
+						this.broadcast("E\nThere is no player with the name \"${name}\" in the current game.\n")
 						return@forEach
 					}
-					val validatorResponse = TextUtil.isValidName(args[2])
+					val typeName = args[2].toUpperCase()
+					val validatorResponse = TextUtil.isValidName(typeName)
 					if (validatorResponse.isNotEmpty()) {
 						this.broadcast("E\nGiven type name is not valid. $validatorResponse\n")
 						return@forEach
 					}
-					var type = this.game!!.typeManager.gameObjectTypes.firstOrNull { it.name == args[2] }
+					var type = this.game!!.typeManager.gameObjectTypes.firstOrNull { it.name == typeName }
 					if (type == null) {
-						if (this.runGameCommand { type = this.game!!.typeManager.registerTypeName(args[2]) }) {
+						if (this.runGameCommand { type = this.game!!.typeManager.registerTypeName(typeName) }) {
 							return@forEach
 						}
 					}
-					this.broadcast("G\n${this.game!!.questioner.name} has asked ${args[1]} if they have any objects of type $type.\n")
-					if (!this.runGameCommand { this.game!!.ask(this.users.find { it.name == args[1] }!!, type!!) } && this.isGameInEasyMode!!) {
+					this.broadcast("G\n${this.game!!.questioner.name} has asked $name if they have any objects of type $typeName.\n")
+					if (!this.runGameCommand { this.game!!.ask(this.users.find { it.name == name }!!, type!!) } && this.isGameInEasyMode!!) {
 						//TODO: easy mode stuff
 					}
 				}
@@ -264,11 +271,15 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						return@forEach
 					}
 					if (hasType) {
-						this.broadcast("G\n${this.game!!.answerer!!.name} has answered that they do have an object of type ${this.game!!.typeInQuestion!!.name}. They will give an object of that type to ${this.game!!.questioner}.\n")
+						this.broadcast("G\n${this.game!!.answerer!!.name} has answered that they do have an object of type ${this.game!!.typeInQuestion!!.name}. They will give an object of that type to ${this.game!!.questioner.name}.\n")
 					} else {
 						this.broadcast("G\n${this.game!!.answerer!!.name} has answered that they don't have an object of type ${this.game!!.typeInQuestion!!.name}.\n")
 					}
-					if (!this.runGameCommand { this.game!!.answer(hasType) } && this.isGameInEasyMode!!) {
+					if (this.runGameCommand { this.game!!.answer(hasType) }) {
+						return@forEach
+					}
+					this.broadcast("G\nIt is ${this.game!!.questioner.name}'s turn to ask a question!\n")
+					if (this.isGameInEasyMode!!) {
 						//TODO: easy mode stuff
 					}
 				}

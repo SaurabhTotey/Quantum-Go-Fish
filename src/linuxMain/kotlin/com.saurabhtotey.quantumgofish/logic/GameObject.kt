@@ -29,6 +29,13 @@ data class GameObjectType(val id: Int, var name: String = UNKNOWN_TYPE_STRING) {
 			}
 		}
 
+	/**
+	 * Only the id of this type is needed for creating a hash: each unique type should have a unique id
+	 */
+	override fun hashCode(): Int {
+		return this.id
+	}
+
 }
 
 /**
