@@ -116,6 +116,16 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 	}
 
 	/**
+	 * A method that broadcasts the current in-progress game's state
+	 * Is used if a game is in easy mode to make seeing the state easier
+	 */
+	private fun broadcastGameState() {
+		this.game!!.players.forEach { player ->
+			this.broadcast("G\n${player.user.name.padEnd(16)}${player.gameObjects.joinToString { (it.determinedType?.name ?: "?").padEnd(16) }}\n")
+		}
+	}
+
+	/**
 	 * A method that handles running a game command safely
 	 * Will check for winners or if the game has been lost and also handles exceptions
 	 * Returns if the game is done
@@ -125,10 +135,11 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			gameCommand()
 			val winner = this.game!!.winner
 			if (winner != null) {
-				this.broadcast("G\n${winner.name} has won the game!\n")
+				val winnerByFourTypes = this.game!!.players.first { it.user == winner }.gameObjects.map { it.determinedType?.id }.distinct().size == 1
 				if (this.isGameInEasyMode!!) {
-					//TODO: easy mode stuff
+					this.broadcastGameState()
 				}
+				this.broadcast("G\n${winner.name} has won the game by ${if (winnerByFourTypes) "owning 4 of a type" else "asking a question that revealed the entire game state"}!\n")
 				this.game = null
 				return true
 			}
@@ -248,9 +259,13 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						}
 					}
 					this.broadcast("G\n${this.game!!.questioner.name} has asked $name if they have any objects of type $typeName.\n")
-					if (!this.runGameCommand { this.game!!.ask(this.users.find { it.name == name }!!, type!!) } && this.isGameInEasyMode!!) {
-						//TODO: easy mode stuff
+					if (this.runGameCommand { this.game!!.ask(this.users.find { it.name == name }!!, type!!) }) {
+						return@forEach
 					}
+					if (this.isGameInEasyMode!!) {
+						this.broadcastGameState()
+					}
+					this.broadcast("G\n$name must answer whether they do or do not have an object of type $typeName.\n")
 				}
 				args[0] == "/answer" -> {
 					if (this.game == null) {
@@ -278,10 +293,10 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 					if (this.runGameCommand { this.game!!.answer(hasType) }) {
 						return@forEach
 					}
-					this.broadcast("G\nIt is ${this.game!!.questioner.name}'s turn to ask a question!\n")
 					if (this.isGameInEasyMode!!) {
-						//TODO: easy mode stuff
+						this.broadcastGameState()
 					}
+					this.broadcast("G\nIt is ${this.game!!.questioner.name}'s turn to ask a question!\n")
 				}
 				else -> {
 					this.broadcast("E\nWas not able to interpret the command...\n")
