@@ -22,6 +22,14 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 
 	//The current in-progress game if any
 	private var game: Game? = null
+		set(value) {
+			if (value == null) {
+				this.isGameInEasyMode = null
+			} else if (this.isGameInEasyMode != null) {
+				throw Exception("Cannot set the game of a lobby if the easy mode setting has not been set!")
+			}
+			field = value
+		}
 
 	//Whether the in-progress game is in easy mode (null if no game)
 	private var isGameInEasyMode: Boolean? = null
@@ -117,14 +125,12 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			if (winner != null) {
 				this.broadcast("G\n${winner.name} has won the game!\n")
 				this.game = null
-				this.isGameInEasyMode = null
 				return true
 			}
 		} catch (e: Exception) {
 			this.broadcast("E\n${e.message?.replace("\n", " ") ?: "An error hapenned in the game."}\n")
 			this.broadcast("G\nSince the game entered an incorrect state, the game has ended and everyone has lost.\n")
 			this.game = null
-			this.isGameInEasyMode = null
 			return true
 		}
 		return false
@@ -187,7 +193,7 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 						this.broadcast("E\nToo many arguments.\n")
 						return@forEach
 					}
-					this.isGameInEasyMode = if (args.size == 2) { TextUtil.interpretAsBoolean(args[1]) } else { false }
+					this.isGameInEasyMode = if (args.size == 2) TextUtil.interpretAsBoolean(args[1]) else false
 					if (this.isGameInEasyMode == null) {
 						this.broadcast("E\nCould not parse whether the game should be in easy mode or not.\n")
 						return@forEach
