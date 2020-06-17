@@ -135,11 +135,11 @@ class Lobby(private val terminalManager: TerminalManager, hostName: String, maxP
 			gameCommand()
 			val winner = this.game!!.winner
 			if (winner != null) {
-				val winnerByFourTypes = this.game!!.players.first { it.user == winner }.gameObjects.map { it.determinedType?.id }.distinct().size == 1
+				val isWinnerByFourTypes = this.game!!.players.any { player -> this.game!!.typeManager.gameObjectTypes.any { player.countOf(it) == 4 } }
 				if (this.isGameInEasyMode!!) {
 					this.broadcastGameState()
 				}
-				this.broadcast("G\n${winner.name} has won the game by ${if (winnerByFourTypes) "owning 4 of a type" else "asking a question that revealed the entire game state"}!\n")
+				this.broadcast("G\n${winner.name} has won the game by ${if (isWinnerByFourTypes) "owning 4 of a type" else "asking a question that revealed the entire game state"}!\n")
 				this.game = null
 				return true
 			}
