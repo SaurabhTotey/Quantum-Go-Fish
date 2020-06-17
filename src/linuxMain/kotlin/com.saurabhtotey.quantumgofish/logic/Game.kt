@@ -45,7 +45,7 @@ class Game(val users: List<User>) {
 			}
 			var winner = this.players.firstOrNull { player -> this.typeManager.gameObjectTypes.any { type -> player.countOf(type) == 4 } }?.user
 			if (winner == null && typeManager.gameObjects.all { it.determinedType != null }) {
-				this.questionerIndex -= 1
+				this.questionerIndex -= 1 //TODO: yuck, side effect
 				winner = this.questioner
 			}
 			return winner
